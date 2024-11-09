@@ -1,0 +1,96 @@
+{
+    "username": "stew",
+    "hashed_password": "$2b$12$cwu12pqh20qfxN35Di650u6fa.CvoFBLAKBjmGNuxHnwPeEH/6Oga",
+    "products": [
+        {
+            "asin": "B0CYKCTWGS",
+            "title": "HONOR Pad 9 12,1 Pollici 120Hz 2.5K Fullview Display 8GB/256GB WIFI 8300mAh Batteria Tablet, Qualcomm 4nm Snapdragon 6 Gen 1, 8 Altoparlanti, Android 13, Space Gray [Versione italiana]",
+            "price": "249.90",
+            "image_url": "https://m.media-amazon.com/images/I/71PCVYs6BgL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-09 21:44:19",
+            "price_history": [
+                {
+                    "date": "2024-11-09 21:44:19",
+                    "price": "249.90"
+                }
+            ],
+            "product_url": "https://www.amazon.it/HONOR-Fullview-Batteria-Snapdragon-Altoparlanti/dp/B0CYKCTWGS/",
+            "insertion_date": "2024-11-09 21:44:19"
+        },
+        {
+            "asin": "B0CST8ZHBC",
+            "title": "HONOR Pad 9, tablet Wi-Fi da 12,1, 8 GB+256 GB, display con protezione degli occhi a 120 Hz, 2,5K, 8 altoparlanti, Android 13, Space Grey, 5301AHKN",
+            "price": "259.90",
+            "image_url": "https://m.media-amazon.com/images/I/71178LRzzkL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-09 21:44:29",
+            "price_history": [
+                {
+                    "date": "2024-11-09 21:44:29",
+                    "price": "259.90"
+                }
+            ],
+            "product_url": "https://www.amazon.it/HONOR-display-protezione-altoparlanti-5301AHKN/dp/B0CST8ZHBC/",
+            "insertion_date": "2024-11-09 21:44:29"
+        },
+        {
+            "asin": "B0D2W46D1F",
+            "title": "HONOR Pad 9 Tablet, 8+256GB, 12.1\u201d 120Hz 2.5K Display protettivo per gli occhi, 4nm Snapdragon 6 Gen1, Grigio",
+            "price": "249.00",
+            "image_url": "https://m.media-amazon.com/images/I/51LjdBiJopL.__AC_SY300_SX300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-09 21:45:09",
+            "price_history": [
+                {
+                    "date": "2024-11-09 21:45:09",
+                    "price": "249.00"
+                }
+            ],
+            "product_url": "https://www.amazon.it/HONOR-Pad-Display-protettivo-Snapdragon/dp/B0D2W46D1F/",
+            "insertion_date": "2024-11-09 21:45:09"
+        },
+        {
+            "asin": "B0CRH9R5GQ",
+            "title": "HONOR Pad 9 8GB 256GB Tablet, 12,1 Pollici 120Hz 2.5K Fullview Display, Snapdragon 6 Gen 1, 8 Altoparlanti, Corpo in Metallo, Android 13, Google Service WIFI Tablet, Verde",
+            "price": "249.00",
+            "image_url": "https://m.media-amazon.com/images/I/71B1ZZLfMvL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-09 21:45:23",
+            "price_history": [
+                {
+                    "date": "2024-11-09 21:45:23",
+                    "price": "249.00"
+                }
+            ],
+            "product_url": "https://www.amazon.it/HONOR-Pollici-Fullview-Snapdragon-Altoparlanti/dp/B0CRH9R5GQ/",
+            "insertion_date": "2024-11-09 21:45:23"
+        },
+        {
+            "asin": "B0CWGT96VR",
+            "title": "HONOR Pad 9 Tablet,12,1 Pollici Touch Screen, 120Hz 2,5K Fullview Display, Android da 13, 8GB RAM 256GB ROM, 8 Altoparlante, 8300mAh, Wi-Fi, Bluetooth, (Grigio Spazio)",
+            "price": "269.90",
+            "image_url": "https://m.media-amazon.com/images/I/61kOCY2XixL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-09 21:45:37",
+            "price_history": [
+                {
+                    "date": "2024-11-09 21:45:37",
+                    "price": "269.90"
+                }
+            ],
+            "product_url": "https://www.amazon.it/HONOR-Pad-Fullview-Altoparlante-Bluetooth/dp/B0CWGT96VR/",
+            "insertion_date": "2024-11-09 21:45:37"
+        },
+        {
+            "asin": "B0CSFPQDRS",
+            "title": "HONOR Pad 9 Tablet 8+256GB, schermo da 12.1\u201d 120Hz 2.5K con protezione, 4nm Snapdragon 6 Gen1, 8300mAh, 8 altoparlanti, Android 13, Google Service WiFi Tablet, Grigio",
+            "price": "249.90",
+            "image_url": "https://m.media-amazon.com/images/I/51LjdBiJopL.__AC_SY300_SX300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-09 21:46:08",
+            "price_history": [
+                {
+                    "date": "2024-11-09 21:46:08",
+                    "price": "249.90"
+                }
+            ],
+            "product_url": "https://www.amazon.it/HONOR-protettivo-Snapdragon-Potenziamento-altoparlanti/dp/B0CSFPQDRS/",
+            "insertion_date": "2024-11-09 21:46:08"
+        }
+    ]
+}

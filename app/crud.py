@@ -1,11 +1,12 @@
 # app/crud.py
-
 import json
 import os
 from app.scraper import fetch_product_data
+from datetime import datetime
 
 USER_DATA_DIR = "data/users"
 
+# Funzione per aggiungere un prodotto al file JSON dell'utente
 # Funzione per aggiungere un prodotto al file JSON dell'utente
 def add_product_to_user(username, product_url):
     user_file = f"{USER_DATA_DIR}/{username}.json"
@@ -15,7 +16,11 @@ def add_product_to_user(username, product_url):
     # Recupera i dati del prodotto tramite scraping
     product_data = fetch_product_data(product_url)
     
-    # Aggiunge il nuovo prodotto o aggiorna se già esiste
+    # Aggiungi `product_url` e `insertion_date`
+    product_data["product_url"] = product_url  # Salva l'URL originale
+    product_data["insertion_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Data di inserimento
+
+    # Aggiunge il nuovo prodotto o verifica se già esiste
     with open(user_file, "r+") as f:
         user_data = json.load(f)
         products = user_data.get("products", [])
@@ -34,6 +39,7 @@ def add_product_to_user(username, product_url):
         f.truncate()
 
     return {"message": "Prodotto aggiunto con successo"}
+
 
 # Funzione per ottenere la cronologia dei prezzi di un prodotto
 def get_price_history(username, asin):

@@ -63,7 +63,6 @@ async def price_history(asin: str, current_user: str = Depends(get_current_user)
         raise HTTPException(status_code=500, detail="Errore interno del server")
 
 
-
 def update_prices():
     """Aggiorna il prezzo di tutti i prodotti monitorati per ogni utente."""
     for user_file in os.listdir(USER_DATA_DIR):
@@ -72,34 +71,38 @@ def update_prices():
             user_data = json.load(f)
             for product in user_data.get("products", []):
                 try:
-                    updated_data = fetch_product_data(f"https://www.amazon.com/dp/{product['asin']}")
+                    # Usa l'URL originale per lo scraping
+                    updated_data = fetch_product_data(product["product_url"])
                     if updated_data is None:
                         print(f"Prezzo non disponibile per ASIN {product['asin']}, salto aggiornamento")
                         continue
 
                     new_price = updated_data["price"]
+                    last_price = product["price_history"][-1]["price"] if product["price_history"] else None
 
-                    # Aggiorna lo storico dei prezzi solo se è disponibile un nuovo prezzo valido
-                    product["price_history"].append({
-                        "date": updated_data["extraction_date"],
-                        "price": new_price
-                    })
-
-                    # Aggiorna il prezzo corrente
-                    product["price"] = new_price
+                    # Aggiorna solo se il nuovo prezzo è diverso dall'ultimo prezzo registrato
+                    if new_price != last_price:
+                        product["price_history"].append({
+                            "date": updated_data["extraction_date"],
+                            "price": new_price
+                        })
+                        product["price"] = new_price
+                        print(f"Prezzo aggiornato per ASIN {product['asin']}: {new_price}")
+                    else:
+                        print(f"Nessun cambiamento di prezzo per ASIN {product['asin']}, non si aggiorna.")
 
                 except Exception as e:
                     print(f"Errore durante l'aggiornamento del prodotto {product['asin']}: {e}")
-                    continue  # Ignora e passa al prodotto successivo
+                    continue
 
             # Scrivi i dati aggiornati sul file JSON
             f.seek(0)
             json.dump(user_data, f, indent=4)
             f.truncate()
-
 # Inizializzazione del job scheduler
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_prices, 'interval', hours=1) 
+#scheduler.add_job(update_prices, 'interval', seconds=30) 
+scheduler.add_job(update_prices, 'interval', hours=24) 
 scheduler.start()
 
 @app.on_event("shutdown")
