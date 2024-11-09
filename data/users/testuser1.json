@@ -1,0 +1,18 @@
+{
+    "username": "testuser1",
+    "hashed_password": "$2b$12$zutClYxKN/nkWI7s.d9Xa.RN.WO4EWeBpDSgGm.aIMtHv.zzrfBSK",
+    "products": [
+        {
+            "asin": "B0DGJ8KPGN",
+            "title": "Apple iPhone 16 Pro Max 512 GB: Telefono 5G con Controllo fotocamera, Dolby Vision 4K a 120 fps e un\u2019autonomia senza precedenti. Compatibile con AirPods; Titanio bianco",
+            "price": "1.739.00",
+            "extraction_date": "2024-11-09 12:10:02",
+            "price_history": [
+                {
+                    "date": "2024-11-09 12:10:02",
+                    "price": "1.739.00"
+                }
+            ]
+        }
+    ]
+}
