@@ -1,12 +1,13 @@
 # app/crud.py
+
 import json
 import os
 from app.scraper import fetch_product_data
 
 USER_DATA_DIR = "data/users"
 
+# Funzione per aggiungere un prodotto al file JSON dell'utente
 def add_product_to_user(username, product_url):
-    """Aggiunge un prodotto al file JSON dell'utente."""
     user_file = f"{USER_DATA_DIR}/{username}.json"
     if not os.path.exists(user_file):
         raise ValueError("Utente non trovato")
@@ -34,10 +35,8 @@ def add_product_to_user(username, product_url):
 
     return {"message": "Prodotto aggiunto con successo"}
 
-
-# app/crud.py (aggiunta)
+# Funzione per ottenere la cronologia dei prezzi di un prodotto
 def get_price_history(username, asin):
-    """Recupera lo storico prezzi di un prodotto dato l'ASIN."""
     user_file = f"{USER_DATA_DIR}/{username}.json"
     if not os.path.exists(user_file):
         raise ValueError("Utente non trovato")
@@ -50,3 +49,37 @@ def get_price_history(username, asin):
 
         return product["price_history"]
 
+# Funzione per ottenere tutti i prodotti monitorati di un utente
+def get_user_products(username):
+    user_file = f"{USER_DATA_DIR}/{username}.json"
+    if not os.path.exists(user_file):
+        raise ValueError("Utente non trovato")
+
+    with open(user_file, "r") as f:
+        user_data = json.load(f)
+        return user_data.get("products", [])
+
+# Funzione per rimuovere un prodotto dal file JSON dell'utente
+def remove_product_from_user(username, asin):
+    user_file = f"{USER_DATA_DIR}/{username}.json"
+    if not os.path.exists(user_file):
+        raise ValueError("Utente non trovato")
+
+    with open(user_file, "r+") as f:
+        user_data = json.load(f)
+        products = user_data.get("products", [])
+
+        # Filtra il prodotto da eliminare in base all'ASIN
+        new_products = [product for product in products if product["asin"] != asin]
+        
+        # Se il numero di prodotti non cambia, significa che l'ASIN non è stato trovato
+        if len(new_products) == len(products):
+            raise ValueError("Prodotto non trovato")
+
+        # Aggiorna i prodotti e riscrivi il file JSON
+        user_data["products"] = new_products
+        f.seek(0)
+        json.dump(user_data, f, indent=4)
+        f.truncate()
+
+    return {"message": "Prodotto eliminato con successo"}

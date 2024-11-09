@@ -2,13 +2,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
-from typing import Optional
 import bcrypt
 import jwt
 import json
 import os
 from datetime import datetime, timedelta
+from typing import Optional
 from app.config import SECRET_KEY
+from app.crud import get_user_products, add_product_to_user, remove_product_from_user  # Importa la funzione per aggiungere prodotti
 
 router = APIRouter()
 
@@ -26,7 +27,11 @@ class User(BaseModel):
 class UserInDB(User):
     hashed_password: str
 
-# Helper per registrare un nuovo utente
+# Modello per la richiesta di aggiunta di un prodotto
+class ProductRequest(BaseModel):
+    product_url: str
+
+# Funzione helper per registrare un nuovo utente
 def create_user_file(username, hashed_password):
     user_data = {
         "username": username,
@@ -92,3 +97,37 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
             detail="Token non valido",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+# Endpoint per ottenere i dati della dashboard
+@router.get("/dashboard")
+async def dashboard(current_user: str = Depends(get_current_user)):
+    try:
+        products = get_user_products(current_user)
+        return {"products": products}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Errore nel caricamento della dashboard")
+
+# Endpoint per aggiungere un prodotto
+@router.post("/add-product/")
+async def add_product(request: ProductRequest, current_user: str = Depends(get_current_user)):
+    try:
+        result = add_product_to_user(current_user, request.product_url)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Errore interno del server")
+
+
+# Endpoint per eliminare un prodotto monitorato dall'utente
+@router.delete("/remove-product/{asin}")
+async def remove_product(asin: str, current_user: str = Depends(get_current_user)):
+    try:
+        result = remove_product_from_user(current_user, asin)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Errore durante l'eliminazione del prodotto")

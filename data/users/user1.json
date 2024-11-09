@@ -3,14 +3,28 @@
     "hashed_password": "$2b$12$s1xrYJGPwZFwKPrxTYblC.HWUTYcx/QDFRf9u4codReafbycnAaKi",
     "products": [
         {
-            "asin": "B0D3KRGN4X",
-            "title": "HONOR Pad 9 Tablet,12,1 Pollici Touch Screen, 120Hz 2,5K Fullview Display, Android da 13, 8GB RAM 256GB ROM, 8 Altoparlante, 8300mAh, Wi-Fi, Bluetooth, (Cyan Lake)",
-            "price": "265.90",
-            "extraction_date": "2024-11-09 12:12:39",
+            "asin": "B09B2TH45G",
+            "title": "Echo Show 5 (3\u00aa generazione) | Schermo touch intelligente e compatto, con Alexa: controllo della Casa Intelligente e molto altro | Bianco",
+            "price": "109.99",
+            "image_url": "https://m.media-amazon.com/images/I/61ZDzoiSVsL._AC_SY300_SX300_.jpg",
+            "extraction_date": "2024-11-09 15:03:44",
             "price_history": [
                 {
-                    "date": "2024-11-09 12:12:39",
-                    "price": "265.90"
+                    "date": "2024-11-09 15:03:44",
+                    "price": "109.99"
+                }
+            ]
+        },
+        {
+            "asin": "B091CQH6VT",
+            "title": "Sony WH-1000XM4 | Cuffie Wireless con Noise Cancelling, Connessione Multipoint, Fino a 30 ore di durata della batteria e Ricarica rapida - Blu",
+            "price": "249.00",
+            "image_url": "https://m.media-amazon.com/images/I/61UQZusYyqS.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-09 15:31:38",
+            "price_history": [
+                {
+                    "date": "2024-11-09 15:31:38",
+                    "price": "249.00"
                 }
             ]
         }

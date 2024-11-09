@@ -1,0 +1,32 @@
+{
+    "username": "user2",
+    "hashed_password": "$2b$12$QHUdb/2JNMqu6tT.P4ucqO/BQx.HgToLEo1XMv33C1m9.V2Iilotu",
+    "products": [
+        {
+            "asin": "B0BTDX26B2",
+            "title": "Sony WH-CH720N | Cuffie Wireless con Noise Cancelling, Connessione Multipoint, Fino a 35 ore di durata della batteria e Ricarica Rapida - Nero",
+            "price": "79.00",
+            "image_url": "https://m.media-amazon.com/images/I/71iWkjXCu9L.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-09 15:08:16",
+            "price_history": [
+                {
+                    "date": "2024-11-09 15:08:16",
+                    "price": "79.00"
+                }
+            ]
+        },
+        {
+            "asin": "B091CQH6VT",
+            "title": "Sony WH-1000XM4 | Cuffie Wireless con Noise Cancelling, Connessione Multipoint, Fino a 30 ore di durata della batteria e Ricarica rapida - Blu",
+            "price": "249.00",
+            "image_url": "https://m.media-amazon.com/images/I/61UQZusYyqS.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-09 15:28:54",
+            "price_history": [
+                {
+                    "date": "2024-11-09 15:28:54",
+                    "price": "249.00"
+                }
+            ]
+        }
+    ]
+}

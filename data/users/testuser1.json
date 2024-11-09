@@ -3,14 +3,22 @@
     "hashed_password": "$2b$12$zutClYxKN/nkWI7s.d9Xa.RN.WO4EWeBpDSgGm.aIMtHv.zzrfBSK",
     "products": [
         {
-            "asin": "B0DGJ8KPGN",
-            "title": "Apple iPhone 16 Pro Max 512 GB: Telefono 5G con Controllo fotocamera, Dolby Vision 4K a 120 fps e un\u2019autonomia senza precedenti. Compatibile con AirPods; Titanio bianco",
-            "price": "1.739.00",
-            "extraction_date": "2024-11-09 12:10:02",
+            "asin": "B0CP4CWRLX",
+            "title": "MSI G32CQ5P Monitor Gaming curvo WQHD 31,5 (80 cm) - Pannello VA 1500R (2560 x 1440), 170Hz / 1ms, Adaptive Sync, supporto regolabile a 3 vie - DP 1.2a, HDMI 2.0b CEC",
+            "price": "Prezzo non disponibile",
+            "extraction_date": "2024-11-09 14:16:31",
             "price_history": [
                 {
-                    "date": "2024-11-09 12:10:02",
-                    "price": "1.739.00"
+                    "date": "2024-11-09 14:16:31",
+                    "price": "229.99"
+                },
+                {
+                    "date": "2024-11-09 14:44:07",
+                    "price": "Prezzo non disponibile"
+                },
+                {
+                    "date": "2024-11-09 14:44:37",
+                    "price": "Prezzo non disponibile"
                 }
             ]
         }
