@@ -91,6 +91,96 @@
             ],
             "product_url": "https://www.amazon.it/HONOR-protettivo-Snapdragon-Potenziamento-altoparlanti/dp/B0CSFPQDRS/",
             "insertion_date": "2024-11-09 21:46:08"
+        },
+        {
+            "asin": "B08C7KG5LP",
+            "title": "Sony WH-1000XM4 Cuffie Over-ear Wireless con Noise Cancelling, Tecnologia Bluetooth, Connessione Multipoint, Fino a 30 ore di durata della batteria e Ricarica rapida, Nero",
+            "price": "249.00",
+            "image_url": "https://m.media-amazon.com/images/I/71A9daPY+DL._AC_SY300_SX300_.jpg",
+            "extraction_date": "2024-11-10 13:36:56",
+            "price_history": [
+                {
+                    "date": "2024-11-10 13:36:56",
+                    "price": "249.00"
+                }
+            ],
+            "product_url": "https://www.amazon.it/Sony-WH-1000XM4-Cancelling-Phone-Call-Built/dp/B08C7KG5LP/",
+            "insertion_date": "2024-11-10 13:36:56"
+        },
+        {
+            "asin": "B0DGHYDYJL",
+            "title": "Apple AirPods 4 Auricolari wireless, Auricolari Bluetooth, Cancellazione attiva del rumore, Audio adattivo, Trasparenza, Audio spaziale personalizzato, Custodia di ricarica USB-C, Ricarica wireless",
+            "price": "199.00",
+            "image_url": "https://m.media-amazon.com/images/I/61DvMw16ITL.__AC_SY445_SX342_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-10 13:38:46",
+            "price_history": [
+                {
+                    "date": "2024-11-10 13:38:46",
+                    "price": "199.00"
+                }
+            ],
+            "product_url": "https://www.amazon.it/dp/B0DGHYDYJL/",
+            "insertion_date": "2024-11-10 13:38:46"
+        },
+        {
+            "asin": "B09RZTVRC9",
+            "title": "PHILIPS Evnia Gaming 27M1N3500LS 27 Pollici QHD Monitor, 165Hz, VA, 1MS, Smart Image HDR, Altoparlanti, Low Input Lag, 2560 X 1440, 165 Hz, 250 cd/m\u00b2 HDMI 2.0, DP 1.4, Nero, 27 pollici QHD",
+            "price": "189.99",
+            "image_url": "https://m.media-amazon.com/images/I/61ESzswNpkL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-10 13:40:27",
+            "price_history": [
+                {
+                    "date": "2024-11-10 13:40:27",
+                    "price": "189.99"
+                }
+            ],
+            "product_url": "https://www.amazon.it/Philips-Gaming-27M1N3500LS-pollici-altoparlanti/dp/B09RZTVRC9/",
+            "insertion_date": "2024-11-10 13:40:27"
+        },
+        {
+            "asin": "B0C4FX7Z6Y",
+            "title": "ASUS VY279HGE Eye Care Monitor Gaming 27\u201d pollici FHD (1920 x 1080), IPS 144Hz, SmoothMotion, 1ms (MPRT), FreeSync Premium, Tecnologia Eye Care Plus, Filtro Luce Blu, Anti-sfarfallio, Nero",
+            "price": "195.94",
+            "image_url": "https://m.media-amazon.com/images/I/81AiykoaAsL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-10 13:41:57",
+            "price_history": [
+                {
+                    "date": "2024-11-10 13:41:57",
+                    "price": "195.94"
+                }
+            ],
+            "product_url": "https://www.amazon.it/ASUS-VY249HGE-SmoothMotion-Tecnologia-Anti-sfarfallio/dp/B0C4FX7Z6Y/",
+            "insertion_date": "2024-11-10 13:41:57"
+        },
+        {
+            "asin": "B0D4QYD65C",
+            "title": "Samsung Monitor Gaming Odyssey G3 (S27DG302), Flat, 27, 1920x1080 (Full HD), VA, 180 Hz, 1 ms, AMD FreeSync, HDMI, Display Port, Ingresso Audio, HAS, Pivot, Flicker Free, Eye Saver Mode",
+            "price": "189.90",
+            "image_url": "https://m.media-amazon.com/images/I/81mKlLQWisL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-10 13:43:06",
+            "price_history": [
+                {
+                    "date": "2024-11-10 13:43:06",
+                    "price": "189.90"
+                }
+            ],
+            "product_url": "https://www.amazon.it/Samsung-Monitor-S24AG302-1920x1080-FreeSync/dp/B0D4QYD65C/",
+            "insertion_date": "2024-11-10 13:43:06"
+        },
+        {
+            "asin": "B0CKJ7L5YV",
+            "title": "Lenovo L24i-40 Monitor - Display 23.8 pollici FullHD WLED (1920 x 1080, VA, Bordi Ultrasottili, AMD FreeSync, 4ms, 100Hz, Cavo HDMI) - Raven Black - Esclusiva Amazon",
+            "price": "99.99",
+            "image_url": "https://m.media-amazon.com/images/I/81nsaMVhIIL.__AC_SY300_SX300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-10 13:44:22",
+            "price_history": [
+                {
+                    "date": "2024-11-10 13:44:22",
+                    "price": "99.99"
+                }
+            ],
+            "product_url": "https://www.amazon.it/Lenovo-L24i-40-Monitor-Ultrasottili-Esclusiva/dp/B0CKJ7L5YV/",
+            "insertion_date": "2024-11-10 13:44:22"
         }
     ]
 }

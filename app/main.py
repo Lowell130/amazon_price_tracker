@@ -102,7 +102,7 @@ def update_prices():
 # Inizializzazione del job scheduler
 scheduler = BackgroundScheduler()
 #scheduler.add_job(update_prices, 'interval', seconds=30) 
-scheduler.add_job(update_prices, 'interval', hours=24) 
+scheduler.add_job(update_prices, 'interval', hours=1) 
 scheduler.start()
 
 @app.on_event("shutdown")
