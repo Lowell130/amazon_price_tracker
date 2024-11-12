@@ -99,7 +99,7 @@ def update_prices(user_filter=None):
             f.truncate()
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_prices, 'interval', hours=1)
+scheduler.add_job(update_prices, 'interval', hours=12)
 scheduler.start()
 
 @app.on_event("shutdown")

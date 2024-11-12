@@ -19,7 +19,7 @@
                 {{ formatPrice(product.price) }}€
               </strong>
               <span v-if="getPriceChangePercentage(product) !== '0.00%'" :class="getPriceChangeClass(product)">
-                ({{ getPriceChangePercentage(product) }})
+                ({{ getPriceChangePercentage(product) }}%)
               </span>
             </p>
             <p>Ultimo Prezzo Monitorato: <strong>{{ formatPrice(getLastMonitoredPrice(product)) }}€</strong></p>
@@ -27,6 +27,13 @@
           <button @click="removeProduct(product.asin)" class="remove-button">
             Elimina
           </button>
+          <button @click="viewPriceHistory(product.asin)" class="view-history-button">
+            Visualizza storico
+          </button>
+          <!-- Pulsante per aprire il link su Amazon -->
+          <a :href="product.product_url" target="_blank" class="amazon-link-button">
+            Apri su Amazon
+          </a>
         </div>
       </li>
     </ul>
@@ -69,6 +76,9 @@ export default {
     async removeProduct(asin) {
       this.$emit('remove-product', asin);
     },
+    viewPriceHistory(asin) {
+      this.$router.push(`/products/${asin}`);
+    },
     getLastMonitoredPrice(product) {
       if (product.price_history && product.price_history.length > 1) {
         return product.price_history[product.price_history.length - 2].price;
@@ -103,6 +113,24 @@ export default {
 </script>
 
 <style scoped>
+/* Stile per il pulsante "Apri su Amazon" */
+.amazon-link-button {
+  background-color: #ff9900;
+  color: white;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-left: 10px;
+  display: inline-block;
+  text-align: center;
+}
+
+.amazon-link-button:hover {
+  background-color: #e68a00;
+}
+
 .product-list {
   list-style: none;
   padding: 0;
@@ -120,6 +148,7 @@ export default {
 
 .product-item:hover {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
 
 .product-info {
@@ -151,6 +180,21 @@ export default {
 
 .remove-button:hover {
   background-color: #ff7875;
+}
+
+.view-history-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: background-color 0.2s;
+}
+
+.view-history-button:hover {
+  background-color: #66bb6a;
 }
 
 .price-decrease {

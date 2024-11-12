@@ -1,24 +1,27 @@
 <template>
-  <div>
+  <div class="dashboard">
     <h1>Dashboard</h1>
     <p>Benvenuto, {{ username }}</p>
-    <form @submit.prevent="addProduct">
+    <form @submit.prevent="addProduct" class="product-form">
       <input v-model="productUrl" placeholder="Inserisci URL prodotto Amazon" required />
-      <button type="submit">Aggiungi Prodotto</button>
+      <button type="submit" class="add-button">Aggiungi Prodotto</button>
     </form>
-    <button @click="updatePricesManual" :disabled="isLoading">
+    <div style="text-align: center;">
+    <button @click="updatePricesManual" :disabled="isLoading" class="update-button">
       Aggiorna Prezzi Manualmente
     </button>
-    <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
-    <p v-if="isLoading" style="color: blue;">Caricamento in corso...</p>
+    <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+    <p v-if="isLoading" class="loading-message">Caricamento in corso...</p>
+  </div>
     <CombinedPriceChart :products="products" />
     <ProductList :products="products" @remove-product="removeProduct" />
+  
   </div>
 </template>
 
 <script>
-import ProductList from '../components/ProductList.vue'
-import CombinedPriceChart from '../components/CombinedPriceChart.vue'
+import ProductList from '../components/ProductList.vue';
+import CombinedPriceChart from '../components/CombinedPriceChart.vue';
 import { jwtDecode } from 'jwt-decode';
 import { handleAuthError } from '../utils/auth';
 
@@ -90,8 +93,7 @@ export default {
         handleAuthError(error);
         console.error('Errore nel caricamento dei prodotti:', error);
       }
-    }
-  ,
+    },
     async updatePricesManual() {
       try {
         this.isLoading = true;
@@ -145,3 +147,70 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.dashboard {
+  max-width: 100%;
+  margin: auto;
+  padding: 20px;
+  /* text-align: center; */
+}
+
+.product-form {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 60%;
+}
+
+.add-button, .update-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.add-button:hover {
+  background-color: #45a049;
+}
+
+.update-button {
+  background-color: #2196f3;
+  color: white;
+  margin-top: 10px;
+}
+
+.update-button:hover {
+  background-color: #1976d2;
+}
+
+.update-button:disabled {
+  background-color: #b3e5fc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+}
+
+.loading-message {
+  color: blue;
+  font-weight: bold;
+}
+</style>

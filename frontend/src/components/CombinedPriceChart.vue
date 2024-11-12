@@ -52,7 +52,10 @@ export default {
             title: {
               display: true,
               text: 'Data e Ora (hh:mm)'
-            }
+            },
+            ticks: {
+        display: false // Nasconde le etichette delle date sull'asse X
+      }
           },
           y: {
             title: {

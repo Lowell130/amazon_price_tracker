@@ -40,6 +40,10 @@
                 {
                     "date": "2024-11-12 17:46:04",
                     "price": "249.90"
+                },
+                {
+                    "date": "2024-11-12 19:45:45",
+                    "price": "249.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Fullview-Batteria-Snapdragon-Altoparlanti/dp/B0CYKCTWGS/",
@@ -48,7 +52,7 @@
         {
             "asin": "B0CST8ZHBC",
             "title": "HONOR Pad 9, tablet Wi-Fi da 12,1, 8 GB+256 GB, display con protezione degli occhi a 120 Hz, 2,5K, 8 altoparlanti, Android 13, Space Grey, 5301AHKN",
-            "price": "259.90",
+            "price": "328.01",
             "image_url": "https://m.media-amazon.com/images/I/71178LRzzkL.__AC_SX300_SY300_QL70_ML2_.jpg",
             "extraction_date": "2024-11-09 21:44:29",
             "price_history": [
@@ -83,6 +87,10 @@
                 {
                     "date": "2024-11-12 17:46:08",
                     "price": "259.90"
+                },
+                {
+                    "date": "2024-11-12 19:45:49",
+                    "price": "328.01"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-display-protezione-altoparlanti-5301AHKN/dp/B0CST8ZHBC/",
@@ -125,6 +133,10 @@
                 },
                 {
                     "date": "2024-11-12 17:46:11",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-12 19:45:51",
                     "price": "249.00"
                 }
             ],
@@ -169,6 +181,10 @@
                 {
                     "date": "2024-11-12 17:46:14",
                     "price": "249.00"
+                },
+                {
+                    "date": "2024-11-12 19:45:54",
+                    "price": "249.00"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Pollici-Fullview-Snapdragon-Altoparlanti/dp/B0CRH9R5GQ/",
@@ -211,6 +227,10 @@
                 },
                 {
                     "date": "2024-11-12 17:46:17",
+                    "price": "269.90"
+                },
+                {
+                    "date": "2024-11-12 19:45:57",
                     "price": "269.90"
                 }
             ],
@@ -255,6 +275,10 @@
                 {
                     "date": "2024-11-12 17:46:20",
                     "price": "249.90"
+                },
+                {
+                    "date": "2024-11-12 19:46:00",
+                    "price": "249.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-protettivo-Snapdragon-Potenziamento-altoparlanti/dp/B0CSFPQDRS/",
@@ -297,6 +321,10 @@
                 },
                 {
                     "date": "2024-11-12 17:46:24",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-12 19:46:03",
                     "price": "249.00"
                 }
             ],
@@ -341,6 +369,10 @@
                 {
                     "date": "2024-11-12 17:46:27",
                     "price": "189.00"
+                },
+                {
+                    "date": "2024-11-12 19:46:06",
+                    "price": "189.00"
                 }
             ],
             "product_url": "https://www.amazon.it/dp/B0DGHYDYJL/",
@@ -384,10 +416,29 @@
                 {
                     "date": "2024-11-12 17:46:30",
                     "price": "189.90"
+                },
+                {
+                    "date": "2024-11-12 19:46:09",
+                    "price": "189.90"
                 }
             ],
             "product_url": "https://www.amazon.it/Samsung-Monitor-S24AG302-1920x1080-FreeSync/dp/B0D4QYD65C/",
             "insertion_date": "2024-11-10 13:43:06"
+        },
+        {
+            "asin": "B0BTDX26B2",
+            "title": "Sony WH-CH720N | Cuffie Wireless con Noise Cancelling, Connessione Multipoint, Fino a 35 ore di durata della batteria e Ricarica Rapida - Nero",
+            "price": "69.00",
+            "image_url": "https://m.media-amazon.com/images/I/71iWkjXCu9L.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-12 20:00:31",
+            "price_history": [
+                {
+                    "date": "2024-11-12 20:00:31",
+                    "price": "69.00"
+                }
+            ],
+            "product_url": "https://www.amazon.it/Sony-WH-CH720N-Cancelling-Connessione-Multipoint/dp/B0BTDX26B2/",
+            "insertion_date": "2024-11-12 20:00:31"
         }
     ]
 }
