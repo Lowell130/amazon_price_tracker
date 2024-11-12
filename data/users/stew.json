@@ -44,6 +44,14 @@
                 {
                     "date": "2024-11-12 19:45:45",
                     "price": "249.90"
+                },
+                {
+                    "date": "2024-11-12 22:43:52",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-12 22:54:54",
+                    "price": "249.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Fullview-Batteria-Snapdragon-Altoparlanti/dp/B0CYKCTWGS/",
@@ -90,6 +98,10 @@
                 },
                 {
                     "date": "2024-11-12 19:45:49",
+                    "price": "328.01"
+                },
+                {
+                    "date": "2024-11-12 22:43:54",
                     "price": "328.01"
                 }
             ],
@@ -138,6 +150,14 @@
                 {
                     "date": "2024-11-12 19:45:51",
                     "price": "249.00"
+                },
+                {
+                    "date": "2024-11-12 22:43:57",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-12 22:54:58",
+                    "price": "249.00"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Pad-Display-protettivo-Snapdragon/dp/B0D2W46D1F/",
@@ -184,6 +204,14 @@
                 },
                 {
                     "date": "2024-11-12 19:45:54",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-12 22:44:01",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-12 22:55:00",
                     "price": "249.00"
                 }
             ],
@@ -232,6 +260,10 @@
                 {
                     "date": "2024-11-12 19:45:57",
                     "price": "269.90"
+                },
+                {
+                    "date": "2024-11-12 22:55:03",
+                    "price": "269.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Pad-Fullview-Altoparlante-Bluetooth/dp/B0CWGT96VR/",
@@ -278,6 +310,10 @@
                 },
                 {
                     "date": "2024-11-12 19:46:00",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-12 22:55:07",
                     "price": "249.90"
                 }
             ],
@@ -326,6 +362,14 @@
                 {
                     "date": "2024-11-12 19:46:03",
                     "price": "249.00"
+                },
+                {
+                    "date": "2024-11-12 22:44:04",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-12 22:55:10",
+                    "price": "249.00"
                 }
             ],
             "product_url": "https://www.amazon.it/Sony-WH-1000XM4-Cancelling-Phone-Call-Built/dp/B08C7KG5LP/",
@@ -372,6 +416,14 @@
                 },
                 {
                     "date": "2024-11-12 19:46:06",
+                    "price": "189.00"
+                },
+                {
+                    "date": "2024-11-12 22:44:07",
+                    "price": "189.00"
+                },
+                {
+                    "date": "2024-11-12 22:55:13",
                     "price": "189.00"
                 }
             ],
@@ -420,6 +472,14 @@
                 {
                     "date": "2024-11-12 19:46:09",
                     "price": "189.90"
+                },
+                {
+                    "date": "2024-11-12 22:44:11",
+                    "price": "189.90"
+                },
+                {
+                    "date": "2024-11-12 22:55:16",
+                    "price": "189.90"
                 }
             ],
             "product_url": "https://www.amazon.it/Samsung-Monitor-S24AG302-1920x1080-FreeSync/dp/B0D4QYD65C/",
@@ -435,10 +495,33 @@
                 {
                     "date": "2024-11-12 20:00:31",
                     "price": "69.00"
+                },
+                {
+                    "date": "2024-11-12 22:44:16",
+                    "price": "69.00"
+                },
+                {
+                    "date": "2024-11-12 22:55:19",
+                    "price": "69.00"
                 }
             ],
             "product_url": "https://www.amazon.it/Sony-WH-CH720N-Cancelling-Connessione-Multipoint/dp/B0BTDX26B2/",
             "insertion_date": "2024-11-12 20:00:31"
+        },
+        {
+            "asin": "B01NAWU789",
+            "title": "San Marco SUPERCONFORT Pittura per interni anticondensa termoisolante traspirante antimuffa, colore: Bianco, size: 10 lt",
+            "price": "122.50",
+            "image_url": "https://m.media-amazon.com/images/I/715QzO0RpXL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-12 23:04:00",
+            "price_history": [
+                {
+                    "date": "2024-11-12 23:04:00",
+                    "price": "122.50"
+                }
+            ],
+            "product_url": "https://www.amazon.it/San-Marco-SUPERCONFORT-anticondensa-termoisolante/dp/B01NAWU789/",
+            "insertion_date": "2024-11-12 23:04:00"
         }
     ]
 }
