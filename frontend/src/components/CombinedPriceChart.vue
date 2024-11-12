@@ -1,8 +1,12 @@
 <template>
   <div>
     <h3>Andamento Prezzi di Tutti i Prodotti Monitorati</h3>
-    <!-- Usa una chiave dinamica per forzare il re-render del grafico -->
-    <line-chart v-if="chartData && chartData.labels.length && chartData.datasets.length" :key="chartKey" :data="chartData" :options="chartOptions" />
+    <line-chart
+      v-if="chartData && chartData.labels.length && chartData.datasets.length"
+      :key="chartKey"
+      :data="chartData"
+      :options="chartOptions"
+    />
     <div v-else>
       <p>Dati insufficienti per visualizzare il grafico dell'andamento dei prezzi dei prodotti.</p>
     </div>
@@ -10,11 +14,10 @@
 </template>
 
 <script>
-import { Line } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement } from 'chart.js'
+import { Line } from 'vue-chartjs';
+import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
 
-// Registra i componenti necessari per Chart.js
-ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement)
+ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement);
 
 export default {
   name: 'CombinedPriceChart',
@@ -48,7 +51,7 @@ export default {
           x: {
             title: {
               display: true,
-              text: 'Data'
+              text: 'Data e Ora (hh:mm)'
             }
           },
           y: {
@@ -60,13 +63,13 @@ export default {
         }
       },
       chartKey: 0 // Chiave dinamica per forzare il re-render
-    }
+    };
   },
   watch: {
     products: {
       handler() {
         this.generateChartData();
-        this.chartKey += 1; // Aggiorna la chiave per forzare il re-render
+        this.chartKey += 1;
       },
       immediate: true,
       deep: true
@@ -74,14 +77,16 @@ export default {
   },
   methods: {
     generateChartData() {
-      // Consolida tutte le date in ordine cronologico per l'asse X
-      const sortedDateTimes = Array.from(new Set(
+      // Consolida le date ignorando i secondi, mantenendo solo data, ora e minuti
+      const uniqueDateTimes = Array.from(new Set(
         this.products.flatMap(product =>
-          product.price_history ? product.price_history.map(entry => entry.date) : []
+          product.price_history
+            ? product.price_history.map(entry => entry.date.substring(0, 16)) // Conserva solo data, ora e minuti
+            : []
         )
       )).sort();
 
-      this.chartData.labels = sortedDateTimes;
+      this.chartData.labels = uniqueDateTimes;
 
       // Funzione di conversione del prezzo
       const convertPrice = (price) => {
@@ -94,8 +99,9 @@ export default {
         const color = `hsl(${(index * 50) % 360}, 70%, 50%)`;
         let lastKnownPrice = null;
 
-        const dataPoints = sortedDateTimes.map(dateTime => {
-          const entry = product.price_history?.find(e => e.date === dateTime);
+        const dataPoints = uniqueDateTimes.map(dateTime => {
+          // Trova il prezzo senza considerare i secondi
+          const entry = product.price_history?.find(e => e.date.startsWith(dateTime));
           if (entry) {
             lastKnownPrice = convertPrice(entry.price);
             return lastKnownPrice;
@@ -132,7 +138,7 @@ export default {
       };
     }
   }
-}
+};
 </script>
 
 <style scoped>

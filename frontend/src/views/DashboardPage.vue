@@ -6,10 +6,11 @@
       <input v-model="productUrl" placeholder="Inserisci URL prodotto Amazon" required />
       <button type="submit">Aggiungi Prodotto</button>
     </form>
+    <button @click="updatePricesManual" :disabled="isLoading">
+      Aggiorna Prezzi Manualmente
+    </button>
     <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
-    <!-- Indicatore di caricamento -->
     <p v-if="isLoading" style="color: blue;">Caricamento in corso...</p>
-    <!-- Grafico Combinato per tutti i prodotti -->
     <CombinedPriceChart :products="products" />
     <ProductList :products="products" @remove-product="removeProduct" />
   </div>
@@ -18,7 +19,8 @@
 <script>
 import ProductList from '../components/ProductList.vue'
 import CombinedPriceChart from '../components/CombinedPriceChart.vue'
-import { jwtDecode } from 'jwt-decode' 
+import { jwtDecode } from 'jwt-decode';
+import { handleAuthError } from '../utils/auth';
 
 export default {
   name: 'DashboardPage',
@@ -29,7 +31,7 @@ export default {
       products: [],
       username: '',
       errorMessage: '',
-      isLoading: false 
+      isLoading: false
     }
   },
   async created() {
@@ -64,32 +66,56 @@ export default {
 
         this.productUrl = '';
         this.errorMessage = '';
-        await this.fetchProducts(); // Ricarica i prodotti dopo l'aggiunta
+        await this.fetchProducts();
       } catch (error) {
         this.errorMessage = error.message;
       } finally {
         this.isLoading = false;
       }
-      await this.fetchProducts(); // Aggiorna i prodotti e, di conseguenza, il grafico
+      await this.fetchProducts();
     },
-
     async fetchProducts() {
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/dashboard`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail);
+        }
         const data = await response.json();
-
-        // Aggiungi questo log per verificare i dati del prodotto e `price_history`
-        console.log("Prodotti caricati:", data.products);
-
         this.products = data.products;
       } catch (error) {
+        handleAuthError(error);
         console.error('Errore nel caricamento dei prodotti:', error);
       }
-    },
+    }
+  ,
+    async updatePricesManual() {
+      try {
+        this.isLoading = true;
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/update-prices-manual/`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
 
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail);
+        }
+
+        await this.fetchProducts(); // Aggiorna i prodotti dopo l'aggiornamento manuale
+      } catch (error) {
+        this.errorMessage = 'Errore durante l\'aggiornamento manuale dei prezzi';
+        console.error(error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
     async removeProduct(asin) {
       const confirmDelete = confirm("Sei sicuro di voler eliminare questo prodotto dal monitoraggio?");
       if (!confirmDelete) {
@@ -110,11 +136,11 @@ export default {
           throw new Error(errorData.detail);
         }
 
-        await this.fetchProducts(); // Ricarica i prodotti dopo la rimozione
+        await this.fetchProducts();
       } catch (error) {
         console.error('Errore durante l\'eliminazione del prodotto:', error);
       }
-      await this.fetchProducts(); // Aggiorna i prodotti e, di conseguenza, il grafico
+      await this.fetchProducts();
     }
   }
 }
