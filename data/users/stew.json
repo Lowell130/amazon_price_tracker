@@ -52,6 +52,10 @@
                 {
                     "date": "2024-11-12 22:54:54",
                     "price": "249.90"
+                },
+                {
+                    "date": "2024-11-13 19:19:35",
+                    "price": "249.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Fullview-Batteria-Snapdragon-Altoparlanti/dp/B0CYKCTWGS/",
@@ -60,7 +64,7 @@
         {
             "asin": "B0CST8ZHBC",
             "title": "HONOR Pad 9, tablet Wi-Fi da 12,1, 8 GB+256 GB, display con protezione degli occhi a 120 Hz, 2,5K, 8 altoparlanti, Android 13, Space Grey, 5301AHKN",
-            "price": "328.01",
+            "price": "259.90",
             "image_url": "https://m.media-amazon.com/images/I/71178LRzzkL.__AC_SX300_SY300_QL70_ML2_.jpg",
             "extraction_date": "2024-11-09 21:44:29",
             "price_history": [
@@ -103,6 +107,10 @@
                 {
                     "date": "2024-11-12 22:43:54",
                     "price": "328.01"
+                },
+                {
+                    "date": "2024-11-13 19:19:38",
+                    "price": "259.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-display-protezione-altoparlanti-5301AHKN/dp/B0CST8ZHBC/",
@@ -157,6 +165,10 @@
                 },
                 {
                     "date": "2024-11-12 22:54:58",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-13 19:19:42",
                     "price": "249.00"
                 }
             ],
@@ -213,6 +225,10 @@
                 {
                     "date": "2024-11-12 22:55:00",
                     "price": "249.00"
+                },
+                {
+                    "date": "2024-11-13 19:19:46",
+                    "price": "249.00"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Pollici-Fullview-Snapdragon-Altoparlanti/dp/B0CRH9R5GQ/",
@@ -264,6 +280,10 @@
                 {
                     "date": "2024-11-12 22:55:03",
                     "price": "269.90"
+                },
+                {
+                    "date": "2024-11-13 19:19:49",
+                    "price": "269.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Pad-Fullview-Altoparlante-Bluetooth/dp/B0CWGT96VR/",
@@ -314,6 +334,10 @@
                 },
                 {
                     "date": "2024-11-12 22:55:07",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-13 19:19:53",
                     "price": "249.90"
                 }
             ],
@@ -370,6 +394,10 @@
                 {
                     "date": "2024-11-12 22:55:16",
                     "price": "189.90"
+                },
+                {
+                    "date": "2024-11-13 19:19:57",
+                    "price": "189.90"
                 }
             ],
             "product_url": "https://www.amazon.it/Samsung-Monitor-S24AG302-1920x1080-FreeSync/dp/B0D4QYD65C/",
@@ -384,6 +412,10 @@
             "price_history": [
                 {
                     "date": "2024-11-12 23:04:00",
+                    "price": "122.50"
+                },
+                {
+                    "date": "2024-11-13 19:20:01",
                     "price": "122.50"
                 }
             ],
