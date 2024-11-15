@@ -56,6 +56,10 @@
                 {
                     "date": "2024-11-13 19:19:35",
                     "price": "249.90"
+                },
+                {
+                    "date": "2024-11-14 21:33:49",
+                    "price": "249.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Fullview-Batteria-Snapdragon-Altoparlanti/dp/B0CYKCTWGS/",
@@ -110,6 +114,10 @@
                 },
                 {
                     "date": "2024-11-13 19:19:38",
+                    "price": "259.90"
+                },
+                {
+                    "date": "2024-11-14 21:33:53",
                     "price": "259.90"
                 }
             ],
@@ -170,6 +178,10 @@
                 {
                     "date": "2024-11-13 19:19:42",
                     "price": "249.00"
+                },
+                {
+                    "date": "2024-11-14 21:33:55",
+                    "price": "249.00"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Pad-Display-protettivo-Snapdragon/dp/B0D2W46D1F/",
@@ -229,6 +241,10 @@
                 {
                     "date": "2024-11-13 19:19:46",
                     "price": "249.00"
+                },
+                {
+                    "date": "2024-11-14 21:33:59",
+                    "price": "249.00"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Pollici-Fullview-Snapdragon-Altoparlanti/dp/B0CRH9R5GQ/",
@@ -284,6 +300,10 @@
                 {
                     "date": "2024-11-13 19:19:49",
                     "price": "269.90"
+                },
+                {
+                    "date": "2024-11-14 21:34:04",
+                    "price": "269.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Pad-Fullview-Altoparlante-Bluetooth/dp/B0CWGT96VR/",
@@ -338,6 +358,10 @@
                 },
                 {
                     "date": "2024-11-13 19:19:53",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-14 21:34:07",
                     "price": "249.90"
                 }
             ],
@@ -398,6 +422,10 @@
                 {
                     "date": "2024-11-13 19:19:57",
                     "price": "189.90"
+                },
+                {
+                    "date": "2024-11-14 21:34:10",
+                    "price": "189.90"
                 }
             ],
             "product_url": "https://www.amazon.it/Samsung-Monitor-S24AG302-1920x1080-FreeSync/dp/B0D4QYD65C/",
@@ -417,10 +445,29 @@
                 {
                     "date": "2024-11-13 19:20:01",
                     "price": "122.50"
+                },
+                {
+                    "date": "2024-11-14 21:34:14",
+                    "price": "122.50"
                 }
             ],
             "product_url": "https://www.amazon.it/San-Marco-SUPERCONFORT-anticondensa-termoisolante/dp/B01NAWU789/",
             "insertion_date": "2024-11-12 23:04:00"
+        },
+        {
+            "asin": "B0CZ3PS82R",
+            "title": "LG 27GS75Q Monitor Gaming UltraGear 27 IPS QHD (2560x1440), 200Hz (O/C), 1ms (GtG), G-Sync Compatible, AMD FreeSync, HDR10, HDMI 2.0 (HDCP 2.2), DisplayPort 1.4, AUX, Flicker Safe, Nero",
+            "price": "249.99",
+            "image_url": "https://m.media-amazon.com/images/I/61qWCwOALaL.__AC_SY300_SX300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-14 21:37:24",
+            "price_history": [
+                {
+                    "date": "2024-11-14 21:37:24",
+                    "price": "249.99"
+                }
+            ],
+            "product_url": "https://www.amazon.it/LG-UltraGear-2560x1440-Compatible-FreeSync/dp/B0CZ3PS82R",
+            "insertion_date": "2024-11-14 21:37:24"
         }
     ]
 }

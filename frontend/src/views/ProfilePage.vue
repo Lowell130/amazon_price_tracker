@@ -8,7 +8,6 @@
 
 <script>
  import { jwtDecode } from 'jwt-decode' // Importazione specifica
-import { handleAuthError } from '../utils/auth';
 
 export default {
   name: 'ProfilePage',
@@ -22,17 +21,19 @@ export default {
   },
   methods: {
     getUserInfo() {
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
           const decodedToken = jwtDecode(token);
-          this.username = decodedToken.sub; // Estrae il nome dell'utente dal token JWT
+          this.username = decodedToken.sub;  // Estrae l'username dal token JWT
+        } catch (error) {
+          console.error('Errore nella decodifica del token:', error);
+          this.$router.push('/login');  // Reindirizza al login se il token non è valido
         }
-      } catch (error) {
-        handleAuthError(error);
-        console.error('Errore nella decodifica del token:', error);
+      } else {
+        this.$router.push('/login');  // Reindirizza al login se il token non è presente
       }
     }
   }
-}
+};
 </script>

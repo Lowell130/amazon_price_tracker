@@ -114,7 +114,7 @@ export default {
         });
 
         return {
-          label: product.title,
+          label: product.asin,
           data: dataPoints,
           fill: false,
           borderColor: color,

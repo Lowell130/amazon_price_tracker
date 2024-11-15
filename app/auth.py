@@ -131,3 +131,23 @@ async def remove_product(asin: str, current_user: str = Depends(get_current_user
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail="Errore durante l'eliminazione del prodotto")
+    
+
+
+@router.post("/refresh-token")
+async def refresh_token(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        username = payload.get("sub")
+        
+        if username is None:
+            raise HTTPException(status_code=401, detail="Token non valido")
+
+        new_token = jwt.encode({
+            "sub": username,
+            "exp": datetime.utcnow() + timedelta(minutes=15)
+        }, SECRET_KEY, algorithm="HS256")
+
+        return {"access_token": new_token, "token_type": "bearer"}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token scaduto")

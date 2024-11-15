@@ -7,23 +7,22 @@
       <button type="submit" class="add-button">Aggiungi Prodotto</button>
     </form>
     <div style="text-align: center;">
-    <button @click="updatePricesManual" :disabled="isLoading" class="update-button">
-      Aggiorna Prezzi Manualmente
-    </button>
-    <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-    <p v-if="isLoading" class="loading-message">Caricamento in corso...</p>
-  </div>
+      <button @click="updatePricesManual" :disabled="isLoading" class="update-button">
+        Aggiorna Prezzi Manualmente
+      </button>
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <p v-if="isLoading" class="loading-message">Caricamento in corso...</p>
+    </div>
     <CombinedPriceChart :products="products" />
     <ProductList :products="products" @remove-product="removeProduct" />
-  
   </div>
 </template>
 
 <script>
 import ProductList from '../components/ProductList.vue';
 import CombinedPriceChart from '../components/CombinedPriceChart.vue';
-import { jwtDecode } from 'jwt-decode';
-import { handleAuthError } from '../utils/auth';
+import { jwtDecode } from 'jwt-decode' // Importazione specifica
+import { fetchWithToken } from '@/api';
 
 export default {
   name: 'DashboardPage',
@@ -49,17 +48,21 @@ export default {
         this.username = decodedToken.sub;
       }
     },
+    // Funzione per bonificare il link Amazon
+    cleanAmazonUrl(url) {
+  // Rimuovi i backslash di escape davanti a '/'
+  const match = url.match(/(https:\/\/www\.amazon\.[a-z.]+\/[^/]+\/dp\/[A-Z0-9]+)/);
+  return match ? match[0] : url;
+
+    },
     async addProduct() {
       try {
         this.isLoading = true;
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/add-product/`, {
+        const cleanedUrl = this.cleanAmazonUrl(this.productUrl);  // Bonifica il link
+        const response = await fetchWithToken(`${process.env.VUE_APP_API_BASE_URL}/add-product/`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ product_url: this.productUrl })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ product_url: cleanedUrl })  // Usa il link bonificato
         });
 
         if (!response.ok) {
@@ -67,7 +70,7 @@ export default {
           throw new Error(errorData.detail);
         }
 
-        this.productUrl = '';
+        this.productUrl = '';  // Resetta il campo input
         this.errorMessage = '';
         await this.fetchProducts();
       } catch (error) {
@@ -75,14 +78,10 @@ export default {
       } finally {
         this.isLoading = false;
       }
-      await this.fetchProducts();
     },
     async fetchProducts() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/dashboard`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await fetchWithToken(`${process.env.VUE_APP_API_BASE_URL}/dashboard`);
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.detail);
@@ -90,19 +89,14 @@ export default {
         const data = await response.json();
         this.products = data.products;
       } catch (error) {
-        handleAuthError(error);
         console.error('Errore nel caricamento dei prodotti:', error);
       }
     },
     async updatePricesManual() {
       try {
         this.isLoading = true;
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/update-prices-manual/`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        const response = await fetchWithToken(`${process.env.VUE_APP_API_BASE_URL}/update-prices-manual/`, {
+          method: 'POST'
         });
 
         if (!response.ok) {
@@ -110,7 +104,7 @@ export default {
           throw new Error(errorData.detail);
         }
 
-        await this.fetchProducts(); // Aggiorna i prodotti dopo l'aggiornamento manuale
+        await this.fetchProducts();
       } catch (error) {
         this.errorMessage = 'Errore durante l\'aggiornamento manuale dei prezzi';
         console.error(error);
@@ -120,17 +114,11 @@ export default {
     },
     async removeProduct(asin) {
       const confirmDelete = confirm("Sei sicuro di voler eliminare questo prodotto dal monitoraggio?");
-      if (!confirmDelete) {
-        return;
-      }
+      if (!confirmDelete) return;
 
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/remove-product/${asin}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        const response = await fetchWithToken(`${process.env.VUE_APP_API_BASE_URL}/remove-product/${asin}`, {
+          method: 'DELETE'
         });
 
         if (!response.ok) {
@@ -142,18 +130,17 @@ export default {
       } catch (error) {
         console.error('Errore durante l\'eliminazione del prodotto:', error);
       }
-      await this.fetchProducts();
     }
   }
 }
 </script>
 
 <style scoped>
+/* Stile della dashboard */
 .dashboard {
   max-width: 100%;
   margin: auto;
   padding: 20px;
-  /* text-align: center; */
 }
 
 .product-form {
