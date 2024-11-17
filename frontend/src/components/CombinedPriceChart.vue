@@ -54,14 +54,25 @@ export default {
               text: 'Data e Ora (hh:mm)'
             },
             ticks: {
-        display: false // Nasconde le etichette delle date sull'asse X
-      }
+              display: false // Nasconde le etichette delle date sull'asse X
+            }
           },
           y: {
             title: {
               display: true,
               text: 'Prezzo (€)'
-            }
+            },
+            min: 0, // Imposta il minimo iniziale per l'asse Y
+            max: 100, // Imposta il massimo iniziale per l'asse Y
+          }
+        },
+        animations: {
+          tension: {
+            duration: 1000,
+            easing: 'linear',
+            from: 1,
+            to: 0,
+            loop: true // Anima la tensione del grafico
           }
         }
       },
@@ -128,16 +139,15 @@ export default {
         };
       });
 
-      // Configura l'asse Y
+      // Configura l'asse Y dinamico
       const allPrices = this.chartData.datasets.flatMap(dataset => dataset.data).filter(price => price !== null);
       const minPrice = Math.min(...allPrices);
       const maxPrice = Math.max(...allPrices);
 
       this.chartOptions.scales.y = {
         ...this.chartOptions.scales.y,
-        min: minPrice - 10,
-        max: maxPrice + 10,
-        reverse: false
+        min: Math.floor(minPrice - 10),
+        max: Math.ceil(maxPrice + 10)
       };
     }
   }

@@ -60,6 +60,42 @@
                 {
                     "date": "2024-11-14 21:33:49",
                     "price": "249.90"
+                },
+                {
+                    "date": "2024-11-16 21:21:15",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-16 23:47:37",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-16 23:49:37",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-17 11:12:33",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-17 12:36:05",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-17 13:04:20",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-17 14:13:47",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-17 14:17:47",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-17 14:22:04",
+                    "price": "249.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Fullview-Batteria-Snapdragon-Altoparlanti/dp/B0CYKCTWGS/",
@@ -118,6 +154,42 @@
                 },
                 {
                     "date": "2024-11-14 21:33:53",
+                    "price": "259.90"
+                },
+                {
+                    "date": "2024-11-16 21:21:18",
+                    "price": "259.90"
+                },
+                {
+                    "date": "2024-11-16 23:47:40",
+                    "price": "259.90"
+                },
+                {
+                    "date": "2024-11-16 23:49:40",
+                    "price": "259.90"
+                },
+                {
+                    "date": "2024-11-17 11:12:36",
+                    "price": "259.90"
+                },
+                {
+                    "date": "2024-11-17 12:36:08",
+                    "price": "259.90"
+                },
+                {
+                    "date": "2024-11-17 13:04:23",
+                    "price": "259.90"
+                },
+                {
+                    "date": "2024-11-17 14:13:50",
+                    "price": "259.90"
+                },
+                {
+                    "date": "2024-11-17 14:17:50",
+                    "price": "259.90"
+                },
+                {
+                    "date": "2024-11-17 14:22:07",
                     "price": "259.90"
                 }
             ],
@@ -182,6 +254,42 @@
                 {
                     "date": "2024-11-14 21:33:55",
                     "price": "249.00"
+                },
+                {
+                    "date": "2024-11-16 21:21:21",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-16 23:47:43",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-16 23:49:43",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 11:12:39",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 12:36:11",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 13:04:26",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 14:13:52",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 14:17:53",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 14:22:10",
+                    "price": "249.00"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Pad-Display-protettivo-Snapdragon/dp/B0D2W46D1F/",
@@ -245,69 +353,46 @@
                 {
                     "date": "2024-11-14 21:33:59",
                     "price": "249.00"
+                },
+                {
+                    "date": "2024-11-16 21:21:25",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-16 23:47:46",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-16 23:49:45",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 11:12:42",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 12:36:14",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 13:04:29",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 14:13:55",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 14:17:56",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 14:22:12",
+                    "price": "249.00"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Pollici-Fullview-Snapdragon-Altoparlanti/dp/B0CRH9R5GQ/",
             "insertion_date": "2024-11-09 21:45:23"
-        },
-        {
-            "asin": "B0CWGT96VR",
-            "title": "HONOR Pad 9 Tablet,12,1 Pollici Touch Screen, 120Hz 2,5K Fullview Display, Android da 13, 8GB RAM 256GB ROM, 8 Altoparlante, 8300mAh, Wi-Fi, Bluetooth, (Grigio Spazio)",
-            "price": "269.90",
-            "image_url": "https://m.media-amazon.com/images/I/61kOCY2XixL.__AC_SX300_SY300_QL70_ML2_.jpg",
-            "extraction_date": "2024-11-09 21:45:37",
-            "price_history": [
-                {
-                    "date": "2024-11-09 21:45:37",
-                    "price": "269.90"
-                },
-                {
-                    "date": "2024-11-12 13:46:42",
-                    "price": "269.90"
-                },
-                {
-                    "date": "2024-11-12 14:46:19",
-                    "price": "269.90"
-                },
-                {
-                    "date": "2024-11-12 14:55:51",
-                    "price": "269.90"
-                },
-                {
-                    "date": "2024-11-12 15:26:35",
-                    "price": "269.90"
-                },
-                {
-                    "date": "2024-11-12 15:46:17",
-                    "price": "269.90"
-                },
-                {
-                    "date": "2024-11-12 16:46:17",
-                    "price": "269.90"
-                },
-                {
-                    "date": "2024-11-12 17:46:17",
-                    "price": "269.90"
-                },
-                {
-                    "date": "2024-11-12 19:45:57",
-                    "price": "269.90"
-                },
-                {
-                    "date": "2024-11-12 22:55:03",
-                    "price": "269.90"
-                },
-                {
-                    "date": "2024-11-13 19:19:49",
-                    "price": "269.90"
-                },
-                {
-                    "date": "2024-11-14 21:34:04",
-                    "price": "269.90"
-                }
-            ],
-            "product_url": "https://www.amazon.it/HONOR-Pad-Fullview-Altoparlante-Bluetooth/dp/B0CWGT96VR/",
-            "insertion_date": "2024-11-09 21:45:37"
         },
         {
             "asin": "B0CSFPQDRS",
@@ -362,6 +447,42 @@
                 },
                 {
                     "date": "2024-11-14 21:34:07",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-16 21:21:31",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-16 23:47:52",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-16 23:49:51",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-17 11:12:44",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-17 12:36:16",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-17 13:04:31",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-17 14:13:57",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-17 14:17:58",
+                    "price": "249.90"
+                },
+                {
+                    "date": "2024-11-17 14:22:16",
                     "price": "249.90"
                 }
             ],
@@ -426,6 +547,42 @@
                 {
                     "date": "2024-11-14 21:34:10",
                     "price": "189.90"
+                },
+                {
+                    "date": "2024-11-16 21:21:35",
+                    "price": "189.90"
+                },
+                {
+                    "date": "2024-11-16 23:47:55",
+                    "price": "189.90"
+                },
+                {
+                    "date": "2024-11-16 23:49:54",
+                    "price": "189.90"
+                },
+                {
+                    "date": "2024-11-17 11:12:48",
+                    "price": "189.90"
+                },
+                {
+                    "date": "2024-11-17 12:36:19",
+                    "price": "189.90"
+                },
+                {
+                    "date": "2024-11-17 13:04:34",
+                    "price": "189.90"
+                },
+                {
+                    "date": "2024-11-17 14:14:01",
+                    "price": "189.90"
+                },
+                {
+                    "date": "2024-11-17 14:18:02",
+                    "price": "189.90"
+                },
+                {
+                    "date": "2024-11-17 14:22:19",
+                    "price": "189.90"
                 }
             ],
             "product_url": "https://www.amazon.it/Samsung-Monitor-S24AG302-1920x1080-FreeSync/dp/B0D4QYD65C/",
@@ -449,6 +606,42 @@
                 {
                     "date": "2024-11-14 21:34:14",
                     "price": "122.50"
+                },
+                {
+                    "date": "2024-11-16 21:21:39",
+                    "price": "122.50"
+                },
+                {
+                    "date": "2024-11-16 23:47:58",
+                    "price": "122.50"
+                },
+                {
+                    "date": "2024-11-16 23:49:56",
+                    "price": "122.50"
+                },
+                {
+                    "date": "2024-11-17 11:12:50",
+                    "price": "122.50"
+                },
+                {
+                    "date": "2024-11-17 12:36:22",
+                    "price": "122.50"
+                },
+                {
+                    "date": "2024-11-17 13:04:37",
+                    "price": "122.50"
+                },
+                {
+                    "date": "2024-11-17 14:14:04",
+                    "price": "122.50"
+                },
+                {
+                    "date": "2024-11-17 14:18:04",
+                    "price": "122.50"
+                },
+                {
+                    "date": "2024-11-17 14:22:21",
+                    "price": "122.50"
                 }
             ],
             "product_url": "https://www.amazon.it/San-Marco-SUPERCONFORT-anticondensa-termoisolante/dp/B01NAWU789/",
@@ -464,10 +657,474 @@
                 {
                     "date": "2024-11-14 21:37:24",
                     "price": "249.99"
+                },
+                {
+                    "date": "2024-11-16 21:21:43",
+                    "price": "249.99"
+                },
+                {
+                    "date": "2024-11-16 23:48:01",
+                    "price": "249.99"
+                },
+                {
+                    "date": "2024-11-16 23:49:59",
+                    "price": "249.99"
+                },
+                {
+                    "date": "2024-11-17 11:12:54",
+                    "price": "249.99"
+                },
+                {
+                    "date": "2024-11-17 12:36:25",
+                    "price": "249.99"
+                },
+                {
+                    "date": "2024-11-17 13:04:40",
+                    "price": "249.99"
+                },
+                {
+                    "date": "2024-11-17 14:14:07",
+                    "price": "249.99"
+                },
+                {
+                    "date": "2024-11-17 14:18:08",
+                    "price": "249.99"
+                },
+                {
+                    "date": "2024-11-17 14:22:25",
+                    "price": "249.99"
                 }
             ],
             "product_url": "https://www.amazon.it/LG-UltraGear-2560x1440-Compatible-FreeSync/dp/B0CZ3PS82R",
             "insertion_date": "2024-11-14 21:37:24"
+        },
+        {
+            "asin": "B0BT4WZVQT",
+            "title": "AOC Gaming CQ27G2SE - Monitor curvo QHD da 27 pollici, Adaptive Sync (2560x1440, 165 Hz, HDMI 1.4, DisplayPort 1.2) nero/rosso",
+            "price": "249.00",
+            "image_url": "https://m.media-amazon.com/images/I/71KC7KBo5zL.__AC_SY300_SX300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-15 22:33:42",
+            "price_history": [
+                {
+                    "date": "2024-11-15 22:33:42",
+                    "price": "248.47"
+                },
+                {
+                    "date": "2024-11-16 21:21:53",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-16 23:48:08",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-16 23:50:06",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 11:12:57",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 12:36:28",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 13:04:44",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 14:14:11",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 14:18:11",
+                    "price": "249.00"
+                },
+                {
+                    "date": "2024-11-17 14:22:28",
+                    "price": "249.00"
+                }
+            ],
+            "product_url": "https://www.amazon.it/dp/B0BT4WZVQT/ref=sspa_dk_detail_10?pf_rd_p=10c44ba0-99a9-46d2-be7c-ad851b65838d&pf_rd_r=M8WEC18BFXMGWN31PNAV&pd_rd_wg=0p7F7&pd_rd_w=3p8It&content-id=amzn1.sym.10c44ba0-99a9-46d2-be7c-ad851b65838d&pd_rd_r=d94b52fe-1218-4786-9f1f-913c77b1a507&s=pc&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWw&th=1",
+            "insertion_date": "2024-11-15 22:33:42"
+        },
+        {
+            "asin": "B0D3KRGN4X",
+            "title": "HONOR Pad 9 Tablet,12,1 Pollici Touch Screen, 120Hz 2,5K Fullview Display, Android da 13, 8GB RAM 256GB ROM, 8 Altoparlante, 8300mAh, Wi-Fi, Bluetooth, (Cyan Lake)",
+            "price": "265.90",
+            "image_url": "https://m.media-amazon.com/images/I/71U6aDEVR1L.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-16 23:51:14",
+            "price_history": [
+                {
+                    "date": "2024-11-16 23:51:14",
+                    "price": "265.90"
+                },
+                {
+                    "date": "2024-11-17 11:13:00",
+                    "price": "265.90"
+                },
+                {
+                    "date": "2024-11-17 12:36:31",
+                    "price": "265.90"
+                },
+                {
+                    "date": "2024-11-17 13:04:47",
+                    "price": "265.90"
+                },
+                {
+                    "date": "2024-11-17 14:14:13",
+                    "price": "265.90"
+                },
+                {
+                    "date": "2024-11-17 14:18:14",
+                    "price": "265.90"
+                },
+                {
+                    "date": "2024-11-17 14:22:31",
+                    "price": "265.90"
+                }
+            ],
+            "product_url": "https://www.amazon.it/gp/product/B0D3KRGN4X/ref=ewc_pr_img_1?smid=A3IG65TKEEOT6C&psc=1",
+            "insertion_date": "2024-11-16 23:51:14"
+        },
+        {
+            "asin": "B09XZXP2SW",
+            "title": "MSI Modern MD272QXP Monitor - 27 WQHD, 2560 x 1440 IPS, 100Hz, Eye-Friendly, DisplayHDR 400, Altoparlanti integrati, Supporto 4 direzioni, KVM - DP 1.2a, HDMI 2.0b, USB-C",
+            "price": "265.83",
+            "image_url": "https://m.media-amazon.com/images/I/71f1Qv0zYbL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-16 23:57:48",
+            "price_history": [
+                {
+                    "date": "2024-11-16 23:57:48",
+                    "price": "255.80"
+                },
+                {
+                    "date": "2024-11-17 11:13:03",
+                    "price": "265.83"
+                },
+                {
+                    "date": "2024-11-17 12:36:34",
+                    "price": "265.83"
+                },
+                {
+                    "date": "2024-11-17 13:04:50",
+                    "price": "265.83"
+                },
+                {
+                    "date": "2024-11-17 14:14:16",
+                    "price": "265.83"
+                },
+                {
+                    "date": "2024-11-17 14:18:17",
+                    "price": "265.83"
+                },
+                {
+                    "date": "2024-11-17 14:22:34",
+                    "price": "265.83"
+                }
+            ],
+            "product_url": "https://www.amazon.it/MSI-Modern-MD272QXP-Monitor-Eye-Friendly/dp/B09XZXP2SW",
+            "insertion_date": "2024-11-16 23:57:48"
+        },
+        {
+            "asin": "B0BKNZSBRY",
+            "title": "MSI G321Q Monitor Gaming 32 WQHD - Pannello Ultra IPS 2560 x 1440, 170 Hz / 1ms, Gamut colore sRGB 123%, Pronto per HDR, Stand regolabile in inclinazione - DisplayPort 1.2a, HDMI 2.0b",
+            "price": "386.01",
+            "image_url": "https://m.media-amazon.com/images/I/71Nb9pCzakL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-16 23:59:05",
+            "price_history": [
+                {
+                    "date": "2024-11-16 23:59:05",
+                    "price": "386.85"
+                },
+                {
+                    "date": "2024-11-17 11:13:06",
+                    "price": "386.85"
+                },
+                {
+                    "date": "2024-11-17 12:36:37",
+                    "price": "386.85"
+                },
+                {
+                    "date": "2024-11-17 13:04:54",
+                    "price": "386.85"
+                },
+                {
+                    "date": "2024-11-17 14:14:20",
+                    "price": "386.01"
+                },
+                {
+                    "date": "2024-11-17 14:18:20",
+                    "price": "386.01"
+                },
+                {
+                    "date": "2024-11-17 14:22:38",
+                    "price": "386.01"
+                }
+            ],
+            "product_url": "https://www.amazon.it/gp/product/B0BKNZSBRY/ref=ox_sc_saved_title_2?smid=A11IL2PNWYJU7H&th=1",
+            "insertion_date": "2024-11-16 23:59:05"
+        },
+        {
+            "asin": "B00HNMCRKY",
+            "title": "BISATEN ANTICONDENSA",
+            "price": "32.40",
+            "image_url": "https://m.media-amazon.com/images/I/71o87d-c07L.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-16 23:59:53",
+            "price_history": [
+                {
+                    "date": "2024-11-16 23:59:53",
+                    "price": "32.40"
+                },
+                {
+                    "date": "2024-11-17 11:13:09",
+                    "price": "32.40"
+                },
+                {
+                    "date": "2024-11-17 12:36:40",
+                    "price": "32.40"
+                },
+                {
+                    "date": "2024-11-17 13:04:56",
+                    "price": "32.40"
+                },
+                {
+                    "date": "2024-11-17 14:14:22",
+                    "price": "32.40"
+                },
+                {
+                    "date": "2024-11-17 14:18:23",
+                    "price": "32.40"
+                },
+                {
+                    "date": "2024-11-17 14:22:40",
+                    "price": "32.40"
+                }
+            ],
+            "product_url": "https://www.amazon.it/gp/product/B00HNMCRKY/ref=ox_sc_saved_image_20?smid=A1HIQICJ18MAQO&psc=1",
+            "insertion_date": "2024-11-16 23:59:53"
+        },
+        {
+            "asin": "B075T9G133",
+            "title": "GDM Bisaten ciclo antimuffa con certificato di garanzia (Anticondensa, 13 litri), bianco",
+            "price": "95.00",
+            "image_url": "https://m.media-amazon.com/images/I/61cUm7Wf6uL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-17 00:18:48",
+            "price_history": [
+                {
+                    "date": "2024-11-17 00:18:48",
+                    "price": "95.00"
+                },
+                {
+                    "date": "2024-11-17 11:13:13",
+                    "price": "95.00"
+                },
+                {
+                    "date": "2024-11-17 12:36:42",
+                    "price": "95.00"
+                },
+                {
+                    "date": "2024-11-17 13:04:59",
+                    "price": "95.00"
+                },
+                {
+                    "date": "2024-11-17 14:14:25",
+                    "price": "95.00"
+                },
+                {
+                    "date": "2024-11-17 14:18:25",
+                    "price": "95.00"
+                },
+                {
+                    "date": "2024-11-17 14:22:43",
+                    "price": "95.00"
+                }
+            ],
+            "product_url": "https://www.amazon.it/dp/B075T9G133/ref=aod_recs_desktop_prsubs_0?th=1",
+            "insertion_date": "2024-11-17 00:18:48"
+        },
+        {
+            "asin": "B00FBDE1SI",
+            "title": "Capatox - 10 litri",
+            "price": "87.52",
+            "image_url": "https://m.media-amazon.com/images/I/41h1gU5B5DL.__AC_SY300_SX300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-17 12:18:46",
+            "price_history": [
+                {
+                    "date": "2024-11-17 12:18:46",
+                    "price": "87.52"
+                },
+                {
+                    "date": "2024-11-17 12:36:45",
+                    "price": "87.52"
+                },
+                {
+                    "date": "2024-11-17 13:05:02",
+                    "price": "87.52"
+                },
+                {
+                    "date": "2024-11-17 14:14:27",
+                    "price": "87.52"
+                },
+                {
+                    "date": "2024-11-17 14:18:28",
+                    "price": "87.52"
+                },
+                {
+                    "date": "2024-11-17 14:22:45",
+                    "price": "87.52"
+                }
+            ],
+            "product_url": "https://www.amazon.it/Caparol-Capatox-10-litri/dp/B00FBDE1SI",
+            "insertion_date": "2024-11-17 12:18:46"
+        },
+        {
+            "asin": "B01DVTDPOY",
+            "title": "CAMP Muffa Control Risanante - Trattamento Antimuffa per Muri Interni ed Esterni, Soluzione Risanante Pronta allUso - Inattiva le Muffe Esistenti ed Evita la Ricomparsa - Prodotti Pulizia Casa, 1 l",
+            "price": "18.90",
+            "image_url": "https://m.media-amazon.com/images/I/51WFQcCYS9L.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-17 12:35:48",
+            "price_history": [
+                {
+                    "date": "2024-11-17 12:35:48",
+                    "price": "18.90"
+                },
+                {
+                    "date": "2024-11-17 12:36:48",
+                    "price": "18.90"
+                },
+                {
+                    "date": "2024-11-17 13:05:05",
+                    "price": "18.90"
+                },
+                {
+                    "date": "2024-11-17 14:14:30",
+                    "price": "18.90"
+                },
+                {
+                    "date": "2024-11-17 14:18:31",
+                    "price": "18.90"
+                },
+                {
+                    "date": "2024-11-17 14:22:48",
+                    "price": "18.90"
+                }
+            ],
+            "product_url": "https://www.amazon.it/dp/B01DVTDPOY/ref=sspa_dk_detail_5?psc=1&pd_rd_i=B01DVTDPOY&pd_rd_w=VLbaj&content-id=amzn1.sym.10c44ba0-99a9-46d2-be7c-ad851b65838d&pf_rd_p=10c44ba0-99a9-46d2-be7c-ad851b65838d&pf_rd_r=HXBFM1AJPZE0N2S0YJFN&pd_rd_wg=uAjSm&pd_rd_r=ea46446b-b720-44f1-bc10-d9d88dd04a38&s=hpc&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWw",
+            "insertion_date": "2024-11-17 12:35:48"
+        },
+        {
+            "asin": "B0C4Z5TWXY",
+            "title": "ZOMAHOME Spray Antimuffa per Muri Interni ad azione prolungata, Antimuffa spray Universale Ideale Anche Come Antimuffa per Armadio - 750ml",
+            "price": "18.97",
+            "image_url": "https://m.media-amazon.com/images/I/71FT57XNNnL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-17 12:47:34",
+            "price_history": [
+                {
+                    "date": "2024-11-17 12:47:34",
+                    "price": "18.97"
+                },
+                {
+                    "date": "2024-11-17 13:05:08",
+                    "price": "18.97"
+                },
+                {
+                    "date": "2024-11-17 14:14:32",
+                    "price": "18.97"
+                },
+                {
+                    "date": "2024-11-17 14:18:34",
+                    "price": "18.97"
+                },
+                {
+                    "date": "2024-11-17 14:22:51",
+                    "price": "18.97"
+                }
+            ],
+            "product_url": "https://www.amazon.it/ZOMAHOME-Spray-Antimuffa-Muri-Interni/dp/B0C4Z5TWXY",
+            "insertion_date": "2024-11-17 12:47:34"
+        },
+        {
+            "asin": "B08GGCFDB4",
+            "title": "Lorica - Rimuove la Muffa dai Tessuti - Igienizza Pelle, Lana e Fibre Delicate - Inodore e Atossico - 2 lt",
+            "price": "59.00",
+            "image_url": "https://m.media-amazon.com/images/I/61YVBi97+ZL._AC_SY300_SX300_.jpg",
+            "extraction_date": "2024-11-17 13:49:30",
+            "price_history": [
+                {
+                    "date": "2024-11-17 13:49:30",
+                    "price": "59.00"
+                },
+                {
+                    "date": "2024-11-17 14:14:35",
+                    "price": "59.00"
+                },
+                {
+                    "date": "2024-11-17 14:18:36",
+                    "price": "59.00"
+                },
+                {
+                    "date": "2024-11-17 14:22:53",
+                    "price": "59.00"
+                }
+            ],
+            "product_url": "https://www.amazon.it/dp/B08GGCFDB4/ref=sspa_dk_detail_3?psc=1&pd_rd_i=B08GGCFDB4&pd_rd_w=3h0Kb&content-id=amzn1.sym.10c44ba0-99a9-46d2-be7c-ad851b65838d&pf_rd_p=10c44ba0-99a9-46d2-be7c-ad851b65838d&pf_rd_r=CWKNM5GGCG0MAT33BQ6V&pd_rd_wg=eZY65&pd_rd_r=786cbbcb-f4d3-47a8-9002-9ec4422e8371&s=hpc&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWw",
+            "insertion_date": "2024-11-17 13:49:30"
+        },
+        {
+            "asin": "B08D9SPPQY",
+            "title": "Spugna per cancellare lo sporco, 18 x \u2013 Spugna per cancellare pareti bianche, scarpe e pavimenti, robusta spugna magica per tutti i tipi di macchie",
+            "price": "11.99",
+            "image_url": "https://m.media-amazon.com/images/I/713oJ3gNLDL.__AC_SY300_SX300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-17 13:50:46",
+            "price_history": [
+                {
+                    "date": "2024-11-17 13:50:46",
+                    "price": "11.99"
+                },
+                {
+                    "date": "2024-11-17 14:14:38",
+                    "price": "11.99"
+                },
+                {
+                    "date": "2024-11-17 14:18:39",
+                    "price": "11.99"
+                },
+                {
+                    "date": "2024-11-17 14:22:56",
+                    "price": "11.99"
+                }
+            ],
+            "product_url": "https://www.amazon.it/dp/B08D9SPPQY/ref=sspa_dk_detail_3?psc=1&pd_rd_i=B08D9SPPQY&pd_rd_w=4Q5Gs&content-id=amzn1.sym.f397e835-237d-4dff-b319-bb212924eda4&pf_rd_p=f397e835-237d-4dff-b319-bb212924eda4&pf_rd_r=VYKADW84NTEXNNK15X4C&pd_rd_wg=4pHOU&pd_rd_r=9e2faada-e720-4f77-b3dc-db31b780dcaa&s=hpc&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM",
+            "insertion_date": "2024-11-17 13:50:46"
+        },
+        {
+            "asin": "B08L3FHLPR",
+            "title": "ASFSKY Cleaning Gel Pulizia Auto, Gel Pulizia Tastiera, Keyboard Cleaner Gel Detergente Slime per PC, Interni Auto, Stampante, Angolo, Telecamera, Rimozione della Riutilizzabile Sicuro",
+            "price": "9.99",
+            "image_url": "https://m.media-amazon.com/images/I/71U6TpckYEL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-17 14:01:45",
+            "price_history": [
+                {
+                    "date": "2024-11-17 14:01:45",
+                    "price": "9.99"
+                },
+                {
+                    "date": "2024-11-17 14:14:41",
+                    "price": "9.99"
+                },
+                {
+                    "date": "2024-11-17 14:18:42",
+                    "price": "9.99"
+                },
+                {
+                    "date": "2024-11-17 14:22:59",
+                    "price": "9.99"
+                }
+            ],
+            "product_url": "https://www.amazon.it/dp/B08L3FHLPR/ref=sspa_dk_detail_3?psc=1&pd_rd_i=B08L3FHLPR&pd_rd_w=bWKxF&content-id=amzn1.sym.f397e835-237d-4dff-b319-bb212924eda4&pf_rd_p=f397e835-237d-4dff-b319-bb212924eda4&pf_rd_r=0ZNTA6W70X1XQE0V3W98&pd_rd_wg=B1mUD&pd_rd_r=2d3655d8-c772-42e9-82bb-05a2ad3277e8&s=hpc&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM",
+            "insertion_date": "2024-11-17 14:01:45"
         }
     ]
 }

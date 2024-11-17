@@ -9,5 +9,17 @@ module.exports = defineConfig({
         ws: false // Disabilita WebSocket
       }
     }
-  }
+  },
+  css: {
+    loaderOptions: {
+      postcss: {
+        postcssOptions: {
+          plugins: [
+            require("tailwindcss"),
+            require("autoprefixer"),
+          ],
+        },
+      },
+    },
+  },
 })
