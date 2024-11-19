@@ -1,10 +1,9 @@
-# app/scraper.py
-
 import requests
 from bs4 import BeautifulSoup
 import re
 from datetime import datetime
 import time
+import random
 
 def get_asin_from_url(url):
     """Estrae l'ASIN dal link Amazon."""
@@ -13,7 +12,10 @@ def get_asin_from_url(url):
 
 def clean_price(price):
     """Rimuove simboli di valuta e spazi dal prezzo, restituendo un valore numerico come stringa."""
-    return re.sub(r"[^\d,\.]", "", price).replace(",", ".")
+    price = re.sub(r"[^\d,\.]", "", price)
+    if "," in price and price.count(".") == 1:
+        price = price.replace(",", "")
+    return price.replace(",", ".")
 
 def clean_text(text):
     """Rimuove caratteri unicode problematici e pulisce il testo."""
@@ -26,42 +28,62 @@ def fetch_product_data(url, max_retries=3, delay=2):
         raise ValueError("ASIN non trovato nell'URL")
 
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
+        "Accept-Language": "it-IT,it;q=0.9"  # Specifica la lingua desiderata
     }
 
     for attempt in range(max_retries):
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            break
-        elif attempt < max_retries - 1:
-            time.sleep(delay)  # Attende prima di riprovare
-        else:
-            raise Exception("Impossibile accedere al link Amazon dopo vari tentativi")
+        try:
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                break
+            elif attempt < max_retries - 1:
+                time.sleep(delay + random.uniform(0, 1))
+            else:
+                raise Exception("Impossibile accedere al link Amazon dopo vari tentativi")
+        except requests.exceptions.RequestException as e:
+            if attempt == max_retries - 1:
+                raise Exception(f"Errore di rete durante l'accesso al link Amazon: {e}")
+            time.sleep(delay + random.uniform(0, 1))
 
     soup = BeautifulSoup(response.content, "html.parser")
 
-    # Estrazione e pulizia del titolo
-    title = soup.find(id="productTitle")
-    title = clean_text(title.get_text(strip=True)) if title else "Titolo non disponibile"
+    # Limitare il contesto a un container principale
+    # Prova a restringere il focus del scraping al contenitore principale del prodotto
+    main_container = soup.find("div", {"id": "dp"})  # "dp" è il contenitore principale della pagina del prodotto
 
-    # Estrazione e pulizia del prezzo
-    price_tag = soup.find("span", {"class": "a-offscreen"})
+    if not main_container:
+        raise ValueError("Contenitore principale del prodotto non trovato")
+
+    # Estrazione e pulizia del titolo
+    title_tag = main_container.find(id="productTitle")
+    title = clean_text(title_tag.get_text(strip=True)) if title_tag else "Titolo non disponibile"
+
+    # Estrazione e pulizia del prezzo (specifico al contenitore principale)
+    price_tag = (
+        main_container.find("span", {"class": "a-offscreen"}) or
+        main_container.find("span", {"id": "priceblock_ourprice"}) or
+        main_container.find("span", {"id": "priceblock_dealprice"})
+    )
     price = clean_price(price_tag.get_text(strip=True)) if price_tag else None
 
-    # Estrazione dell'URL dell'immagine
-    image_tag = soup.find("img", {"id": "landingImage"})
+    # Estrazione dell'URL dell'immagine (dal contenitore principale)
+    image_tag = main_container.find("img", {"id": "landingImage"})
     image_url = image_tag['src'] if image_tag else None
 
+    # Verifica che il prezzo sia disponibile
     if price is None:
+        print(f"Prezzo non disponibile per l'ASIN {asin} ({url})")
         return None
 
-    # Creiamo il dizionario con i dati del prodotto
+    # Creazione del dizionario con i dati del prodotto
     product_data = {
         "asin": asin,
         "title": title,
         "price": price,
-        "image_url": image_url,  # Aggiunge l'URL dell'immagine
+        "image_url": image_url,
         "extraction_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "price_history": [{"date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "price": price}]
     }
+
     return product_data
