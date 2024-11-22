@@ -1,13 +1,20 @@
 <template>
+
+
+
   <!-- Start block -->
 <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5 antialiased">
+
+
+
+
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
-      <!-- <button  @click="$router.go(-1)" data-dropdown-toggle="actionsDropdown" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" type="button">
-                            <svg class="-ml-1 mr-1.5 w-5 h-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path clip-rule="evenodd" fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                            </svg>
-                            Back
-                        </button> -->
+      <div class="mb-6">
+  <ChartPage :priceHistory="priceHistory" />
+</div>
+    
+<!-- <ProductHero /> -->
+
       <h1 class="text-2xl font-bold text-gray-800 mb-6">
         Price history for {{ productTitle }}
     </h1>
@@ -64,6 +71,9 @@
             </nav> -->
         </div>
     </div>
+
+
+
 </section>
 <!-- End block -->
 
@@ -71,14 +81,18 @@
 </template>
 
 <script>
+import ChartPage from "../components/ChartPage.vue";
+// import ProductHero from "../components/ProductHero.vue";
 export default {
   name: "ProductDetail",
+  components: { ChartPage },
   data() {
     return {
       productTitle: "",
       priceHistory: [],
     };
   },
+ 
   async created() {
     const asin = this.$route.params.asin; // Recupera l'ASIN dai parametri dell'URL
     await this.fetchPriceHistory(asin);
@@ -96,6 +110,7 @@ export default {
         const data = await response.json();
         this.priceHistory = data;
         this.productTitle = `${asin}`; // Sostituisci con il titolo reale se disponibile
+        
       } catch (error) {
         console.error("Errore nel caricamento dello storico dei prezzi:", error);
       }

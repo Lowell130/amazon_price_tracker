@@ -184,6 +184,10 @@
                 {
                     "date": "2024-11-22 13:47:39",
                     "price": "249.90"
+                },
+                {
+                    "date": "2024-11-22 21:23:11",
+                    "price": "249.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Fullview-Batteria-Snapdragon-Altoparlanti/dp/B0CYKCTWGS/",
@@ -192,7 +196,7 @@
         {
             "asin": "B0CST8ZHBC",
             "title": "HONOR Pad 9, tablet Wi-Fi da 12,1, 8 GB+256 GB, display con protezione degli occhi a 120 Hz, 2,5K, 8 altoparlanti, Android 13, Space Grey, 5301AHKN",
-            "price": "308.00",
+            "price": "229.90",
             "image_url": "https://m.media-amazon.com/images/I/71178LRzzkL.__AC_SX300_SY300_QL70_ML2_.jpg",
             "extraction_date": "2024-11-09 21:44:29",
             "price_history": [
@@ -363,6 +367,10 @@
                 {
                     "date": "2024-11-22 13:47:42",
                     "price": "308.00"
+                },
+                {
+                    "date": "2024-11-22 21:23:14",
+                    "price": "229.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-display-protezione-altoparlanti-5301AHKN/dp/B0CST8ZHBC/",
@@ -545,6 +553,10 @@
                 },
                 {
                     "date": "2024-11-22 13:47:45",
+                    "price": "229.90"
+                },
+                {
+                    "date": "2024-11-22 21:23:17",
                     "price": "229.90"
                 }
             ],
@@ -733,6 +745,10 @@
                 {
                     "date": "2024-11-22 13:47:48",
                     "price": "229.90"
+                },
+                {
+                    "date": "2024-11-22 21:23:20",
+                    "price": "229.90"
                 }
             ],
             "product_url": "https://www.amazon.it/HONOR-Pollici-Fullview-Snapdragon-Altoparlanti/dp/B0CRH9R5GQ/",
@@ -915,6 +931,10 @@
                 },
                 {
                     "date": "2024-11-22 13:47:52",
+                    "price": "287.38"
+                },
+                {
+                    "date": "2024-11-22 21:23:24",
                     "price": "287.38"
                 }
             ],
@@ -1103,6 +1123,10 @@
                 {
                     "date": "2024-11-22 13:47:55",
                     "price": "129.90"
+                },
+                {
+                    "date": "2024-11-22 21:23:27",
+                    "price": "129.90"
                 }
             ],
             "product_url": "https://www.amazon.it/Samsung-Monitor-S24AG302-1920x1080-FreeSync/dp/B0D4QYD65C/",
@@ -1246,6 +1270,10 @@
                 {
                     "date": "2024-11-22 13:47:58",
                     "price": "122.50"
+                },
+                {
+                    "date": "2024-11-22 21:23:31",
+                    "price": "122.50"
                 }
             ],
             "product_url": "https://www.amazon.it/San-Marco-SUPERCONFORT-anticondensa-termoisolante/dp/B01NAWU789/",
@@ -1380,6 +1408,10 @@
                 },
                 {
                     "date": "2024-11-22 13:48:02",
+                    "price": "249.99"
+                },
+                {
+                    "date": "2024-11-22 21:23:34",
                     "price": "249.99"
                 }
             ],
@@ -1520,6 +1552,10 @@
                 {
                     "date": "2024-11-22 13:48:05",
                     "price": "189.00"
+                },
+                {
+                    "date": "2024-11-22 21:23:38",
+                    "price": "189.00"
                 }
             ],
             "product_url": "https://www.amazon.it/dp/B0BT4WZVQT/ref=sspa_dk_detail_10?pf_rd_p=10c44ba0-99a9-46d2-be7c-ad851b65838d&pf_rd_r=M8WEC18BFXMGWN31PNAV&pd_rd_wg=0p7F7&pd_rd_w=3p8It&content-id=amzn1.sym.10c44ba0-99a9-46d2-be7c-ad851b65838d&pd_rd_r=d94b52fe-1218-4786-9f1f-913c77b1a507&s=pc&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWw&th=1",
@@ -1647,6 +1683,10 @@
                 {
                     "date": "2024-11-22 13:48:08",
                     "price": "265.90"
+                },
+                {
+                    "date": "2024-11-22 21:23:41",
+                    "price": "265.90"
                 }
             ],
             "product_url": "https://www.amazon.it/gp/product/B0D3KRGN4X/ref=ewc_pr_img_1?smid=A3IG65TKEEOT6C&psc=1",
@@ -1769,6 +1809,10 @@
                 },
                 {
                     "date": "2024-11-22 13:48:12",
+                    "price": "265.83"
+                },
+                {
+                    "date": "2024-11-22 21:23:44",
                     "price": "265.83"
                 }
             ],
@@ -1893,6 +1937,10 @@
                 {
                     "date": "2024-11-22 13:48:15",
                     "price": "259.99"
+                },
+                {
+                    "date": "2024-11-22 21:23:47",
+                    "price": "259.99"
                 }
             ],
             "product_url": "https://www.amazon.it/gp/product/B0BKNZSBRY/ref=ox_sc_saved_title_2?smid=A11IL2PNWYJU7H&th=1",
@@ -2016,133 +2064,14 @@
                 {
                     "date": "2024-11-22 13:48:18",
                     "price": "95.00"
+                },
+                {
+                    "date": "2024-11-22 21:23:51",
+                    "price": "95.00"
                 }
             ],
             "product_url": "https://www.amazon.it/dp/B075T9G133/ref=aod_recs_desktop_prsubs_0?th=1",
             "insertion_date": "2024-11-17 00:18:48"
-        },
-        {
-            "asin": "B00FBDE1SI",
-            "title": "Capatox - 10 litri",
-            "price": "89.80",
-            "image_url": "https://m.media-amazon.com/images/I/41h1gU5B5DL.__AC_SY300_SX300_QL70_ML2_.jpg",
-            "extraction_date": "2024-11-17 12:18:46",
-            "price_history": [
-                {
-                    "date": "2024-11-17 12:18:46",
-                    "price": "87.52"
-                },
-                {
-                    "date": "2024-11-17 12:36:45",
-                    "price": "87.52"
-                },
-                {
-                    "date": "2024-11-17 13:05:02",
-                    "price": "87.52"
-                },
-                {
-                    "date": "2024-11-17 14:14:27",
-                    "price": "87.52"
-                },
-                {
-                    "date": "2024-11-17 14:18:28",
-                    "price": "87.52"
-                },
-                {
-                    "date": "2024-11-17 14:22:45",
-                    "price": "87.52"
-                },
-                {
-                    "date": "2024-11-18 14:47:20",
-                    "price": "87.52"
-                },
-                {
-                    "date": "2024-11-19 09:51:26",
-                    "price": "87.52"
-                },
-                {
-                    "date": "2024-11-19 10:51:40",
-                    "price": "87.52"
-                },
-                {
-                    "date": "2024-11-19 11:36:02",
-                    "price": "87.52"
-                },
-                {
-                    "date": "2024-11-19 13:59:04",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-19 16:06:53",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-19 16:31:23",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-20 08:39:51",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-20 11:20:02",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-20 11:51:26",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-20 12:51:28",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-20 13:51:25",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-20 15:40:20",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-20 17:22:46",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-21 10:30:15",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-21 11:52:41",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-21 15:30:24",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-21 17:48:54",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-22 08:49:40",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-22 08:55:41",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-22 12:12:45",
-                    "price": "89.80"
-                },
-                {
-                    "date": "2024-11-22 13:48:21",
-                    "price": "89.80"
-                }
-            ],
-            "product_url": "https://www.amazon.it/Caparol-Capatox-10-litri/dp/B00FBDE1SI",
-            "insertion_date": "2024-11-17 12:18:46"
         },
         {
             "asin": "B01DVTDPOY",
@@ -2262,6 +2191,10 @@
                 {
                     "date": "2024-11-22 13:48:25",
                     "price": "18.90"
+                },
+                {
+                    "date": "2024-11-22 21:23:57",
+                    "price": "18.90"
                 }
             ],
             "product_url": "https://www.amazon.it/dp/B01DVTDPOY/ref=sspa_dk_detail_5?psc=1&pd_rd_i=B01DVTDPOY&pd_rd_w=VLbaj&content-id=amzn1.sym.10c44ba0-99a9-46d2-be7c-ad851b65838d&pf_rd_p=10c44ba0-99a9-46d2-be7c-ad851b65838d&pf_rd_r=HXBFM1AJPZE0N2S0YJFN&pd_rd_wg=uAjSm&pd_rd_r=ea46446b-b720-44f1-bc10-d9d88dd04a38&s=hpc&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWw",
@@ -2377,6 +2310,10 @@
                 {
                     "date": "2024-11-22 13:48:29",
                     "price": "16.14"
+                },
+                {
+                    "date": "2024-11-22 21:24:00",
+                    "price": "16.14"
                 }
             ],
             "product_url": "https://www.amazon.it/ZOMAHOME-Spray-Antimuffa-Muri-Interni/dp/B0C4Z5TWXY",
@@ -2487,6 +2424,10 @@
                 },
                 {
                     "date": "2024-11-22 13:48:32",
+                    "price": "59.00"
+                },
+                {
+                    "date": "2024-11-22 21:24:03",
                     "price": "59.00"
                 }
             ],
@@ -2603,6 +2544,10 @@
                 {
                     "date": "2024-11-22 13:48:35",
                     "price": "9.99"
+                },
+                {
+                    "date": "2024-11-22 21:24:06",
+                    "price": "9.99"
                 }
             ],
             "product_url": "https://www.amazon.it/dp/B08D9SPPQY/ref=sspa_dk_detail_3?psc=1&pd_rd_i=B08D9SPPQY&pd_rd_w=4Q5Gs&content-id=amzn1.sym.f397e835-237d-4dff-b319-bb212924eda4&pf_rd_p=f397e835-237d-4dff-b319-bb212924eda4&pf_rd_r=VYKADW84NTEXNNK15X4C&pd_rd_wg=4pHOU&pd_rd_r=9e2faada-e720-4f77-b3dc-db31b780dcaa&s=hpc&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM",
@@ -2718,6 +2663,10 @@
                 {
                     "date": "2024-11-22 13:48:38",
                     "price": "7.99"
+                },
+                {
+                    "date": "2024-11-22 21:24:09",
+                    "price": "7.99"
                 }
             ],
             "product_url": "https://www.amazon.it/dp/B08L3FHLPR/ref=sspa_dk_detail_3?psc=1&pd_rd_i=B08L3FHLPR&pd_rd_w=bWKxF&content-id=amzn1.sym.f397e835-237d-4dff-b319-bb212924eda4&pf_rd_p=f397e835-237d-4dff-b319-bb212924eda4&pf_rd_r=0ZNTA6W70X1XQE0V3W98&pd_rd_wg=B1mUD&pd_rd_r=2d3655d8-c772-42e9-82bb-05a2ad3277e8&s=hpc&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM",
@@ -2792,6 +2741,10 @@
                 },
                 {
                     "date": "2024-11-22 13:48:41",
+                    "price": "199.99"
+                },
+                {
+                    "date": "2024-11-22 21:24:12",
                     "price": "199.99"
                 }
             ],
@@ -2868,6 +2821,10 @@
                 {
                     "date": "2024-11-22 13:48:45",
                     "price": "399.00"
+                },
+                {
+                    "date": "2024-11-22 21:24:15",
+                    "price": "399.00"
                 }
             ],
             "product_url": "https://www.amazon.it/UE55DU7190UXZT-Upscaling-Q-Symphony-Integrato-Assistant/dp/B0D2DRXCJG",
@@ -2942,6 +2899,10 @@
                 },
                 {
                     "date": "2024-11-22 13:48:48",
+                    "price": "211.32"
+                },
+                {
+                    "date": "2024-11-22 21:24:19",
                     "price": "211.32"
                 }
             ],
@@ -3018,6 +2979,10 @@
                 {
                     "date": "2024-11-22 13:48:53",
                     "price": "172.13"
+                },
+                {
+                    "date": "2024-11-22 21:24:23",
+                    "price": "172.13"
                 }
             ],
             "product_url": "https://www.amazon.it/MSI-Gaming-Scheda-Socket-Memory/dp/B0C3R2TXHJ",
@@ -3092,6 +3057,10 @@
                 },
                 {
                     "date": "2024-11-22 13:48:56",
+                    "price": "179.00"
+                },
+                {
+                    "date": "2024-11-22 21:24:26",
                     "price": "179.00"
                 }
             ],
@@ -3168,85 +3137,14 @@
                 {
                     "date": "2024-11-22 13:48:59",
                     "price": "649.00"
+                },
+                {
+                    "date": "2024-11-22 21:24:29",
+                    "price": "649.00"
                 }
             ],
             "product_url": "https://www.amazon.it/HUAWEI-PaperMatte-Risoluzione-Frequenza-Aggiornamento/dp/B0DCGCHH4T",
             "insertion_date": "2024-11-19 16:58:18"
-        },
-        {
-            "asin": "B0CYCGSKT2",
-            "title": "Google Pixel Tablet \u2013 Tablet Android con schermo da 11 pollici e batteria a lunghissima durata \u2013 8 GB di RAM \u2013 128 GB di spazio di archiviazione \u2013 Grigio verde",
-            "price": "399.90",
-            "image_url": "https://m.media-amazon.com/images/I/71uBCaK+aHL._AC_SY300_SX300_.jpg",
-            "extraction_date": "2024-11-19 16:59:36",
-            "price_history": [
-                {
-                    "date": "2024-11-19 16:59:36",
-                    "price": "449.00"
-                },
-                {
-                    "date": "2024-11-20 08:40:31",
-                    "price": "449.00"
-                },
-                {
-                    "date": "2024-11-20 11:20:43",
-                    "price": "399.90"
-                },
-                {
-                    "date": "2024-11-20 11:52:07",
-                    "price": "399.90"
-                },
-                {
-                    "date": "2024-11-20 12:52:11",
-                    "price": "399.90"
-                },
-                {
-                    "date": "2024-11-20 13:52:05",
-                    "price": "399.90"
-                },
-                {
-                    "date": "2024-11-20 15:40:52",
-                    "price": "399.90"
-                },
-                {
-                    "date": "2024-11-20 17:23:25",
-                    "price": "399.90"
-                },
-                {
-                    "date": "2024-11-21 10:30:56",
-                    "price": "399.90"
-                },
-                {
-                    "date": "2024-11-21 11:53:25",
-                    "price": "399.90"
-                },
-                {
-                    "date": "2024-11-21 15:31:05",
-                    "price": ""
-                },
-                {
-                    "date": "2024-11-21 17:49:33",
-                    "price": ""
-                },
-                {
-                    "date": "2024-11-22 08:50:58",
-                    "price": "399.90"
-                },
-                {
-                    "date": "2024-11-22 08:56:21",
-                    "price": "399.90"
-                },
-                {
-                    "date": "2024-11-22 12:13:25",
-                    "price": "399.90"
-                },
-                {
-                    "date": "2024-11-22 13:49:02",
-                    "price": "399.90"
-                }
-            ],
-            "product_url": "https://www.amazon.it/Google-Pixel-Tablet-lunghissima-archiviazione/dp/B0CYCGSKT2",
-            "insertion_date": "2024-11-19 16:59:36"
         },
         {
             "asin": "B0CH5476VK",
@@ -3269,6 +3167,10 @@
                 },
                 {
                     "date": "2024-11-22 13:49:05",
+                    "price": "299.99"
+                },
+                {
+                    "date": "2024-11-22 21:24:35",
                     "price": "299.99"
                 }
             ],
@@ -3297,6 +3199,10 @@
                 {
                     "date": "2024-11-22 13:49:12",
                     "price": "249.99"
+                },
+                {
+                    "date": "2024-11-22 21:24:38",
+                    "price": "249.99"
                 }
             ],
             "product_url": "https://www.amazon.it/dp/B0CR9Z1T2Q/ref=sspa_dk_detail_6?psc=1&pd_rd_i=B0CR9Z1T2Q&pd_rd_w=582QB&content-id=amzn1.sym.6a040f92-1cc2-4f28-accb-8ca9b0e2f927&pf_rd_p=6a040f92-1cc2-4f28-accb-8ca9b0e2f927&pf_rd_r=JK5FRA6ZDJ8F62XNT5WH&pd_rd_wg=STbIj&pd_rd_r=b93b2ccc-2409-4749-9e5a-d5d216456f3e&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM",
@@ -3305,7 +3211,7 @@
         {
             "asin": "B0CZ3RVSXB",
             "title": "LG 27GS50F UltraGear Gaming Monitor 27 Full HD, 1920x1080, 180Hz, 1ms, AMD FreeSync Premium, HDMI 1.4 (HDCP 1.4), Display Port 1.2, Uscita Audio, Flicker Safe, Nero",
-            "price": "139.99",
+            "price": "129.99",
             "image_url": "https://m.media-amazon.com/images/I/814JWTIdg5L.__AC_SY300_SX300_QL70_ML2_.jpg",
             "extraction_date": "2024-11-22 08:54:28",
             "price_history": [
@@ -3324,6 +3230,10 @@
                 {
                     "date": "2024-11-22 13:49:16",
                     "price": "139.99"
+                },
+                {
+                    "date": "2024-11-22 21:24:41",
+                    "price": "129.99"
                 }
             ],
             "product_url": "https://www.amazon.it/LG-27GS50F-UltraGear-1920x1080-FreeSync/dp/B0CZ3RVSXB",
@@ -3346,6 +3256,10 @@
                 },
                 {
                     "date": "2024-11-22 13:49:19",
+                    "price": "299.99"
+                },
+                {
+                    "date": "2024-11-22 21:24:44",
                     "price": "299.99"
                 }
             ],
@@ -3370,10 +3284,29 @@
                 {
                     "date": "2024-11-22 13:49:23",
                     "price": "159.00"
+                },
+                {
+                    "date": "2024-11-22 21:24:48",
+                    "price": "159.00"
                 }
             ],
             "product_url": "https://www.amazon.it/Lenovo-Display-7040mAh-MediaTek-Esclusiva/dp/B0CQT997ZP",
             "insertion_date": "2024-11-22 12:11:44"
+        },
+        {
+            "asin": "B0CZ78S8GJ",
+            "title": "AOC Gaming Q27G4XD - 27 Zoll QHD Monitor, 180 Hz, 1 ms, FreeSync. Prem., G-Sync comp., HDR400 (2560x1420, HDMI 2.0, DisplyPort 1.4, USB Hub) schwarz",
+            "price": "209.99",
+            "image_url": "https://m.media-amazon.com/images/I/71Soydsg1cL.__AC_SX300_SY300_QL70_ML2_.jpg",
+            "extraction_date": "2024-11-22 22:21:23",
+            "price_history": [
+                {
+                    "date": "2024-11-22 22:21:23",
+                    "price": "209.99"
+                }
+            ],
+            "product_url": "https://www.amazon.it/dp/B0CZ78S8GJ/ref=sspa_dk_detail_0?psc=1&pd_rd_i=B0CZ78S8GJ&pd_rd_w=UMXo4&content-id=amzn1.sym.6a040f92-1cc2-4f28-accb-8ca9b0e2f927&pf_rd_p=6a040f92-1cc2-4f28-accb-8ca9b0e2f927&pf_rd_r=6Z4BMC1X1AD94R0K5SCD&pd_rd_wg=E4g0Z&pd_rd_r=47e920c8-f343-40da-ba30-d6f334ae01bf&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM",
+            "insertion_date": "2024-11-22 22:21:23"
         }
     ]
 }
