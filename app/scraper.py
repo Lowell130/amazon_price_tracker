@@ -1,5 +1,5 @@
-import requests
 from bs4 import BeautifulSoup
+import requests
 import re
 from datetime import datetime
 import time
@@ -49,7 +49,6 @@ def fetch_product_data(url, max_retries=3, delay=2):
     soup = BeautifulSoup(response.content, "html.parser")
 
     # Limitare il contesto a un container principale
-    # Prova a restringere il focus del scraping al contenitore principale del prodotto
     main_container = soup.find("div", {"id": "dp"})  # "dp" è il contenitore principale della pagina del prodotto
 
     if not main_container:
@@ -59,7 +58,7 @@ def fetch_product_data(url, max_retries=3, delay=2):
     title_tag = main_container.find(id="productTitle")
     title = clean_text(title_tag.get_text(strip=True)) if title_tag else "Titolo non disponibile"
 
-    # Estrazione e pulizia del prezzo (specifico al contenitore principale)
+    # Estrazione e pulizia del prezzo
     price_tag = (
         main_container.find("span", {"class": "a-offscreen"}) or
         main_container.find("span", {"id": "priceblock_ourprice"}) or
@@ -67,7 +66,7 @@ def fetch_product_data(url, max_retries=3, delay=2):
     )
     price = clean_price(price_tag.get_text(strip=True)) if price_tag else None
 
-    # Estrazione dell'URL dell'immagine (dal contenitore principale)
+    # Estrazione dell'URL dell'immagine
     image_tag = main_container.find("img", {"id": "landingImage"})
     image_url = image_tag['src'] if image_tag else None
 
@@ -85,5 +84,8 @@ def fetch_product_data(url, max_retries=3, delay=2):
         "extraction_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "price_history": [{"date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "price": price}]
     }
+
+    # Debug log per verificare i dati estratti
+    print(f"Dati estratti per {asin}: {product_data}")
 
     return product_data

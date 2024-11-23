@@ -6,3 +6,4 @@ requests        # Per fare richieste HTTP ai link Amazon
 beautifulsoup4  # Per il parsing HTML e scraping dei dati Amazon
 pydantic        # Per la gestione dei modelli dati (incluso in FastAPI)
 apscheduler
+pymongo

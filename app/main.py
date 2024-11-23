@@ -1,23 +1,20 @@
-# app/main.py
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 from app.auth import router as auth_router, get_current_user
-from app.crud import add_product_to_user, get_price_history
 from app.scraper import fetch_product_data
+from app.db import users_collection
 from pydantic import BaseModel
 from apscheduler.schedulers.background import BackgroundScheduler
-import os
-import json
 from datetime import datetime
-import app.config as config
+from bson.objectid import ObjectId
 
 app = FastAPI()
 
 origins = [
     "http://localhost:8080",
     "http://127.0.0.1:8080",
-    "https://amazon-price-tracker-delta.vercel.app" 
+    "https://amazon-price-tracker-delta.vercel.app"
 ]
 
 app.add_middleware(
@@ -32,72 +29,87 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app.include_router(auth_router, prefix="/api")
 
-USER_DATA_DIR = "data/users"
-
 class ProductRequest(BaseModel):
     product_url: str
 
 @app.post("/api/add-product/")
 async def add_product(request: ProductRequest, current_user: str = Depends(get_current_user)):
-    try:
-        result = add_product_to_user(current_user, request.product_url)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Errore interno del server")
+    """Aggiunge un prodotto per l'utente corrente."""
+    db_user = users_collection.find_one({"username": current_user})
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Verifica che il prodotto non sia già monitorato
+    for product in db_user.get("products", []):
+        if product["product_url"] == request.product_url:
+            raise HTTPException(status_code=400, detail="Product already being tracked")
+
+    # Recupera i dati del prodotto
+    product_data = fetch_product_data(request.product_url)
+    product_data["product_url"] = request.product_url
+    product_data["insertion_date"] = datetime.now().isoformat()
+    product_data["price_history"] = [{"date": datetime.now().isoformat(), "price": product_data["price"]}]
+
+    # Aggiungi il prodotto all'utente
+    users_collection.update_one(
+        {"_id": db_user["_id"]},
+        {"$push": {"products": product_data}}
+    )
+    return {"message": "Product added successfully"}
 
 @app.get("/api/price-history/{asin}")
 async def price_history(asin: str, current_user: str = Depends(get_current_user)):
-    try:
-        history = get_price_history(current_user, asin)
-        return history
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Errore interno del server")
+    """Ottiene la cronologia dei prezzi per un prodotto specifico."""
+    db_user = users_collection.find_one({"username": current_user})
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return product["price_history"]
 
 @app.post("/api/update-prices-manual/")
 async def update_prices_manual(current_user: str = Depends(get_current_user)):
-    """Endpoint per avviare manualmente l'aggiornamento dei prezzi."""
+    """Aggiorna manualmente i prezzi dei prodotti per l'utente corrente."""
     try:
         update_prices(user_filter=current_user)
-        return {"message": "Aggiornamento dei prezzi avviato manualmente"}
+        return {"message": "Price update triggered manually"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Errore durante l'aggiornamento manuale")
+        raise HTTPException(status_code=500, detail="Error during manual price update")
 
 def update_prices(user_filter=None):
-    """Aggiorna il prezzo di tutti i prodotti monitorati per ogni utente o solo per l'utente specificato."""
-    for user_file in os.listdir(USER_DATA_DIR):
-        if user_filter and not user_file.startswith(user_filter):
-            continue
-        user_path = os.path.join(USER_DATA_DIR, user_file)
-        with open(user_path, "r+") as f:
-            user_data = json.load(f)
-            for product in user_data.get("products", []):
-                try:
-                    updated_data = fetch_product_data(product["product_url"])
-                    if updated_data is None:
-                        print(f"Prezzo non disponibile per ASIN {product['asin']}, salto aggiornamento")
-                        continue
+    """Aggiorna il prezzo dei prodotti per tutti gli utenti o per un utente specifico."""
+    query = {"username": user_filter} if user_filter else {}
+    users = users_collection.find(query)
 
-                    new_price = updated_data["price"]
-                    last_price = product["price_history"][-1]["price"] if product["price_history"] else None
-
-                    product["price_history"].append({
-                        "date": updated_data["extraction_date"],
-                        "price": new_price
-                    })
-                    product["price"] = new_price
-                    print(f"Prezzo aggiornato per ASIN {product['asin']}: {new_price}")
-
-                except Exception as e:
-                    print(f"Errore durante l'aggiornamento del prodotto {product['asin']}: {e}")
+    for user in users:
+        products = user.get("products", [])
+        for product in products:
+            try:
+                updated_data = fetch_product_data(product["product_url"])
+                if not updated_data:
+                    print(f"Price not available for ASIN {product['asin']}, skipping update")
                     continue
 
-            f.seek(0)
-            json.dump(user_data, f, indent=4)
-            f.truncate()
+                new_price = updated_data["price"]
+                product["price_history"].append({
+                    "date": datetime.now().isoformat(),
+                    "price": new_price
+                })
+                product["price"] = new_price
+                print(f"Price updated for ASIN {product['asin']}: {new_price}")
+
+            except Exception as e:
+                print(f"Error updating product {product['asin']}: {e}")
+                continue
+
+        # Aggiorna i prodotti dell'utente nel database
+        users_collection.update_one(
+            {"_id": user["_id"]},
+            {"$set": {"products": products}}
+        )
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(update_prices, 'interval', hours=5)
