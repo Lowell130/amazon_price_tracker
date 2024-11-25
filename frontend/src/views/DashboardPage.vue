@@ -27,6 +27,17 @@
     />
   </div>
 
+   <!-- Dropdown categoria -->
+   <div class="flex-grow">
+    <select
+      v-model="selectedCategory"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg ..."
+    >
+      <option value="" disabled selected>Select a category</option>
+      <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+    </select>
+  </div>
+
   <!-- Pulsanti -->
   <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 w-full md:w-auto">
     <button  @click="addProduct" type="button" class="uppercase text-white bg-[#2557D6] hover:bg-[#2557D6]/90 focus:ring-4 focus:ring-[#2557D6]/50 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#2557D6]/50">
@@ -50,7 +61,7 @@
     >  <svg class="w-10 h-4 me-2 -ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
 </svg>
-      update now
+      update all
     </button>
 
  
@@ -77,7 +88,7 @@
             Aggiorna Prezzi Manualmente
           </button> -->
           <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-          <div v-if="isLoading" role="status" class="flex items-center justify-center">
+          <div v-if="isLoading" role="status" class="flex items-center justify-center mb-4">
   <svg
     aria-hidden="true"
     class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-red-600"
@@ -118,6 +129,33 @@ export default {
   data() {
     return {
       productUrl: "",
+      selectedCategory: "", // Nuova variabile per la categoria selezionata
+      categories: [
+  "Technology",
+  "Monitor",
+  "Smart-TV", 
+  "Sports", 
+  "Home", 
+  "Books", 
+  "DIY", 
+  "Smartwatches", 
+  "Smartphones",
+  "Fashion",
+  "Beauty & Personal Care",
+  "Electronics",
+  "Toys & Games",
+  "Kitchen",
+  "Health & Wellness",
+  "Automotive",
+  "Garden",
+  "Pets",
+  "Office Supplies",
+  "Groceries",
+  "Baby Products",
+  "Travel Gear"
+]
+, // Lista categorie
+    
       products: [],
       username: "",
       errorMessage: "",
@@ -147,30 +185,33 @@ export default {
     async addProduct() {
       try {
         this.isLoading = true;
-        const cleanedUrl = this.cleanAmazonUrl(this.productUrl); // Bonifica il link
+        const cleanedUrl = this.cleanAmazonUrl(this.productUrl);
         const response = await fetchWithToken(
           `${process.env.VUE_APP_API_BASE_URL}/add-product/`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ product_url: cleanedUrl }), // Usa il link bonificato
+            body: JSON.stringify({
+              product_url: cleanedUrl,
+              category: this.selectedCategory || null, // Invio la categoria selezionata o null
+            }),
           }
         );
-
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.detail);
         }
 
-        this.productUrl = ""; // Resetta il campo input
-        this.errorMessage = "";
+        this.productUrl = "";
+        this.selectedCategory = ""; // Resetta la categoria selezionata
         await this.fetchProducts();
       } catch (error) {
-        this.errorMessage = error.message;
+        console.error(error.message);
       } finally {
         this.isLoading = false;
       }
     },
+  
     async fetchProducts() {
       try {
         const response = await fetchWithToken(
@@ -237,69 +278,3 @@ export default {
 };
 </script>
 
-<!-- <style scoped>
-/* Stile della dashboard */
-.dashboard {
-  max-width: 100%;
-  margin: auto;
-  /* padding: 20px; */
-}
-
-.product-form {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
-  width: 60%;
-}
-
-.add-button, .update-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.add-button {
-  background-color: #4caf50;
-  color: white;
-}
-
-.add-button:hover {
-  background-color: #45a049;
-}
-
-.update-button {
-  background-color: #2196f3;
-  color: white;
-  margin-top: 10px;
-}
-
-.update-button:hover {
-  background-color: #1976d2;
-}
-
-.update-button:disabled {
-  background-color: #b3e5fc;
-  cursor: not-allowed;
-}
-
-.error-message {
-  color: red;
-  font-weight: bold;
-}
-
-.loading-message {
-  color: blue;
-  font-weight: bold;
-}
-</style> -->
