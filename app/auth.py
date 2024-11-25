@@ -91,30 +91,30 @@ async def dashboard(current_user: str = Depends(get_current_user)):
 
     return {"products": db_user.get("products", [])}
 
-# Endpoint per aggiungere un prodotto
-@router.post("/add-product/")
-async def add_product(request: ProductRequest, current_user: str = Depends(get_current_user)):
-    db_user = users_collection.find_one({"username": current_user})
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
+# # Endpoint per aggiungere un prodotto
+# @router.post("/add-product/")
+# async def add_product(request: ProductRequest, current_user: str = Depends(get_current_user)):
+#     db_user = users_collection.find_one({"username": current_user})
+#     if not db_user:
+#         raise HTTPException(status_code=404, detail="User not found")
 
-    # Verifica che il prodotto non sia già monitorato
-    for product in db_user.get("products", []):
-        if product["product_url"] == request.product_url:
-            raise HTTPException(status_code=400, detail="Product already being tracked")
+#     # Verifica che il prodotto non sia già monitorato
+#     for product in db_user.get("products", []):
+#         if product["product_url"] == request.product_url:
+#             raise HTTPException(status_code=400, detail="Product already being tracked")
 
-    # Recupera i dati del prodotto
-    product_data = fetch_product_data(request.product_url)
-    product_data["product_url"] = request.product_url
-    product_data["insertion_date"] = datetime.now().isoformat()
-    product_data["price_history"] = [{"date": datetime.now().isoformat(), "price": product_data["price"]}]
+#     # Recupera i dati del prodotto
+#     product_data = fetch_product_data(request.product_url)
+#     product_data["product_url"] = request.product_url
+#     product_data["insertion_date"] = datetime.now().isoformat()
+#     product_data["price_history"] = [{"date": datetime.now().isoformat(), "price": product_data["price"]}]
 
-    # Aggiungi il prodotto all'utente
-    users_collection.update_one(
-        {"_id": db_user["_id"]},
-        {"$push": {"products": product_data}}
-    )
-    return {"message": "Product added successfully"}
+#     # Aggiungi il prodotto all'utente
+#     users_collection.update_one(
+#         {"_id": db_user["_id"]},
+#         {"$push": {"products": product_data}}
+#     )
+#     return {"message": "Product added successfully"}
 
 # Endpoint per eliminare un prodotto monitorato dall'utente
 @router.delete("/remove-product/{asin}")
