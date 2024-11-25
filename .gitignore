@@ -130,3 +130,8 @@ dist
 .pnp.*
 *.pyc
 *.pyc
+Lib/site-packages/bcrypt/_bcrypt.pyd
+Lib/site-packages/charset_normalizer/md.cp311-win_amd64.pyd
+Lib/site-packages/charset_normalizer/md__mypyc.cp311-win_amd64.pyd
+Lib/site-packages/pydantic_core/_pydantic_core.cp311-win_amd64.pyd
+Scripts/python.exe
