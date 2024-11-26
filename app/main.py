@@ -155,7 +155,7 @@ def update_prices(user_filter=None, asin_filter=None):
 
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_prices, 'interval', hours=1)
+scheduler.add_job(update_prices, 'interval', hours=12)
 scheduler.start()
 
 

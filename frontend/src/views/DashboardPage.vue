@@ -113,7 +113,12 @@
     </div>
     <!-- <CombinedPriceChart :products="products" /> -->
 
-    <ProductList :products="products" @remove-product="removeProduct" />
+    <ProductList
+  :products="products"
+  @remove-product="removeProduct"
+  @refresh-products="fetchProducts"
+/>
+
   </section>
 </template>
 
@@ -131,28 +136,30 @@ export default {
       productUrl: "",
       selectedCategory: "", // Nuova variabile per la categoria selezionata
       categories: [
-  "Technology",
-  "Monitor",
-  "Smart-TV", 
-  "Sports", 
-  "Home", 
-  "Books", 
-  "DIY", 
-  "Smartwatches", 
-  "Smartphones",
-  "Fashion",
-  "Beauty & Personal Care",
-  "Electronics",
-  "Toys & Games",
-  "Kitchen",
-  "Health & Wellness",
   "Automotive",
-  "Garden",
-  "Pets",
-  "Office Supplies",
-  "Groceries",
-  "Baby Products",
-  "Travel Gear"
+"Baby Products",
+"Beauty & Personal Care",
+"Books",
+"DIY",
+"Electronics",
+"Fashion",
+"Garden",
+"Groceries",
+"Health & Wellness",
+"Home",
+"Kitchen",
+"Monitor",
+"Office Supplies",
+"Pets",
+"Smart-TV",
+"Smartphones",
+"Smartwatches",
+"Sports",
+"Tablet",
+"Technology",
+"Toys & Games",
+"Travel Gear"
+
 ]
 , // Lista categorie
     

@@ -32,14 +32,18 @@
               class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             >
               <tr>
-                <th scope="col" class="p-4"></th>
+                <!-- <th scope="col" class="p-4"></th> -->
                 <th scope="col" class="p-4">
                   <button
-                    @click="updateSelectedPrices"
-                    class="uppercase bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-                  >
-                    Update ({{ selectedAsins.length }})
-                  </button>
+    @click="updateSelectedPrices"
+    class="uppercase bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+>
+    <svg class="w-4 h-4 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
+    </svg>
+    <!-- ({{ selectedAsins.length }}) -->
+</button>
+
                 </th>
                 <th scope="col" class="p-4">Product</th>
                 <th scope="col" class="p-4">Category</th>
@@ -47,7 +51,7 @@
                 <!-- <th scope="col" class="p-4">Previous price</th> -->
                 <th scope="col" class="p-4">Max price</th>
                 <th scope="col" class="p-4">asin</th>
-                <th scope="col" class="p-4">&nbsp;</th>
+               <th scope="col" class="p-4">&nbsp;</th>
                 
                 <!-- <th scope="col" class="p-4"></th> -->
               </tr>
@@ -56,7 +60,7 @@
               <tr
                 class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <td class="p-4 w-4"></td>
+                <!-- <td class="p-4 w-4"></td> -->
                 <td
                   class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                 >
@@ -88,13 +92,14 @@
                       />
                     </div>
                     <span class="ml-3 text-right">
-                      {{ product.title.substring(0, 40)
-                      }}{{ product.title.length > 40 ? "..." : "" }}
+                      {{ product.title.substring(0, 30)
+                      }}{{ product.title.length > 30 ? "..." : "" }}
                       </span>
                   </div>
                 </th>
                 <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-  <span v-if="product.category">{{ product.category }}</span>
+                  <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-primary-900 dark:text-primary-300" v-if="product.category">{{ product.category }}</span>
+  
   <span v-else>-</span>
 </td>
                 <td class="px-4 py-3 font-medium">
@@ -133,28 +138,57 @@
                 <td
                   class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                 >
-                  <div class="flex items-center space-x-4">
-                    <a
+
+
+
+
+                 <div class="flex items-center space-x-4">
+                    <!-- <a
                       :href="product.product_url"
                       target="_blank"
                       class="uppercase text-gray-900 bg-[#F7BE38] hover:bg-[#F7BE38]/90 focus:ring-4 focus:outline-none focus:ring-[#F7BE38]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#F7BE38]/50"
                     >
                       Open
-                    </a>
-                    <button
+                    </a> -->
+                    <!-- <button
                       @click="viewPriceHistory(product.asin)"
                       class="uppercase text-gray-900 bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-500"
                     >
                       History
-                    </button>
+                    </button> -->
+                     <a :href="product.product_url" target="_blank" type="button" class="bg-yellow-400 text-white text-xs font-medium px-2 py-0.5 rounded dark:bg-yellow-400 dark:text-white">Open</a>
+                   <a href="#" @click="viewPriceHistory(product.asin)" type="button" class="bg-green-500 text-white text-xs font-medium px-2 py-0.5 rounded dark:bg-green-500 dark:text-white">History</a>
 
-                    <button
+                    <a href="#" type="button" @click="removeProduct(product.asin)" class="bg-red-600 text-white text-xs font-medium px-2 py-0.5 rounded dark:bg-red-600 dark:text-white">Remove</a>
+
+                    <!-- <button
                       @click="removeProduct(product.asin)"
                       class="uppercase hover:bg-red-800 text-white bg-red-600 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-500"
                     >
                       Delete
-                    </button>
-                  </div>
+                    </button> -->
+                  </div> 
+
+
+
+
+                
+                  <!-- <div class="inline-flex flex-col w-full rounded-md shadow-sm md:w-auto md:flex-row" role="group">
+          <button type="button"
+                  class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-t-lg md:rounded-tr-none md:rounded-l-lg hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-2 focus:ring-primary-700 focus:text-primary-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-primary-500 dark:focus:text-white">
+            History
+          </button>
+          <button type="button"
+                  class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-gray-200 border-x md:border-x-0 md:border-t md:border-b hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-2 focus:ring-primary-700 focus:text-primary-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-primary-500 dark:focus:text-white">
+            Link
+          </button>
+          <button type="button"
+                  class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-b-lg md:rounded-bl-none md:rounded-r-lg hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-2 focus:ring-primary-700 focus:text-primary-700 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-primary-500 dark:focus:text-white">
+            Delete
+          </button>
+        
+        </div>  -->
+                
                 </td>
                
               </tr>
@@ -231,7 +265,7 @@ export default {
       priceHistory: [],
       selectedAsins: [], // Elenco degli ASIN selezionati
       currentPage: 1,
-      itemsPerPage: 20,
+      itemsPerPage: 40,
       isLoading: false, // Nuova variabile per lo stato di caricamento
     };
   },
@@ -273,33 +307,36 @@ export default {
   },
   methods: {
     async updateSelectedPrices() {
-      try {
-        if (this.selectedAsins.length === 0) {
-          alert("Select at least one product to update.");
-          return;
-        }
+  try {
+    if (this.selectedAsins.length === 0) {
+      alert("Select at least one product to update.");
+      return;
+    }
 
-        const response = await fetchWithToken(
-          `${process.env.VUE_APP_API_BASE_URL}/update-selected-prices/`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(this.selectedAsins),
-          }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail);
-        }
-
-        const data = await response.json();
-        alert(`Updated products: ${data.updated_products.join(", ")}`);
-        await this.fetchProducts(); // Ricarica la lista aggiornata
-      } catch (error) {
-        console.error("Error updating selected prices:", error);
+    const response = await fetchWithToken(
+      `${process.env.VUE_APP_API_BASE_URL}/update-selected-prices/`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(this.selectedAsins),
       }
-    },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail);
+    }
+
+    const data = await response.json();
+    alert(`Updated products: ${data.updated_products.join(", ")}`);
+
+    // Emetti l'evento per informare il genitore di aggiornare i prodotti
+    this.$emit("refresh-products");
+  } catch (error) {
+    console.error("Error updating selected prices:", error);
+  }
+},
+
 
     getPriceChangePercentageRaw(product) {
       const maxPrice = this.getMaxPrice(product);
