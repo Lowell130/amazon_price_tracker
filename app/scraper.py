@@ -13,11 +13,32 @@ def get_asin_from_url(url):
     return match.group(1) if match else None
 
 def clean_price(price):
-    """Rimuove simboli di valuta e spazi dal prezzo, restituendo un valore numerico come stringa."""
+    """
+    Rimuove simboli di valuta e spazi dal prezzo, restituendo un valore numerico come stringa normalizzata.
+    Gestisce correttamente i prezzi sopra le migliaia.
+    """
+    # Rimuove simboli non numerici eccetto la virgola e il punto
     price = re.sub(r"[^\d,\.]", "", price)
-    if "," in price and price.count(".") == 1:
-        price = price.replace(",", "")
-    return price.replace(",", ".")
+    
+    # Gestione dei separatori
+    if "," in price and "." in price:
+        # Caso: "1.859,00" -> Corretto
+        if price.index(",") > price.index("."):
+            price = price.replace(".", "").replace(",", ".")
+        # Caso: "1,859.00" (inglese) -> Convertire
+        else:
+            price = price.replace(",", "")
+
+    elif "," in price:
+        # Caso: "1859,00" -> Sostituire la virgola con il punto
+        price = price.replace(",", ".")
+
+    # Converti in float per sicurezza e tronca le ultime due cifre
+    normalized_price = round(float(price), 2)
+
+    # Restituisci come stringa nel formato corretto
+    return f"{normalized_price:,.2f}".replace(",", "_").replace(".", ",").replace("_", ".")
+
 
 def clean_text(text):
     """Rimuove caratteri unicode problematici e pulisce il testo."""
@@ -60,6 +81,21 @@ def fetch_product_data(url, max_retries=3, delay=2):
     title_tag = main_container.find(id="productTitle")
     title = clean_text(title_tag.get_text(strip=True)) if title_tag else "Titolo non disponibile"
 
+    # Controllo disponibilità
+    availability_tag = main_container.find("div", {"id": "availability"})
+    availability_text = availability_tag.get_text(strip=True) if availability_tag else ""
+    if "non disponibile" in availability_text.lower() or "currently unavailable" in availability_text.lower():
+        print(f"Prodotto non disponibile: {title}")
+        return {
+            "asin": asin,
+            "title": title,
+            "price": None,
+            "image_url": None,
+            "availability": "Non disponibile",
+            "extraction_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "price_history": []
+        }
+
     # Estrazione e pulizia del prezzo
     price_tag = (
         main_container.find("span", {"class": "a-offscreen"}) or
@@ -75,7 +111,15 @@ def fetch_product_data(url, max_retries=3, delay=2):
     # Verifica che il prezzo sia disponibile
     if price is None:
         print(f"Prezzo non disponibile per l'ASIN {asin} ({url})")
-        return None
+        return {
+            "asin": asin,
+            "title": title,
+            "price": None,
+            "image_url": image_url,
+            "availability": "Prezzo non disponibile",
+            "extraction_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "price_history": []
+        }
 
     # Creazione del dizionario con i dati del prodotto
     product_data = {
@@ -83,6 +127,7 @@ def fetch_product_data(url, max_retries=3, delay=2):
         "title": title,
         "price": price,
         "image_url": image_url,
+        "availability": "Disponibile",
         "extraction_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "price_history": [{"date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "price": price}]
     }
@@ -91,3 +136,4 @@ def fetch_product_data(url, max_retries=3, delay=2):
     print(f"Dati estratti per {asin}: {product_data}")
 
     return product_data
+

@@ -15,6 +15,17 @@
 
   <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
     
+  <!-- Dropdown categoria -->
+  <div class="">
+    <select
+      v-model="selectedCategory"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg ..."
+    >
+      <option value="" disabled selected>Select a category</option>
+      <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+    </select>
+  </div>
+
   <!-- Campo di input fluido -->
   <div class="flex-grow">
     <input
@@ -27,16 +38,7 @@
     />
   </div>
 
-   <!-- Dropdown categoria -->
-   <div class="flex-grow">
-    <select
-      v-model="selectedCategory"
-      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg ..."
-    >
-      <option value="" disabled selected>Select a category</option>
-      <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-    </select>
-  </div>
+ 
 
   <!-- Pulsanti -->
   <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 w-full md:w-auto">

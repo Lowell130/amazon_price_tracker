@@ -36,6 +36,23 @@ class ProductRequest(BaseModel):
     product_url: str
     category: Optional[str] = None  # Campo facoltativo per la categoria
 
+
+@app.get("/api/product-details/{asin}")
+async def product_details(asin: str, current_user: str = Depends(get_current_user)):
+    """
+    Ottiene i dettagli completi di un prodotto specifico dato l'ASIN.
+    """
+    db_user = users_collection.find_one({"username": current_user})
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return product
+
+
 @app.post("/api/update-selected-prices/")
 async def update_selected_prices(
     asin_list: List[str],  # Riceve una lista di ASIN dal body della richiesta
