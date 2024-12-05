@@ -7,25 +7,57 @@
         </h5>
         <p class="text-base font-normal text-gray-500 dark:text-gray-400">Latest Price</p>
       </div>
+ 
+
       <div
-        class="flex items-center px-2.5 py-0.5 text-base font-semibold text-green-500 dark:text-green-500 text-center"
-        v-if="priceChange !== null">
-        {{ priceChange > 0 ? '+' : '' }}{{ priceChange }}%
-        <svg
-          class="w-3 h-3 ms-1"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 10 14"
-          :class="{ 'text-green-500': priceChange < 0, 'text-red-500': priceChange > 0 }">
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M5 13V1m0 0L1 5m4-4 4 4" />
-        </svg>
-      </div>
+  v-if="priceChange !== null"
+  class="flex items-center px-2.5 py-0.5 text-base font-semibold text-gray-400 dark:text-gray-300"
+  :class="{
+    'text-red-500': priceChange > 0,
+    'text-green-500': priceChange < 0,
+    'text-gray-200 dark:text-gray-300': priceChange === 0
+  }"
+>
+  {{ priceChange > 0 ? '+' : priceChange < 0 ? '' : '' }}{{ priceChange }}%
+  <svg
+    v-if="priceChange > 0 || priceChange < 0"
+    class="w-3 h-3 ms-1"
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 10 14"
+    :class="{
+      'text-red-500': priceChange > 0,
+      'text-green-500': priceChange < 0,
+    }"
+  >
+    <path
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      :d="priceChange > 0 ? 'M5 13V1m0 0L1 5m4-4 4 4' : 'M5 1v12m0 0L1 9m4 4 4-4'"
+    />
+  </svg>
+  <svg
+    v-else
+    class="w-6 h-6 text-gray-200 dark:text-white ms-1"
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <path
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M8 20V7m0 13-4-4m4 4 4-4m4-12v13m0-13 4 4m-4-4-4 4"
+    />
+  </svg>
+</div>
+
+
     </div>
     <div ref="chartContainer" class="h-50 w-full"></div>
     <div class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between">
@@ -44,7 +76,7 @@ export default {
   props: {
     priceHistory: {
       type: Array,
-      required: true,
+      required: true, // Assumiamo che priceHistory sia sempre fornito
     },
   },
   data() {
@@ -52,6 +84,7 @@ export default {
       latestPrice: null,
       priceChange: null,
       chart: null,
+      chartData: null,
     };
   },
   mounted() {
@@ -60,8 +93,7 @@ export default {
   },
   methods: {
     prepareData() {
-      if (!this.priceHistory || this.priceHistory.length === 0) return;
-
+      // Estrai prezzi e date
       const prices = this.priceHistory.map((entry) => parseFloat(entry.price));
       const dates = this.priceHistory.map((entry) =>
         new Date(entry.date).toLocaleDateString("it-IT", {
@@ -91,9 +123,6 @@ export default {
           height: "100%",
           fontFamily: "Inter, sans-serif",
           toolbar: { show: true },
-          dropShadow: {
-      enabled: false,
-    },
         },
         tooltip: { enabled: true, x: { show: false } },
         fill: {

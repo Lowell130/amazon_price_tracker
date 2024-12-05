@@ -18,12 +18,20 @@
   <!-- Dropdown categoria -->
   <div class="">
     <select
-      v-model="selectedCategory"
-      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg ..."
-    >
-      <option value="" disabled selected>Select a category</option>
-      <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-    </select>
+  v-model="selectedCategory"
+  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg"
+  required
+>
+  <option value="" disabled>Select a category</option>
+  <option
+    v-for="category in categories"
+    :key="category"
+    :value="category"
+  >
+    {{ category }}
+  </option>
+</select>
+
   </div>
 
   <!-- Campo di input fluido -->
@@ -43,26 +51,17 @@
   <!-- Pulsanti -->
   <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 w-full md:w-auto">
     <button  @click="addProduct" type="button" class="uppercase text-white bg-[#2557D6] hover:bg-[#2557D6]/90 focus:ring-4 focus:ring-[#2557D6]/50 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#2557D6]/50">
-      <svg class="w-10 h-4 me-2 -ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-</svg>Add Product
+     Add Product
 </button>
 
 
-    <!-- <button
-      @click="addProduct"
-      class="flex-shrink-0 flex items-center justify-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
-    >
-      Aggiungi Prodotto
-    </button> -->
+   
 
     <button
       @click="updatePricesManual"
             :disabled="isLoading"
       class="uppercase  hover:bg-red-800  text-white bg-red-600  focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-500"
-    >  <svg class="w-10 h-4 me-2 -ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-</svg>
+    >
       update all
     </button>
 
@@ -192,35 +191,42 @@ export default {
       return match ? match[0] : url;
     },
     async addProduct() {
-      try {
-        this.isLoading = true;
-        const cleanedUrl = this.cleanAmazonUrl(this.productUrl);
-        const response = await fetchWithToken(
-          `${process.env.VUE_APP_API_BASE_URL}/add-product/`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              product_url: cleanedUrl,
-              category: this.selectedCategory || null, // Invio la categoria selezionata o null
-            }),
-          }
-        );
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail);
-        }
+  try {
+    // Controlla che una categoria sia selezionata
+    if (!this.selectedCategory) {
+      alert("Seleziona una categoria prima di aggiungere un prodotto.");
+      return;
+    }
 
-        this.productUrl = "";
-        this.selectedCategory = ""; // Resetta la categoria selezionata
-        await this.fetchProducts();
-      } catch (error) {
-        console.error(error.message);
-      } finally {
-        this.isLoading = false;
+    this.isLoading = true;
+    const cleanedUrl = this.cleanAmazonUrl(this.productUrl);
+    const response = await fetchWithToken(
+      `${process.env.VUE_APP_API_BASE_URL}/add-product/`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          product_url: cleanedUrl,
+          category: this.selectedCategory, // Invia la categoria selezionata
+        }),
       }
-    },
-  
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail);
+    }
+
+    this.productUrl = "";
+    this.selectedCategory = ""; // Resetta la categoria selezionata
+    await this.fetchProducts();
+  } catch (error) {
+    console.error(error.message);
+  } finally {
+    this.isLoading = false;
+  }
+},
+
     async fetchProducts() {
       try {
         const response = await fetchWithToken(

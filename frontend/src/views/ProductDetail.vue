@@ -1,40 +1,69 @@
 <template>
   <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5 antialiased">
     <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
-      <div class="mb-6">
-        <ChartPage :priceHistory="priceHistory" />
-      </div>
+   
 
+
+      
       <!-- Dettagli del prodotto -->
       <ProductInfo v-if="product" :product="product" />
+     
 
       <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden mt-6">
-        <div v-if="priceHistory.length" class="overflow-x-auto">
-          <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-              <tr>
-                <th scope="col" class="px-4 py-4">Date</th>
-                <th scope="col" class="px-4 py-3">Price</th>
-                <th scope="col" class="px-4 py-3">Variation</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(entry, index) in priceHistory" :key="entry.date" class="border-b dark:border-gray-700">
-                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  {{ formatDate(entry.date) }}
-                </th>
-                <td class="px-4 py-3">
-                  <span> {{ entry.price }}</span>
-                </td>
-                <td class="px-4 py-3">
-                  <span v-if="index > 0">{{ getPriceChange(index) }}</span>
-                  <span v-else>-</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+  <div v-if="product" class="overflow-x-auto">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" class="px-4 py-4">Metric</th>
+          <th scope="col" class="px-4 py-3">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b dark:border-gray-700">
+          <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+            Maximum Price
+          </th>
+          <td v-if="product.max_price" class="px-4 py-3">
+            {{ product.max_price }}€ <span class="text-xs text-gray-900 dark:text-white" v-if="product.max_price_date">({{ formatDate(product.max_price_date) }})</span>
+          </td>
+          <td v-else class="px-4 py-3">-</td>
+        </tr>
+        <tr class="border-b dark:border-gray-700">
+          <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+            Minimum Price
+          </th>
+          <td v-if="product.min_price" class="px-4 py-3">
+            {{ product.min_price }}€ <span class="text-xs text-gray-900 dark:text-white" v-if="product.min_price_date">({{ formatDate(product.min_price_date) }})</span>
+          </td>
+          <td v-else class="px-4 py-3">-</td>
+        </tr>
+        <tr class="border-b dark:border-gray-700">
+          <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+            Average Price
+          </th>
+          <td v-if="product.average_price" class="px-4 py-3">{{ product.average_price }}€</td>
+          <td v-else class="px-4 py-3">-</td>
+        </tr>
+        <tr class="border-b dark:border-gray-700">
+          <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+            Current Price
+          </th>
+          <td v-if="product.price" class="px-4 py-3">
+            {{ product.price }}€ 
+          </td>
+          <td v-else class="px-4 py-3">-</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="mb-3 mt-3">
+        
+        <!-- Monta ChartPage solo quando product e price_history sono disponibili -->
+        <ChartPage v-if="product && product.price_history" :priceHistory="product.price_history" />
       </div>
+
+
     </div>
   </section>
 </template>
@@ -49,13 +78,11 @@ export default {
   data() {
     return {
       product: null,
-      priceHistory: [],
     };
   },
   async created() {
     const asin = this.$route.params.asin;
     await this.fetchProductDetails(asin);
-    await this.fetchPriceHistory(asin);
   },
   methods: {
     async fetchProductDetails(asin) {
@@ -72,45 +99,10 @@ export default {
         console.error("Error fetching product details:", error);
       }
     },
-    async fetchPriceHistory(asin) {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(
-          `${process.env.VUE_APP_API_BASE_URL}/price-history/${asin}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        this.priceHistory = await response.json();
-      } catch (error) {
-        console.error("Error fetching price history:", error);
-      }
-    },
     formatDate(date) {
-      const options = {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      };
-      return new Date(date).toLocaleDateString("it-IT", options);
-    },
-    getPriceChange(index) {
-      const previousPrice = parseFloat(this.priceHistory[index - 1].price);
-      const currentPrice = parseFloat(this.priceHistory[index].price);
-      const difference = currentPrice - previousPrice;
-      const percentageChange = ((difference / previousPrice) * 100).toFixed(2);
-      return `${difference > 0 ? "+" : ""}${percentageChange}%`;
-    },
-    getPriceClass(price) {
-      const latestPrice = parseFloat(
-        this.priceHistory[this.priceHistory.length - 1].price
-      );
-      const currentPrice = parseFloat(price);
-      if (currentPrice > latestPrice) return "text-red-500";
-      if (currentPrice < latestPrice) return "text-green-500";
-      return "text-gray-700";
+      if (!date) return null;
+      const options = { year: "numeric", month: "short", day: "numeric" };
+      return new Date(date).toLocaleDateString("en-US", options);
     },
   },
 };

@@ -70,7 +70,10 @@ async def update_selected_prices(
 
 @app.post("/api/add-product/")
 async def add_product(request: ProductRequest, current_user: str = Depends(get_current_user)):
-    """Aggiunge un prodotto per l'utente corrente."""
+    """
+    Aggiunge un prodotto per l'utente corrente.
+    """
+    # Recupera l'utente dal database
     db_user = users_collection.find_one({"username": current_user})
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -80,36 +83,45 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
         if product["product_url"] == request.product_url:
             raise HTTPException(status_code=400, detail="Product already being tracked")
 
-    # Recupera i dati del prodotto
+    # Esegue scraping del prodotto
     product_data = fetch_product_data(request.product_url)
-    if not product_data:
+    if not product_data or not product_data.get("price"):
         raise HTTPException(status_code=400, detail="Error fetching product data")
-    
-    product_data["product_url"] = request.product_url
-    product_data["category"] = request.category  # Salva la categoria
-    product_data["insertion_date"] = datetime.now().isoformat()
-    product_data["price_history"] = [{"date": datetime.now().isoformat(), "price": product_data["price"]}]
 
-    # Aggiungi il prodotto all'utente
+    # Inizializza i dati del prodotto
+    initial_price = float(product_data["price"])
+    product_data["product_url"] = request.product_url
+    product_data["category"] = request.category  # Aggiunge la categoria
+    product_data["insertion_date"] = datetime.now().isoformat()
+    product_data["price_history"] = [{"date": datetime.now().isoformat(), "price": initial_price}]
+    product_data["max_price"] = initial_price
+    product_data["min_price"] = initial_price
+    product_data["average_price"] = initial_price
+
+    # Aggiunge il prodotto al database dell'utente
     users_collection.update_one(
         {"_id": db_user["_id"]},
         {"$push": {"products": product_data}}
     )
     return {"message": "Product added successfully"}
 
-
-@app.get("/api/price-history/{asin}")
-async def price_history(asin: str, current_user: str = Depends(get_current_user)):
-    """Ottiene la cronologia dei prezzi per un prodotto specifico."""
+@app.get("/api/product-details/{asin}")
+async def product_details(asin: str, current_user: str = Depends(get_current_user)):
     db_user = users_collection.find_one({"username": current_user})
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
-
     product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-
-    return product["price_history"]
+    return {
+        "asin": product["asin"],
+        "title": product["title"],
+        "current_price": product["price"],
+        "max_price": product["max_price"],
+        "min_price": product["min_price"],
+        "average_price": product["average_price"],
+        "price_history": product["price_history"]
+    }
 
 @app.post("/api/update-prices-manual/")
 async def update_prices_manual(current_user: str = Depends(get_current_user)):
@@ -124,55 +136,60 @@ async def update_prices_manual(current_user: str = Depends(get_current_user)):
 
 
 def update_prices(user_filter=None, asin_filter=None):
-    """
-    Aggiorna il prezzo dei prodotti per tutti gli utenti o solo per un utente specifico e un elenco di ASIN.
-    :param user_filter: Stringa per filtrare un utente specifico.
-    :param asin_filter: Lista di ASIN per aggiornare solo prodotti specifici.
-    """
-    # Filtra utenti (opzionale)
     query = {"username": user_filter} if user_filter else {}
     users = users_collection.find(query)
-    updated_products = []  # Per tracciare gli ASIN aggiornati
+    updated_products = []
 
     for user in users:
         products = user.get("products", [])
         for product in products:
-            # Filtra solo i prodotti con ASIN specificati
             if asin_filter and product["asin"] not in asin_filter:
                 continue
 
             try:
-                # Fetch dati aggiornati dal prodotto
                 updated_data = fetch_product_data(product["product_url"])
                 if not updated_data:
                     print(f"Price not available for ASIN {product['asin']}, skipping update")
                     continue
 
-                # Aggiorna prezzo e storico dei prezzi
-                new_price = updated_data["price"]
+                new_price = float(updated_data["price"])
                 product["price_history"].append({
                     "date": datetime.now().isoformat(),
                     "price": new_price
                 })
                 product["price"] = new_price
-                updated_products.append(product["asin"])  # Aggiungi ASIN aggiornato alla lista
+
+                # Calcola valori massimo, minimo e media
+                price_history = product["price_history"]
+                max_price_entry = max(price_history, key=lambda x: float(x["price"]))
+                min_price_entry = min(price_history, key=lambda x: float(x["price"]))
+
+                product["max_price"] = float(max_price_entry["price"])
+                product["min_price"] = float(min_price_entry["price"])
+                product["max_price_date"] = max_price_entry["date"]
+                product["min_price_date"] = min_price_entry["date"]
+                product["average_price"] = round(
+                    sum(float(entry["price"]) for entry in price_history) / len(price_history), 2
+                )
+
+                updated_products.append(product["asin"])
                 print(f"Price updated for ASIN {product['asin']}: {new_price}")
 
             except Exception as e:
                 print(f"Error updating product {product['asin']}: {e}")
                 continue
 
-        # Aggiorna i prodotti nel database
         users_collection.update_one(
             {"_id": user["_id"]},
             {"$set": {"products": products}}
         )
 
-    return updated_products  # Restituisce gli ASIN aggiornati
+    return updated_products
+
 
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_prices, 'interval', hours=12)
+scheduler.add_job(update_prices, 'interval', hours=1)
 scheduler.start()
 
 

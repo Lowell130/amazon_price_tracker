@@ -41,7 +41,14 @@
                   </button>
                 </th>
                 <th scope="col" class="p-4">Product</th>
-                <th scope="col" class="p-4">Category</th>
+                <th scope="col" class="p-4">
+                  <div class="flex items-center">
+                  Category
+                  <a href="#"><svg class="w-3 h-3 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"/>
+  </svg></a>
+                  </div>
+                </th>
                 <th scope="col" class="p-4">Current price</th>
                 <!-- <th scope="col" class="p-4">Previous price</th> -->
                 <th scope="col" class="p-4">Max price</th>
@@ -67,7 +74,7 @@
                       class="sr-only peer"
                     />
                     <div
-                      class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+                      class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"
                     ></div>
                   </label>
                 </td>
@@ -103,18 +110,24 @@
 
                   <span v-else>-</span>
                 </td>
-                <td class="px-4 py-3 font-medium">
-                  <span>{{ product.price }}</span>
-                </td>
-
-             
-                <td
-                  class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                <td v-if="product.price && product.price !== 'null'" class="px-4 py-3 font-medium">
+  <span>{{ product.price }}</span>
+</td>
+<td v-else class="px-4 py-3 font-medium">
+  <span>N/A</span>
+</td>
+                <td v-if="product.max_price"
+                  class="px-4 py-3 font-medium"
                 >
-                  <strong>?€</strong>
+                  <span>{{ product.max_price }}</span>
+                </td>
+                <td v-else
+                  class="px-4 py-3 font-medium"
+                >
+                  <span>-</span>
                 </td>
                 <td
-                  class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  class="px-4 py-3 font-medium"
                 >
                   <span class="text-gray-500 dark:text-gray-400">{{
                     product.asin
@@ -124,7 +137,6 @@
                   class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                 >
                   <div class="flex items-center space-x-4">
-               
                     <a
                       :href="product.product_url"
                       target="_blank"
@@ -197,19 +209,41 @@
                         />
                       </svg>
                     </a>
-
-                
                   </div>
-
-            
                 </td>
               </tr>
             </tbody>
           </table>
+          <nav class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4" aria-label="Table navigation">
+        <span class="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">Showing <span class="font-semibold text-gray-900 dark:text-white">1-10</span> of <span class="font-semibold text-gray-900 dark:text-white">1000</span></span>
+        <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
+            <li>
+                <a href="#" class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Previous</a>
+            </li>
+            <li>
+                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
+            </li>
+            <li>
+                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
+            </li>
+            <li>
+                <a href="#" aria-current="page" class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
+            </li>
+            <li>
+                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">4</a>
+            </li>
+            <li>
+                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">5</a>
+            </li>
+            <li>
+        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</a>
+            </li>
+        </ul>
+    </nav>
         </div>
       </div>
     </div>
-   </div>
+  </div>
 </template>
 
 <script>
@@ -268,10 +302,6 @@ export default {
       }
     },
 
-  
-   
-  
-
     viewPriceHistory(asin) {
       this.$router.push(`/products/${asin}`);
     },
@@ -281,3 +311,11 @@ export default {
   },
 };
 </script>
+
+
+<style scoped>
+nav a, nav button {
+    margin-right: 0!important
+    
+}
+</style>
