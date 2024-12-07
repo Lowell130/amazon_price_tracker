@@ -84,13 +84,13 @@
         <p class="text-gray-600 text-sm mb-2">ASIN: {{ product.asin }}</p>
         <p class="text-gray-600 text-sm mb-2">Insertion Date: {{ formatDate(product.insertion_date) }}</p>
         <p class="text-gray-600 text-sm mb-2">Price: <span class="text-green-600 font-bold">{{ product.price }}€</span></p>
-        <a
+       <p class="mt-4"> <a
           :href="product.product_url"
           target="_blank"
-          class="text-blue-500 hover:underline text-sm"
+          class=" text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-yellow-600 dark:hover:bg-yellow-700 focus:outline-none dark:focus:ring-yellow-800"
         >
           View on Amazon
-        </a>
+        </a></p>
         </div>
       </div>
     </div>
