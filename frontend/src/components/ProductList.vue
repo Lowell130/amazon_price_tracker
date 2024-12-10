@@ -13,7 +13,7 @@
               class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
             >
               <tr>
-                <!-- <th scope="col" class="p-4"></th> -->
+     
                 <th scope="col" class="p-4">
                   <button
                     @click="updateSelectedPrices"
@@ -58,12 +58,11 @@
                     </svg>
       </span>
     </th>
-                <!-- <th scope="col" class="p-4">Previous price</th> -->
+    <th scope="col" class="p-4">Prev Price</th>
                 <th scope="col" class="p-4">Max price</th>
                 <th scope="col" class="p-4">asin</th>
                 <th scope="col" class="p-4">&nbsp;</th>
-
-                <!-- <th scope="col" class="p-4"></th> -->
+              
               </tr>
             </thead>
             <tbody v-for="product in paginatedProducts" :key="product.asin">
@@ -124,6 +123,9 @@
 </td>
 <td v-else class="px-4 py-3 font-medium">
   <span>N/A</span>
+</td>
+<td class="px-4 py-3 font-medium">
+  <span v-html="calculatePriceDiff(product)"></span>
 </td>
                 <td v-if="product.max_price"
                   class="px-4 py-3 font-medium"
@@ -342,7 +344,41 @@ export default {
 
 
   methods: {
- 
+
+    calculatePriceDiff(product) {
+  const history = product.price_history;
+  if (!history || history.length < 2) {
+    return "="; // Non c'è abbastanza cronologia per calcolare la differenza
+  }
+
+  const lastPrice = history[history.length - 1].price; // Prezzo attuale
+  const previousPrice = history[history.length - 2].price; // Prezzo precedente
+
+  if (lastPrice === previousPrice) {
+    return `<span><svg class="w-5 h-5 text-gray-300 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 20V10m0 10-3-3m3 3 3-3m5-13v10m0-10 3 3m-3-3-3 3"/>
+</svg>
+</span>`; // Prezzo invariato
+  }
+
+  const diffPercentage = ((lastPrice - previousPrice) / previousPrice) * 100;
+
+  if (diffPercentage > 0) {
+    return `<span class="text-red-500 flex">+${diffPercentage.toFixed(2)}% <svg class="w-5 h-5 text-red-500 dark:text-red-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v13m0-13 4 4m-4-4-4 4"/>
+</svg>
+</span>`; // Incremento positivo
+  } else {
+    return `<span class="text-green-500 flex items-center">
+  ${diffPercentage.toFixed(2)}%
+  <svg class="w-5 h-5 text-green-500 dark:text-green-500 ml-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19V5m0 14-4-4m4 4 4-4"/>
+  </svg>
+</span>
+`; // Decremento negativo
+  }
+},
+
     sort(column) {
     if (this.sortBy === column) {
       this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";

@@ -83,7 +83,8 @@
           <p class="text-gray-600 text-sm mb-2">Category: {{ product.category }}</p>
         <p class="text-gray-600 text-sm mb-2">ASIN: {{ product.asin }}</p>
         <p class="text-gray-600 text-sm mb-2">Insertion Date: {{ formatDate(product.insertion_date) }}</p>
-        <p class="text-gray-600 text-sm mb-2">Price: <span class="text-green-600 font-bold">{{ product.price }}€</span></p>
+        <p class="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white">{{ product.price }}€</p>
+       
        <p class="mt-4"> <a
           :href="product.product_url"
           target="_blank"

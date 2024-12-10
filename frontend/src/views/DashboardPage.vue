@@ -119,7 +119,60 @@
   @remove-product="removeProduct"
   @refresh-products="fetchProducts"
 />
-
+ <!-- Modale -->
+ <div
+      v-if="showModal"
+      id="popup-modal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+    >
+      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 w-11/12 max-w-md p-6">
+        <button
+          @click="closeModal"
+          class="absolute top-3 right-3 text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8"
+        >
+          <svg
+            class="w-4 h-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+        <div class="text-center">
+          <svg
+            class="mx-auto mb-4 text-gray-400 w-12 h-12"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 16h-1v-4h-1m-1-4h4m1 5a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z"
+            />
+          </svg>
+          <h3 class="mb-5 text-lg font-medium text-gray-700">
+            Seleziona una categoria prima di aggiungere un prodotto.
+          </h3>
+          <button
+            @click="closeModal"
+            class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-800"
+          >
+            Ok
+          </button>
+        </div>
+      </div>
+ </div>
+  <!-- EndModale -->
   </section>
 </template>
 
@@ -136,6 +189,7 @@ export default {
     return {
       productUrl: "",
       selectedCategory: "", // Nuova variabile per la categoria selezionata
+      showModal: false, // Stato della visibilità della modale
       categories: [
   "Automotive",
 "Baby Products",
@@ -194,8 +248,10 @@ export default {
   try {
     // Controlla che una categoria sia selezionata
     if (!this.selectedCategory) {
-      alert("Seleziona una categoria prima di aggiungere un prodotto.");
-      return;
+      {
+        this.showModal = true; // Mostra la modale
+        return;
+      }
     }
 
     this.isLoading = true;
@@ -225,7 +281,11 @@ export default {
   } finally {
     this.isLoading = false;
   }
+  
 },
+closeModal() {
+      this.showModal = false; // Nasconde la modale
+    },
 
     async fetchProducts() {
       try {

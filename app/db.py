@@ -1,3 +1,4 @@
+#db.py
 from pymongo import MongoClient
 
 # Hardcoded URI per testare la connessione
