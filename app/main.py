@@ -133,8 +133,6 @@ async def update_prices_manual(current_user: str = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail="Error during manual price update")
     
 
-
-
 def update_prices(user_filter=None, asin_filter=None):
     query = {"username": user_filter} if user_filter else {}
     users = users_collection.find(query)
@@ -148,8 +146,9 @@ def update_prices(user_filter=None, asin_filter=None):
 
             try:
                 updated_data = fetch_product_data(product["product_url"])
-                if not updated_data:
-                    print(f"Price not available for ASIN {product['asin']}, skipping update")
+                if not updated_data or updated_data["price"] is None:
+                    print(f"Product {product['asin']} is not available or has no price.")
+                    product["availability"] = "Non disponibile"
                     continue
 
                 new_price = float(updated_data["price"])
@@ -158,6 +157,7 @@ def update_prices(user_filter=None, asin_filter=None):
                     "price": new_price
                 })
                 product["price"] = new_price
+                product["availability"] = "Disponibile"
 
                 # Calcola valori massimo, minimo e media
                 price_history = product["price_history"]
@@ -185,7 +185,6 @@ def update_prices(user_filter=None, asin_filter=None):
         )
 
     return updated_products
-
 
 
 scheduler = BackgroundScheduler()

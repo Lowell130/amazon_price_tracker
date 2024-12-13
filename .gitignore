@@ -137,3 +137,4 @@ Lib/site-packages/pydantic_core/_pydantic_core.cp311-win_amd64.pyd
 Scripts/python.exe
 *.pyc
 *.pyc
+*.pyc

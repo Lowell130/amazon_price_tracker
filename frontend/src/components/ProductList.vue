@@ -17,7 +17,7 @@
                 <th scope="col" class="p-4">
                   <button
                     @click="updateSelectedPrices"
-                    class="uppercase bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                    class="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700"
                   >
                     <svg
                       class="w-4 h-4 text-white dark:text-white"
@@ -58,7 +58,7 @@
                     </svg>
       </span>
     </th>
-    <th scope="col" class="p-4">Prev Price</th>
+    <th scope="col" class="p-4">Diff</th>
                 <th scope="col" class="p-4">Max price</th>
                 <th scope="col" class="p-4">asin</th>
                 <th scope="col" class="p-4">&nbsp;</th>
@@ -118,12 +118,17 @@
 
                   <span v-else>-</span>
                 </td>
-                <td v-if="product.price && product.price !== 'null'" class="px-4 py-3 font-medium">
+
+
+                <td v-if="product.availability !== 'Non disponibile' && product.price && product.price !== 'null'" class="px-4 py-3 font-medium">
   <span>{{ product.price }}</span>
 </td>
 <td v-else class="px-4 py-3 font-medium">
-  <span>N/A</span>
+  <span class="flex items-center text-gray-500">
+    <div class="inline-block w-4 h-4 mr-2 bg-red-700 rounded-full"></div>
+  </span>
 </td>
+       
 <td class="px-4 py-3 font-medium">
   <span v-html="calculatePriceDiff(product)"></span>
 </td>

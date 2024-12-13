@@ -40,7 +40,7 @@ def fetch_product_data(url, max_retries=3, delay=2):
 
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
-        "Accept-Language": "it-IT,it;q=0.9"  # Specifica la lingua desiderata
+        "Accept-Language": "it-IT,it;q=0.9"
     }
 
     for attempt in range(max_retries):
@@ -68,25 +68,22 @@ def fetch_product_data(url, max_retries=3, delay=2):
 
     # Controllo disponibilità
     availability_tag = main_container.find("div", {"id": "availability"})
-    availability_text = availability_tag.get_text(strip=True) if availability_tag else ""
-    if "non disponibile" in availability_text.lower() or "currently unavailable" in availability_text.lower():
-        return {
-            "asin": asin,
-            "title": title,
-            "price": None,
-            "image_url": None,
-            "availability": "Non disponibile",
-            "extraction_date": datetime.now().isoformat(),
-            "price_history": []
-        }
+    availability_text = availability_tag.get_text(strip=True).lower() if availability_tag else ""
+    is_available = not ("non disponibile" in availability_text or "currently unavailable" in availability_text)
 
     # Estrazione del prezzo
-    price_tag = (
-        main_container.find("span", {"class": "a-offscreen"}) or
-        main_container.find("span", {"id": "priceblock_ourprice"}) or
-        main_container.find("span", {"id": "priceblock_dealprice"})
-    )
-    price = clean_price(price_tag.get_text(strip=True)) if price_tag else None
+    price = None
+    if is_available:
+        price_tag = (
+            main_container.find("span", {"class": "a-offscreen"}) or
+            main_container.find("span", {"id": "priceblock_ourprice"}) or
+            main_container.find("span", {"id": "priceblock_dealprice"})
+        )
+        if price_tag:
+            try:
+                price = clean_price(price_tag.get_text(strip=True))
+            except ValueError:
+                pass
 
     # Estrazione dell'URL dell'immagine
     image_tag = main_container.find("img", {"id": "landingImage"})
@@ -97,7 +94,8 @@ def fetch_product_data(url, max_retries=3, delay=2):
         "title": title,
         "price": price,
         "image_url": image_url,
-        "availability": "Disponibile",
+        "availability": "Disponibile" if is_available else "Non disponibile",
         "extraction_date": datetime.now().isoformat(),
-        "price_history": [{"date": datetime.now().isoformat(), "price": price}]
+        "price_history": [{"date": datetime.now().isoformat(), "price": price}] if price else []
     }
+

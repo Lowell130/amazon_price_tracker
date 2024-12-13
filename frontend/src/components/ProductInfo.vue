@@ -83,8 +83,15 @@
           <p class="text-gray-600 text-sm mb-2">Category: {{ product.category }}</p>
         <p class="text-gray-600 text-sm mb-2">ASIN: {{ product.asin }}</p>
         <p class="text-gray-600 text-sm mb-2">Insertion Date: {{ formatDate(product.insertion_date) }}</p>
-        <p class="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white">{{ product.price }}€</p>
-       
+        <p v-if="product.availability !== 'Non disponibile'" class="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white">
+  {{ product.price }}€
+</p>
+<p v-else class="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white flex items-center">
+  N/A
+  <svg class="w-5 h-5 ml-1 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m4-4H8"/>
+  </svg>
+</p>       
        <p class="mt-4"> <a
           :href="product.product_url"
           target="_blank"
