@@ -28,7 +28,7 @@
       <!-- Dettagli del prodotto -->
       <ProductInfo v-if="product" :product="product" />
 
-      <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden mt-6">
+      <div class="bg-white dark:bg-gray-800 relative overflow-hidden">
         <div v-if="product" class="overflow-x-auto">
           <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -76,7 +76,7 @@
           </table>
         </div>
       </div>
-      <div class="mb-3 mt-3">
+      <div class="mb-3">
         <!-- Monta ChartPage solo quando product e price_history sono disponibili -->
         <ChartPage v-if="product && product.price_history" :priceHistory="product.price_history" />
       </div>

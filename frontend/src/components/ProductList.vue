@@ -7,6 +7,78 @@
         <SpinnerComp v-if="isLoading" />
         <!-- PRODUCTS LIST START -->
         <div v-else class="overflow-x-auto">
+
+
+
+
+
+          <div class="flex flex-wrap border-b justify-start gap-4 items-center p-4 bg-gray-50 dark:bg-gray-700">
+  <!-- Search Product -->
+  <div class="mb-2 sm:mb-0 w-full sm:w-auto">
+    <input
+      v-model="filters.searchQuery"
+      @input="applyFilters"
+      type="text"
+      placeholder="Search product"
+      class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg p-2 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+    />
+  </div>
+
+  <!-- Filter by Category -->
+  <div class="mb-2 sm:mb-0 w-full sm:w-auto">
+    <select
+      v-model="filters.selectedCategory"
+      @change="applyFilters"
+      class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg p-2 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+    >
+      <option value="">All Categories</option>
+      <option v-for="category in uniqueCategories" :key="category" :value="category">
+        {{ category }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Filter by Price Range -->
+  <div class="mb-2 sm:mb-0 w-full sm:w-auto">
+    <select
+      v-model="filters.selectedPriceRange"
+      @change="applyFilters"
+      class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg p-2 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+    >
+      <option value="">All Price Ranges</option>
+      <option v-for="range in priceRanges" :key="range.label" :value="range.value">
+        {{ range.label }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Clear Filters Button -->
+  <div class="mb-2 sm:mb-0 w-full sm:w-auto">
+    <button
+      @click="clearFilters"
+      class="block w-full text-sm text-white bg-red-500 hover:bg-red-600 border border-red-600 rounded-lg p-2 dark:bg-red-600 dark:hover:bg-red-700"
+    >
+      Clear Filters
+    </button>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
           >
             <thead
@@ -304,15 +376,26 @@ export default {
   props: ["products"],
   data() {
     return {
-      priceHistory: [],
       localProducts: [], // Copia dei prodotti per il componente
-    selectedAsins: [],
-    isLoading: false,
-    currentPage: 1,
-    itemsPerPage: 20,
-    sortBy: null,
-    sortDirection: "asc",
-    };
+      filteredProducts: [], // Prodotti filtrati
+      selectedAsins: [],
+      isLoading: false,
+      currentPage: 1,
+      itemsPerPage: 20,
+      sortBy: null,
+      sortDirection: "asc",
+      filters: {
+        searchQuery: "",
+        selectedCategory: "",
+        selectedPriceRange: "",
+      },
+      priceRanges: [
+        { label: "€0 - €10", value: [0, 10] },
+        { label: "€10 - €50", value: [10, 50] },
+        { label: "€50 - €100", value: [50, 100] },
+        { label: "€100+", value: [100, Infinity] },
+      ],
+    }
   },
 
 
@@ -321,35 +404,35 @@ export default {
     immediate: true,
     handler(newProducts) {
       this.localProducts = [...newProducts]; // Crea una copia dei prodotti
+      this.filteredProducts = [...newProducts];
       this.isLoading = newProducts.length === 0;
     },
   },
 },
 
 
-  computed : {
-
+computed: {
+    uniqueCategories() {
+      return [...new Set(this.products.map((product) => product.category))];
+    },
     totalPages() {
-    return Math.ceil(this.localProducts.length / this.itemsPerPage);
+      return Math.ceil(this.filteredProducts.length / this.itemsPerPage);
+    },
+    paginatedProducts() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.filteredProducts.slice(start, end);
+    },
+    startIndex() {
+      return (this.currentPage - 1) * this.itemsPerPage;
+    },
+    endIndex() {
+      return Math.min(this.startIndex + this.itemsPerPage, this.filteredProducts.length);
+    },
   },
-  paginatedProducts() {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    return this.localProducts.slice(start, end);
-  },
-  startIndex() {
-    return (this.currentPage - 1) * this.itemsPerPage;
-  },
-  endIndex() {
-    return Math.min(this.startIndex + this.itemsPerPage, this.localProducts.length);
-  },
-
-  },
-
 
 
   methods: {
-
     calculatePriceDiff(product) {
   const history = product.price_history;
   if (!history || history.length < 2) {
@@ -384,7 +467,50 @@ export default {
   }
 },
 
-    sort(column) {
+
+applyFilters() {
+    const { searchQuery, selectedCategory, selectedPriceRange } = this.filters;
+    this.filteredProducts = this.localProducts.filter((product) => {
+      // Filtra per ricerca
+      const matchesSearchQuery = product.title
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+      // Filtra per categoria
+      const matchesCategory =
+        !selectedCategory || product.category === selectedCategory;
+
+      // Filtra per range di prezzo
+      const matchesPriceRange =
+        !selectedPriceRange ||
+        (product.price >= selectedPriceRange[0] &&
+          product.price <= selectedPriceRange[1]);
+
+      return matchesSearchQuery && matchesCategory && matchesPriceRange;
+    });
+
+    this.currentPage = 1; // Resetta la paginazione quando filtri
+  },
+
+  clearFilters() {
+    // Resetta i filtri
+    this.filters.searchQuery = "";
+    this.filters.selectedCategory = "";
+    this.filters.selectedPriceRange = "";
+
+    // Ripristina la lista di prodotti
+    this.filteredProducts = [...this.localProducts];
+
+    this.currentPage = 1; // Resetta la paginazione
+  },
+
+  changePage(page) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  },
+
+  sort(column) {
     if (this.sortBy === column) {
       this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
     } else {
@@ -392,12 +518,9 @@ export default {
       this.sortDirection = "asc";
     }
 
-    this.localProducts.sort((a, b) => {
+    this.filteredProducts.sort((a, b) => {
       let valueA = a[column];
       let valueB = b[column];
-
-      valueA = valueA !== undefined && valueA !== null ? valueA : "";
-      valueB = valueB !== undefined && valueB !== null ? valueB : "";
 
       if (typeof valueA === "string") {
         valueA = valueA.toLowerCase();
@@ -413,11 +536,7 @@ export default {
   },
 
 
-    changePage(page) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;
-      }
-    },
+
 
     async updateSelectedPrices() {
       try {
