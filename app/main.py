@@ -68,6 +68,8 @@ async def update_selected_prices(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating selected products: {str(e)}")
 
+
+
 @app.post("/api/add-product/")
 async def add_product(request: ProductRequest, current_user: str = Depends(get_current_user)):
     """
@@ -97,6 +99,7 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
     product_data["max_price"] = initial_price
     product_data["min_price"] = initial_price
     product_data["average_price"] = initial_price
+    product_data["is_favorite"] = False  # Aggiunge il campo is_favorite con valore predefinito
 
     # Aggiunge il prodotto al database dell'utente
     users_collection.update_one(
@@ -104,6 +107,8 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
         {"$push": {"products": product_data}}
     )
     return {"message": "Product added successfully"}
+
+
 
 @app.get("/api/product-details/{asin}")
 async def product_details(asin: str, current_user: str = Depends(get_current_user)):
@@ -122,6 +127,32 @@ async def product_details(asin: str, current_user: str = Depends(get_current_use
         "average_price": product["average_price"],
         "price_history": product["price_history"]
     }
+
+@app.patch("/api/favorite/{asin}")
+async def toggle_favorite(asin: str, current_user: str = Depends(get_current_user)):
+    """
+    Aggiorna il campo `is_favorite` per un prodotto specifico.
+    """
+    # Recupera l'utente dal database
+    db_user = users_collection.find_one({"username": current_user})
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Trova il prodotto nell'elenco
+    products = db_user.get("products", [])
+    product = next((p for p in products if p["asin"] == asin), None)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Aggiorna lo stato del preferito
+    new_favorite_status = not product.get("is_favorite", False)
+    users_collection.update_one(
+        {"_id": db_user["_id"], "products.asin": asin},
+        {"$set": {"products.$.is_favorite": new_favorite_status}}
+    )
+
+    return {"message": "Favorite status updated", "is_favorite": new_favorite_status}
+
 
 @app.post("/api/update-prices-manual/")
 async def update_prices_manual(current_user: str = Depends(get_current_user)):

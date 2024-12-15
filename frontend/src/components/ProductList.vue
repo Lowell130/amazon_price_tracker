@@ -15,14 +15,21 @@
           <div class="flex flex-wrap border-b justify-start gap-4 items-center p-4 bg-gray-50 dark:bg-gray-700">
   <!-- Search Product -->
   <div class="mb-2 sm:mb-0 w-full sm:w-auto">
+    <div class="relative">
+      <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg>
+        </div>
     <input
       v-model="filters.searchQuery"
       @input="applyFilters"
       type="text"
       placeholder="Search product"
-      class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg p-2 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+      class="lock w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
     />
   </div>
+</div>
 
   <!-- Filter by Category -->
   <div class="mb-2 sm:mb-0 w-full sm:w-auto">
@@ -52,15 +59,28 @@
     </select>
   </div>
 
+   <!-- show favorite -->
+   <div class="mb-2 sm:mb-0 w-full sm:w-auto">
+  <button
+    @click="filterFavorites"
+    class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+  >
+    Show Favorites
+  </button>
+</div>
+
   <!-- Clear Filters Button -->
   <div class="mb-2 sm:mb-0 w-full sm:w-auto">
     <button
       @click="clearFilters"
-      class="block w-full text-sm text-white bg-red-500 hover:bg-red-600 border border-red-600 rounded-lg p-2 dark:bg-red-600 dark:hover:bg-red-700"
+      class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2 text-center me-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
     >
       Clear Filters
     </button>
   </div>
+
+ 
+
 </div>
 
 
@@ -112,6 +132,7 @@
                   </button>
                 </th>
                 <th scope="col" class="p-4">Product</th>
+                <th scope="col" class="p-4">Love</th>
    
                 <th scope="col" class="p-4">
       <span class="flex items-center" @click="sort('category')">
@@ -179,6 +200,54 @@
                     </span>
                   </div>
                 </th>
+  
+
+
+                <td class="px-4 py-3 font-medium">
+  <!-- Cuore cliccabile -->
+  <span class="flex items-center text-gray-500 cursor-pointer" @click="toggleFavorite(product)">
+    <svg
+      v-if="product.is_favorite"
+      class="w-6 h-6 text-red-500 dark:text-red-400"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z"
+      />
+    </svg>
+    <svg
+      v-else
+      class="w-6 h-6 text-gray-300 dark:text-white"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z"
+      />
+    </svg>
+  </span>
+</td>
+
+
+
+
                 <td
                   class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                 >
@@ -433,6 +502,32 @@ computed: {
 
 
   methods: {
+    async toggleFavorite(product) {
+    try {
+      // Chiamata API per aggiornare lo stato del preferito
+      const response = await fetchWithToken(
+        `${process.env.VUE_APP_API_BASE_URL}/favorite/${product.asin}`,
+        {
+          method: "PATCH",
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail);
+      }
+
+      const data = await response.json();
+      // Aggiorna lo stato del prodotto nel frontend
+      product.is_favorite = data.is_favorite;
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento del preferito:", error);
+    }
+  },
+  filterFavorites() {
+    this.filteredProducts = this.localProducts.filter((product) => product.is_favorite);
+    this.currentPage = 1; // Reset paginazione
+  },
     calculatePriceDiff(product) {
   const history = product.price_history;
   if (!history || history.length < 2) {
