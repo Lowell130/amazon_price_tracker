@@ -381,7 +381,7 @@ export default {
       selectedAsins: [],
       isLoading: false,
       currentPage: 1,
-      itemsPerPage: 20,
+      itemsPerPage: 30,
       sortBy: null,
       sortDirection: "asc",
       filters: {
