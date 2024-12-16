@@ -23,6 +23,7 @@
       <router-link v-if="isAuthenticated" to="/profile" class="block py-2 px-3 text-black  rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">Profile</router-link>
       
       <button v-if="isAuthenticated" @click="logout">Logout</button>
+      <ThemeToggle />
     </ul>
     </div>
   </div>
@@ -36,6 +37,7 @@
 <script>
  import { jwtDecode } from 'jwt-decode' // Importazione specifica
  import { onMounted } from 'vue'
+ import ThemeToggle from '../ThemeToggle.vue';
 import { 
     initAccordions, 
     initCarousels, 
@@ -54,6 +56,9 @@ export default {
       return {
         isAuthenticated: false, // Stato iniziale dell'autenticazione
       };
+    },
+    components: {
+      ThemeToggle
     },
     
     mounted() {

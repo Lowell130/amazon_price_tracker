@@ -164,6 +164,7 @@ async def update_prices_manual(current_user: str = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail="Error during manual price update")
     
 
+
 def update_prices(user_filter=None, asin_filter=None):
     query = {"username": user_filter} if user_filter else {}
     users = users_collection.find(query)
@@ -176,12 +177,15 @@ def update_prices(user_filter=None, asin_filter=None):
                 continue
 
             try:
+                # Fetch updated product data
                 updated_data = fetch_product_data(product["product_url"])
                 if not updated_data or updated_data["price"] is None:
                     print(f"Product {product['asin']} is not available or has no price.")
                     product["availability"] = "Non disponibile"
+                    product["condition"] = "Non disponibile"  # Aggiorna la condizione
                     continue
 
+                # Update product fields
                 new_price = float(updated_data["price"])
                 product["price_history"].append({
                     "date": datetime.now().isoformat(),
@@ -189,8 +193,9 @@ def update_prices(user_filter=None, asin_filter=None):
                 })
                 product["price"] = new_price
                 product["availability"] = "Disponibile"
+                product["condition"] = updated_data["condition"]  # Aggiorna la condizione
 
-                # Calcola valori massimo, minimo e media
+                # Calculate max, min, and average prices
                 price_history = product["price_history"]
                 max_price_entry = max(price_history, key=lambda x: float(x["price"]))
                 min_price_entry = min(price_history, key=lambda x: float(x["price"]))
@@ -210,12 +215,14 @@ def update_prices(user_filter=None, asin_filter=None):
                 print(f"Error updating product {product['asin']}: {e}")
                 continue
 
+        # Update the user document in MongoDB
         users_collection.update_one(
             {"_id": user["_id"]},
             {"$set": {"products": products}}
         )
 
     return updated_products
+
 
 
 scheduler = BackgroundScheduler()

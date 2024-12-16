@@ -1,18 +1,9 @@
 <template>
   <div>
     <div class="mx-auto max-w-screen-2xl px-4 lg:px-12">
-      <div class="bg-white dark:bg-gray-800 relative shadow-md overflow-hidden">
-        <!-- Spinner -->
-
-        <SpinnerComp v-if="isLoading" />
-        <!-- PRODUCTS LIST START -->
-        <div v-else class="overflow-x-auto">
 
 
-
-
-
-          <div class="flex flex-wrap border-b justify-start gap-4 items-center p-4 bg-gray-50 dark:bg-gray-700">
+      <div class="bg-white dark:bg-gray-800 relative shadow-md overflow-hidden flex flex-wrap border-b justify-start gap-4 items-center p-4 bg-gray-50 dark:bg-gray-700">
   <!-- Search Product -->
   <div class="mb-2 sm:mb-0 w-full sm:w-auto">
     <div class="relative">
@@ -59,6 +50,20 @@
     </select>
   </div>
 
+  <!-- filtro stato -->
+<div class="mb-2 sm:mb-0 w-full sm:w-auto">
+  <select
+    v-model="filters.selectedCondition"
+    @change="applyFilters"
+    class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg p-2 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+  >
+    <option value="">All Conditions</option>
+    <option value="Nuovo">New</option>
+    <option value="Usato">Used</option>
+    <option value="Non disponibile">Unavailable</option>
+  </select>
+</div>
+
    <!-- show favorite -->
    <div class="mb-2 sm:mb-0 w-full sm:w-auto">
   <button
@@ -68,6 +73,8 @@
     Show Favorites
   </button>
 </div>
+
+
 
   <!-- Clear Filters Button -->
   <div class="mb-2 sm:mb-0 w-full sm:w-auto">
@@ -82,6 +89,17 @@
  
 
 </div>
+
+
+
+
+      <div class="bg-white dark:bg-gray-800 relative shadow-md overflow-hidden">
+        <!-- Spinner -->
+
+        <SpinnerComp v-if="isLoading" />
+        <!-- PRODUCTS LIST START -->
+        <div v-else class="overflow-x-auto">
+
 
 
 
@@ -109,7 +127,7 @@
                 <th scope="col" class="p-4">
                   <button
                     @click="updateSelectedPrices"
-                    class="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700"
+                    class="flex bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
                   >
                     <svg
                       class="w-4 h-4 text-white dark:text-white"
@@ -128,10 +146,11 @@
                         d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"
                       />
                     </svg>
-                    <!-- ({{ selectedAsins.length }}) -->
+                    {{ selectedAsins.length }}
                   </button>
                 </th>
                 <th scope="col" class="p-4">Product</th>
+                <th scope="col" class="p-4">Condition</th>
                 <th scope="col" class="p-4">Love</th>
    
                 <th scope="col" class="p-4">
@@ -145,7 +164,7 @@
    
     <th scope="col" class="p-4">
       <span class="flex items-center" @click="sort('price')">
-        Current price
+        Current
         <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
                     </svg>
@@ -163,7 +182,7 @@
               <tr
                 class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <!-- <td class="p-4 w-4"></td> -->
+             
                 <td
                   class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                 >
@@ -202,6 +221,26 @@
                 </th>
   
 
+                <td class="px-4 py-3 font-medium">
+  <span
+    v-if="product.condition === 'Nuovo'"
+    class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
+  >
+    New
+  </span>
+  <span
+    v-else-if="product.condition === 'Usato'"
+    class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300"
+  >
+    Used
+  </span>
+  <span
+    v-else
+    class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
+  >
+    Unavailable
+  </span>
+</td>
 
                 <td class="px-4 py-3 font-medium">
   <!-- Cuore cliccabile -->
@@ -260,14 +299,9 @@
                   <span v-else>-</span>
                 </td>
 
-
-                <td v-if="product.availability !== 'Non disponibile' && product.price && product.price !== 'null'" class="px-4 py-3 font-medium">
-  <span>{{ product.price }}</span>
-</td>
-<td v-else class="px-4 py-3 font-medium">
-  <span class="flex items-center text-gray-500">
-    <div class="inline-block w-4 h-4 mr-2 bg-red-700 rounded-full"></div>
-  </span>
+                <td class="px-4 py-3 font-medium">
+  <span v-if="product.price !== null">{{ product.price }}</span>
+  <span v-else class="text-red-500">Unavailable</span>
 </td>
        
 <td class="px-4 py-3 font-medium">
@@ -564,28 +598,27 @@ computed: {
 
 
 applyFilters() {
-    const { searchQuery, selectedCategory, selectedPriceRange } = this.filters;
-    this.filteredProducts = this.localProducts.filter((product) => {
-      // Filtra per ricerca
-      const matchesSearchQuery = product.title
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
+  const { searchQuery, selectedCategory, selectedPriceRange, selectedCondition } = this.filters;
 
-      // Filtra per categoria
-      const matchesCategory =
-        !selectedCategory || product.category === selectedCategory;
+  this.filteredProducts = this.localProducts.filter((product) => {
+    // Filtra per ricerca
+    const matchesSearchQuery = product.title.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // Filtra per range di prezzo
-      const matchesPriceRange =
-        !selectedPriceRange ||
-        (product.price >= selectedPriceRange[0] &&
-          product.price <= selectedPriceRange[1]);
+    // Filtra per categoria
+    const matchesCategory = !selectedCategory || product.category === selectedCategory;
 
-      return matchesSearchQuery && matchesCategory && matchesPriceRange;
-    });
+    // Filtra per range di prezzo
+    const matchesPriceRange = !selectedPriceRange ||
+      (product.price >= selectedPriceRange[0] && product.price <= selectedPriceRange[1]);
 
-    this.currentPage = 1; // Resetta la paginazione quando filtri
-  },
+    // Filtra per condizione
+    const matchesCondition = !selectedCondition || product.condition === selectedCondition;
+
+    return matchesSearchQuery && matchesCategory && matchesPriceRange && matchesCondition;
+  });
+
+  this.currentPage = 1; // Resetta la paginazione quando filtri
+},
 
   clearFilters() {
     // Resetta i filtri
