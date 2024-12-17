@@ -11,6 +11,14 @@ from datetime import datetime
 from bson.objectid import ObjectId
 from typing import List
 from typing import Optional  # Aggiunto import
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import logging
+
+# Configura il logger
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -164,6 +172,39 @@ async def update_prices_manual(current_user: str = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail="Error during manual price update")
     
 
+# Funzione per inviare email
+def send_email(to_email, product_title, old_price, new_price):
+    sender_email = "blackfdayit@gmail.com"  # Inserisci la tua email
+    sender_password = "zxbt cnqg ckqe tqbq"  # Inserisci la tua password o un token
+    subject = f"📉 Price Drop Alert: {product_title}"
+    body = f"""
+    Il prodotto "{product_title}" che hai aggiunto ai preferiti ha subito un calo di prezzo!
+
+    Prezzo precedente: {old_price} €
+    Nuovo prezzo: {new_price} €
+
+    Affrettati a controllare!
+    """
+
+    # Configura SMTP
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)  # Configura il server SMTP
+        server.starttls()
+        server.login(sender_email, sender_password)
+
+        # Creazione del messaggio
+        msg = MIMEMultipart()
+        msg["From"] = sender_email
+        msg["To"] = to_email
+        msg["Subject"] = subject
+        msg.attach(MIMEText(body, "plain"))
+
+        server.sendmail(sender_email, to_email, msg.as_string())
+        server.quit()
+        print(f"Email inviata a {to_email} per il prodotto {product_title}")
+    except Exception as e:
+        print(f"Errore durante l'invio dell'email: {e}")
+
 
 def update_prices(user_filter=None, asin_filter=None):
     query = {"username": user_filter} if user_filter else {}
@@ -171,62 +212,65 @@ def update_prices(user_filter=None, asin_filter=None):
     updated_products = []
 
     for user in users:
+        email = user.get("email")  # Assumiamo che l'email sia salvata nel profilo utente
         products = user.get("products", [])
+        logger.info(f"Updating prices for user: {user['username']} ({len(products)} products)")
+
         for product in products:
             if asin_filter and product["asin"] not in asin_filter:
                 continue
 
             try:
-                # Fetch updated product data
+                logger.info(f"Fetching product data for ASIN: {product['asin']}")
                 updated_data = fetch_product_data(product["product_url"])
+
                 if not updated_data or updated_data["price"] is None:
-                    print(f"Product {product['asin']} is not available or has no price.")
                     product["availability"] = "Non disponibile"
-                    product["condition"] = "Non disponibile"  # Aggiorna la condizione
+                    product["condition"] = "Non disponibile"
+                    logger.info(f"Product {product['asin']} is unavailable.")
                     continue
 
-                # Update product fields
+                old_price = float(product["price"]) if product["price"] else None
                 new_price = float(updated_data["price"])
-                product["price_history"].append({
-                    "date": datetime.now().isoformat(),
-                    "price": new_price
-                })
+
+                if product.get("is_favorite", False) and old_price and new_price < old_price:
+                    logger.info(f"Price drop detected for {product['title']}. Sending email.")
+                    send_email(email, product["title"], old_price, new_price)
+
+                product["price_history"].append({"date": datetime.now().isoformat(), "price": new_price})
                 product["price"] = new_price
                 product["availability"] = "Disponibile"
-                product["condition"] = updated_data["condition"]  # Aggiorna la condizione
+                product["condition"] = updated_data["condition"]
 
-                # Calculate max, min, and average prices
+                # Calcola max, min, e average price
                 price_history = product["price_history"]
                 max_price_entry = max(price_history, key=lambda x: float(x["price"]))
                 min_price_entry = min(price_history, key=lambda x: float(x["price"]))
 
                 product["max_price"] = float(max_price_entry["price"])
                 product["min_price"] = float(min_price_entry["price"])
-                product["max_price_date"] = max_price_entry["date"]
-                product["min_price_date"] = min_price_entry["date"]
                 product["average_price"] = round(
                     sum(float(entry["price"]) for entry in price_history) / len(price_history), 2
                 )
 
                 updated_products.append(product["asin"])
-                print(f"Price updated for ASIN {product['asin']}: {new_price}")
+                logger.info(f"Updated product {product['asin']} - New Price: {new_price} €")
 
             except Exception as e:
-                print(f"Error updating product {product['asin']}: {e}")
+                logger.error(f"Error updating product {product['asin']}: {e}")
                 continue
 
-        # Update the user document in MongoDB
-        users_collection.update_one(
-            {"_id": user["_id"]},
-            {"$set": {"products": products}}
-        )
+        users_collection.update_one({"_id": user["_id"]}, {"$set": {"products": products}})
+        logger.info(f"Finished updating products for user: {user['username']}")
 
     return updated_products
 
 
 
+
+
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_prices, 'interval', hours=5)
+scheduler.add_job(update_prices, 'interval', hours=1)
 scheduler.start()
 
 
