@@ -4,10 +4,6 @@ import re
 from datetime import datetime
 import time
 import random
-from fake_useragent import UserAgent  # Importa Fake User Agent
-
-# Inizializza Fake User Agent
-ua = UserAgent()
 
 def get_asin_from_url(url):
     """Estrae l'ASIN dal link Amazon."""
@@ -32,14 +28,13 @@ def fetch_product_data(url, max_retries=3, delay=2):
     if not asin:
         raise ValueError("ASIN non trovato nell'URL")
 
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
+        "Accept-Language": "it-IT,it;q=0.9"
+    }
+
     for attempt in range(max_retries):
         try:
-            # Genera un nuovo User-Agent casuale
-            headers = {
-                "User-Agent": ua.random,
-                "Accept-Language": "it-IT,it;q=0.9"
-            }
-
             response = requests.get(url, headers=headers)
             if response.status_code == 200:
                 break
@@ -101,4 +96,5 @@ def fetch_product_data(url, max_retries=3, delay=2):
         "availability": "Disponibile" if condition != "Non disponibile" else "Non disponibile",
         "extraction_date": datetime.now().isoformat(),
         "price_history": [{"date": datetime.now().isoformat(), "price": price}] if price else []
+        
     }
