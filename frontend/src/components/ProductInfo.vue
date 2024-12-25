@@ -1,5 +1,5 @@
 <template>
-      <section class="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased">
+  <section class="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased rounded-t-lg">
     <div class="max-w-screen-xl px-4 mx-auto 2xl:px-0">
       <div class="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
         <div class="shrink-0 max-w-md lg:max-w-lg mx-auto">
@@ -11,54 +11,71 @@
           <h1
             class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white mb-3"
           >
-          {{ product.title }}
+            {{ product.title }}
           </h1>
-       
 
           <p class="text-gray-600 text-sm mb-2">Category: {{ product.category }}</p>
-        <p class="text-gray-600 text-sm mb-2">ASIN: {{ product.asin }}</p>
-        <p class="text-gray-600 text-sm mb-2">Insertion Date: {{ formatDate(product.insertion_date) }}</p>
-        <p v-if="product.availability !== 'Non disponibile'" class="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white">
-  {{ product.price }}€
-</p>
-<p v-else class="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white flex items-center">
-  N/A
-  <svg class="w-5 h-5 ml-1 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m4-4H8"/>
-  </svg>
-</p>       
-       <p class="mt-4"> <a
-          :href="product.product_url"
-          target="_blank"
-          class=" text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-yellow-600 dark:hover:bg-yellow-700 focus:outline-none dark:focus:ring-yellow-800"
-        >
-          View on Amazon
-        </a></p>
+          <p class="text-gray-600 text-sm mb-2">ASIN: {{ product.asin }}</p>
+          <p class="text-gray-600 text-sm mb-2">
+            Insertion Date: {{ formatDate(product.insertion_date) }}
+          </p>
+
+          <!-- Condizione del prodotto -->
+          <p class="text-gray-600 text-sm mb-2">
+            Condition:
+            <span
+              v-if="product.condition === 'Nuovo'"
+              class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
+            >
+              New
+            </span>
+            <span
+              v-else-if="product.condition === 'Usato'"
+              class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300"
+            >
+              Used
+            </span>
+            <span
+              v-else
+              class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
+            >
+              Unavailable
+            </span>
+          </p>
+
+          <p v-if="product.availability !== 'Non disponibile'" class="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white">
+            {{ product.price }}€
+          </p>
+          <p v-else class="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white flex items-center">
+            N/A
+            <svg class="w-5 h-5 ml-1 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m4-4H8" />
+            </svg>
+          </p>       
+
+          <p class="mt-4">
+            <a
+              :href="product.affiliate"
+              target="_blank"
+              class=" text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-yellow-600 dark:hover:bg-yellow-700 focus:outline-none dark:focus:ring-yellow-800"
+            >
+              View on Amazon
+            </a>
+          </p>
         </div>
       </div>
     </div>
   </section>
-
 </template>
-
 
 <script>
 export default {
-  data() {
-    return {
-     
-    
-    };
-  },
   name: "ProductInfo",
   props: {
     product: {
       type: Object,
       required: true,
     },
-  },
-  computed: {
-   
   },
   methods: {
     formatDate(date) {
@@ -71,18 +88,9 @@ export default {
       };
       return new Date(date).toLocaleDateString("it-IT", options);
     },
-
-   
- 
   },
 };
 </script>
-
-
-
-
-
-
 
 <style scoped>
 .product-info {

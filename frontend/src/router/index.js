@@ -6,6 +6,8 @@ import LoginPage from "../views/LoginPage.vue";
 import DashboardPage from "../views/DashboardPage.vue";
 import ProfilePage from "../views/ProfilePage.vue";
 import ProductDetail from "../views/ProductDetail.vue";
+import PasswordResetRequest from "../views/PasswordResetRequest.vue";
+import PasswordReset from "../views/PasswordReset.vue";
 
 const routes = [
   { path: "/", name: "Home", component: HomePage },
@@ -14,6 +16,8 @@ const routes = [
   { path: "/dashboard", name: "Dashboard", component: DashboardPage, meta: { requiresAuth: true } },
   { path: "/profile", name: "Profile", component: ProfilePage, meta: { requiresAuth: true } },
   { path: "/products/:asin", name: "ProductDetail", component: ProductDetail, meta: { requiresAuth: true } },
+  { path: "/password-reset-request", name: "PasswordResetRequest", component: PasswordResetRequest },
+  { path: "/reset-password", name: "ResetPassword", component: PasswordReset },
 ];
 
 const router = createRouter({

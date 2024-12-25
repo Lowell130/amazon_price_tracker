@@ -98,24 +98,31 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
     if not product_data or not product_data.get("price"):
         raise HTTPException(status_code=400, detail="Error fetching product data")
 
+    # Genera il link affiliato
+    asin = product_data["asin"]  # Assume che l'ASIN sia ottenuto dallo scraping
+    affiliate_tag = "newdev-21"  # Sostituisci con il tuo tag affiliato
+    affiliate_link = f"https://www.amazon.it/gp/product/{asin}/?tag={affiliate_tag}"
+
     # Inizializza i dati del prodotto
     initial_price = float(product_data["price"])
-    product_data["product_url"] = request.product_url
-    product_data["category"] = request.category  # Aggiunge la categoria
-    product_data["insertion_date"] = datetime.now().isoformat()
-    product_data["price_history"] = [{"date": datetime.now().isoformat(), "price": initial_price}]
-    product_data["max_price"] = initial_price
-    product_data["min_price"] = initial_price
-    product_data["average_price"] = initial_price
-    product_data["is_favorite"] = False  # Aggiunge il campo is_favorite con valore predefinito
+    product_data.update({
+        "product_url": request.product_url,
+        "category": request.category,  # Aggiunge la categoria
+        "insertion_date": datetime.now().isoformat(),
+        "price_history": [{"date": datetime.now().isoformat(), "price": initial_price}],
+        "max_price": initial_price,
+        "min_price": initial_price,
+        "average_price": initial_price,
+        "is_favorite": False,  # Aggiunge il campo is_favorite con valore predefinito
+        "affiliate": affiliate_link,  # Aggiunge il link affiliato
+    })
 
     # Aggiunge il prodotto al database dell'utente
     users_collection.update_one(
         {"_id": db_user["_id"]},
         {"$push": {"products": product_data}}
     )
-    return {"message": "Product added successfully"}
-
+    return {"message": "Product added successfully", "affiliate": affiliate_link}
 
 
 @app.get("/api/product-details/{asin}")
@@ -270,7 +277,7 @@ def update_prices(user_filter=None, asin_filter=None):
 
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_prices, 'interval', hours=1)
+scheduler.add_job(update_prices, 'interval', hours=5)
 scheduler.start()
 
 

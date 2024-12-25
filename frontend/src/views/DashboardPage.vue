@@ -2,10 +2,10 @@
   <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5 antialiased">
     <div class="mx-auto max-w-screen-2xl px-4 lg:px-12">
       <div
-        class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-t-lg overflow-hidden"
+        class="bg-white dark:bg-gray-800 relative shadow-md rounded-t-lg overflow-hidden"
       >
         <div class="flex-1 flex items-center space-x-2">
-          <span class="text-gray-500 pl-5 pt-4">Welcome: {{ username }} </span>
+          <span class="pl-5 pt-4 text-sm text-gray-900 dark:text-white">Welcome: <span class="font-bold">{{ username }}</span></span>
         </div>
 
         <div
@@ -15,7 +15,7 @@
           <div class="">
             <select
               v-model="selectedCategory"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg"
+              class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg p-2 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
               required
             >
               <option value="" disabled>Select a category</option>
@@ -41,8 +41,6 @@
             />
           </div>
 
-          
-
           <!-- Pulsanti -->
           <div
             class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 w-full md:w-auto"
@@ -56,31 +54,16 @@
             </button>
 
             <button
-              @click="updatePricesManual"
-              :disabled="isLoading"
-              class="uppercase hover:bg-red-800 text-white bg-red-600 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-500"
-            >
-              update all
-            </button>
+  @click="openConfirmModal"
+  :disabled="isLoading"
+  class="uppercase hover:bg-red-800 text-white bg-red-600 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-500"
+>
+  update all
+</button>
           </div>
         </div>
 
-        <!-- <form @submit.prevent="addProduct" class="product-form">
-          <input
-            v-model="productUrl"
-            placeholder="Inserisci URL prodotto Amazon"
-            required
-          />
-          <button type="submit" class="add-button">Aggiungi Prodotto</button>
-        </form> -->
-        <div style="text-align: center">
-          <!-- <button
-            @click="updatePricesManual"
-            :disabled="isLoading"
-            class="update-button"
-          >
-            Aggiorna Prezzi Manualmente
-          </button> -->
+        <!-- <div>       
           <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
           <div
             v-if="isLoading"
@@ -105,16 +88,14 @@
             </svg>
             <span class="sr-only">Loading...</span>
           </div>
-        </div>
+        </div> -->
       </div>
+      <!-- Modale per lo stato di aggiornamento -->
+      <UpdateProd :isVisible="isLoading" :message="modalMessage" />
     </div>
     <!-- <CombinedPriceChart :products="products" /> -->
 
-    <ProductList
-      :products="products"
-      @remove-product="removeProduct"
-      @refresh-products="fetchProducts"
-    />
+    <ProductList :products="products" @refresh-products="fetchProducts" />
     <!-- Modale -->
     <div
       v-if="showModal"
@@ -171,20 +152,72 @@
       </div>
     </div>
     <!-- EndModale -->
+     <!-- Modale update all -->
+      <!-- Modale di conferma per Update All -->
+<div
+  v-if="showConfirmModal"
+  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
+  <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 w-11/12 max-w-md p-6">
+    <button
+      @click="closeConfirmModal"
+      class="absolute top-3 right-3 text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-4 h-4"
+    >
+      <svg
+        class="w-4 h-4"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+    </button>
+    <div class="text-center">
+      <h3 class="mb-5 text-lg font-medium text-gray-700">
+        Are you sure you want to update all prices?
+      </h3>
+      <div class="flex justify-center space-x-4">
+        <button
+          @click="confirmUpdateAll"
+          class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-800"
+        >
+          Yes
+        </button>
+        <button
+          @click="closeConfirmModal"
+          class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <!-- end modale update all -->
   </section>
 </template>
 
 <script>
 import ProductList from "../components/ProductList.vue";
+import UpdateProd from "../components/UpdateProd.vue";
 // import CombinedPriceChart from '../components/CombinedPriceChart.vue';
 import { jwtDecode } from "jwt-decode"; // Importazione specifica
 import { fetchWithToken } from "@/api";
 
 export default {
   name: "DashboardPage",
-  components: { ProductList },
+  components: { ProductList, UpdateProd },
   data() {
     return {
+      showConfirmModal: false, // Stato della visibilità della modale di conferma
+      modalMessage: "", // Messaggio dinamico della modale
       productUrl: "",
       selectedCategory: "", // Nuova variabile per la categoria selezionata
       showModal: false, // Stato della visibilità della modale
@@ -217,6 +250,7 @@ export default {
       username: "",
       errorMessage: "",
       isLoading: false,
+      
     };
   },
   async created() {
@@ -239,45 +273,50 @@ export default {
       );
       return match ? match[0] : url;
     },
+
     async addProduct() {
-      try {
-        // Controlla che una categoria sia selezionata
-        if (!this.selectedCategory) {
-          {
-            this.showModal = true; // Mostra la modale
-            return;
-          }
-        }
+  try {
+    if (!this.selectedCategory) {
+      this.showModal = true;
+      return;
+    }
 
-        this.isLoading = true;
-        const cleanedUrl = this.cleanAmazonUrl(this.productUrl);
-        const response = await fetchWithToken(
-          `${process.env.VUE_APP_API_BASE_URL}/add-product/`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              product_url: cleanedUrl,
-              category: this.selectedCategory, // Invia la categoria selezionata
-            }),
-          }
-        );
+    this.modalMessage = "Adding product...";
+    this.isLoading = true;
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail);
-        }
-
-        this.productUrl = "";
-        this.selectedCategory = ""; // Resetta la categoria selezionata
-        await this.fetchProducts();
-      } catch (error) {
-        console.error(error.message);
-      } finally {
-        this.isLoading = false;
+    const cleanedUrl = this.cleanAmazonUrl(this.productUrl);
+    const response = await fetchWithToken(
+      `${process.env.VUE_APP_API_BASE_URL}/add-product/`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          product_url: cleanedUrl,
+          category: this.selectedCategory,
+        }),
       }
-    },
-  
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail);
+    }
+
+    const data = await response.json();
+    console.log("Affiliate link generated:", data.affiliate); // Verifica il link affiliato
+
+    this.productUrl = "";
+    this.selectedCategory = "";
+    await this.fetchProducts();
+  } catch (error) {
+    console.error(error.message);
+  } finally {
+    this.isLoading = false;
+    this.modalMessage = ""; // Reset del messaggio della modale
+  }
+},
+
+
 
     async fetchProducts() {
       try {
@@ -296,7 +335,8 @@ export default {
     },
     async updatePricesManual() {
       try {
-        this.isLoading = true;
+        this.modalMessage = "Update product please wait...";
+    this.isLoading = true;
         const response = await fetchWithToken(
           `${process.env.VUE_APP_API_BASE_URL}/update-prices-manual/`,
           {
@@ -317,33 +357,20 @@ export default {
         this.isLoading = false;
       }
     },
-    async removeProduct(asin) {
-      const confirmDelete = confirm(
-        "Sei sicuro di voler eliminare questo prodotto dal monitoraggio?"
-      );
-      if (!confirmDelete) return;
 
-      try {
-        const response = await fetchWithToken(
-          `${process.env.VUE_APP_API_BASE_URL}/remove-product/${asin}`,
-          {
-            method: "DELETE",
-          }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail);
-        }
-
-        await this.fetchProducts();
-      } catch (error) {
-        console.error("Errore durante l'eliminazione del prodotto:", error);
-      }
-    },
     closeModal() {
       this.showModal = false; // Nasconde la modale
     },
+    openConfirmModal() {
+    this.showConfirmModal = true;
+  },
+  closeConfirmModal() {
+    this.showConfirmModal = false;
+  },
+  async confirmUpdateAll() {
+    this.closeConfirmModal();
+    await this.updatePricesManual(); // Chiama la funzione originale per aggiornare i prezzi
+  },
   },
 };
 </script>

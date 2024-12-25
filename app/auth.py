@@ -10,6 +10,15 @@ from app.config import SECRET_KEY
 from app.db import users_collection  # Collezione MongoDB per gli utenti
 from bson.objectid import ObjectId
 from app.scraper import fetch_product_data
+# from app.main import send_email
+from datetime import datetime, timedelta
+import random
+import string
+from fastapi.responses import JSONResponse
+from app.utils.email import send_email
+import os  # Importa il modulo os per accedere alle variabili d'ambiente
+
+
 
 
 router = APIRouter()
@@ -21,6 +30,12 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 class User(BaseModel):
     username: str
     password: str
+    email: Optional[str] = None  # Campo opzionale, solo per registrazione
+
+class UserLogin(BaseModel):
+    login: str  # Può essere username o email
+    password: str
+
 
 class UserInDB(User):
     hashed_password: str
@@ -28,28 +43,42 @@ class UserInDB(User):
 class ProductRequest(BaseModel):
     product_url: str
 
+class PasswordResetRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
 # Registrazione
 @router.post("/register")
 async def register(user: User):
-    existing_user = users_collection.find_one({"username": user.username})
-    if existing_user:
+    if users_collection.find_one({"username": user.username}):
         raise HTTPException(status_code=400, detail="Username already exists")
+
+    if users_collection.find_one({"email": user.email}):
+        raise HTTPException(status_code=400, detail="Email already exists")
 
     hashed_password = bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
     new_user = {
         "username": user.username,
+        "email": user.email,
         "hashed_password": hashed_password,
         "products": []
     }
     users_collection.insert_one(new_user)
     return {"message": "User registered successfully"}
 
+
+
 # Login e generazione token JWT
 @router.post("/login")
-async def login(user: User):
-    db_user = users_collection.find_one({"username": user.username})
+async def login(user: UserLogin):
+    db_user = users_collection.find_one(
+        {"$or": [{"username": user.login}, {"email": user.login}]}
+    )
     if not db_user or not bcrypt.checkpw(user.password.encode("utf-8"), db_user["hashed_password"].encode("utf-8")):
-        raise HTTPException(status_code=400, detail="Invalid username or password")
+        raise HTTPException(status_code=400, detail="Invalid login or password")
 
     token = jwt.encode({
         "sub": db_user["username"],
@@ -57,6 +86,9 @@ async def login(user: User):
     }, SECRET_KEY, algorithm="HS256")
 
     return {"access_token": token, "token_type": "bearer"}
+
+
+
 
 # Funzione per ottenere l'utente corrente tramite JWT
 def get_current_user(token: str = Depends(oauth2_scheme)):
@@ -91,31 +123,6 @@ async def dashboard(current_user: str = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="User not found")
 
     return {"products": db_user.get("products", [])}
-
-# # Endpoint per aggiungere un prodotto
-# @router.post("/add-product/")
-# async def add_product(request: ProductRequest, current_user: str = Depends(get_current_user)):
-#     db_user = users_collection.find_one({"username": current_user})
-#     if not db_user:
-#         raise HTTPException(status_code=404, detail="User not found")
-
-#     # Verifica che il prodotto non sia già monitorato
-#     for product in db_user.get("products", []):
-#         if product["product_url"] == request.product_url:
-#             raise HTTPException(status_code=400, detail="Product already being tracked")
-
-#     # Recupera i dati del prodotto
-#     product_data = fetch_product_data(request.product_url)
-#     product_data["product_url"] = request.product_url
-#     product_data["insertion_date"] = datetime.now().isoformat()
-#     product_data["price_history"] = [{"date": datetime.now().isoformat(), "price": product_data["price"]}]
-
-#     # Aggiungi il prodotto all'utente
-#     users_collection.update_one(
-#         {"_id": db_user["_id"]},
-#         {"$push": {"products": product_data}}
-#     )
-#     return {"message": "Product added successfully"}
 
 # Endpoint per eliminare un prodotto monitorato dall'utente
 @router.delete("/remove-product/{asin}")
@@ -152,3 +159,64 @@ async def refresh_token(token: str = Depends(oauth2_scheme)):
         return {"access_token": new_token, "token_type": "bearer"}
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token scaduto")
+    
+
+
+# Genera un token casuale
+def generate_reset_token():
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+
+# Mappa per i token di recupero password (può essere spostato su una collezione MongoDB)
+password_reset_tokens = {}
+
+# Genera un link di reset utilizzando l'URL base dall'ambiente
+@router.post("/request-password-reset")
+async def request_password_reset(request: PasswordResetRequest):
+    user = users_collection.find_one({"email": request.email})
+    if not user:
+        raise HTTPException(status_code=404, detail="Email not found")
+    
+    # Genera un token di reset e salva nella mappa
+    reset_token = generate_reset_token()
+    expiration_time = datetime.utcnow() + timedelta(hours=1)
+    password_reset_tokens[reset_token] = {"email": request.email, "expires_at": expiration_time}
+
+    # Usa l'URL del frontend
+    frontend_base_url = os.getenv("FRONTEND_BASE_URL", "http://localhost:8080")
+    reset_link = f"{frontend_base_url}/reset-password?token={reset_token}"
+
+    # Invia email all'utente
+    send_email(
+        request.email,
+        "Password Reset Request",
+        f"Usa il seguente link per reimpostare la tua password: {reset_link}\n"
+        f"Il link scade in un'ora."
+    )
+
+    return {"message": "Password reset email sent"}
+
+
+
+@router.post("/reset-password")
+async def reset_password(request: ResetPasswordRequest):
+    token = request.token
+    new_password = request.new_password
+
+    # Controlla se il token esiste e non è scaduto
+    reset_data = password_reset_tokens.get(token)
+    if not reset_data or reset_data["expires_at"] < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    
+    email = reset_data["email"]
+    user = users_collection.find_one({"email": email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Hash della nuova password
+    hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    users_collection.update_one({"email": email}, {"$set": {"hashed_password": hashed_password}})
+
+    # Rimuovi il token usato
+    del password_reset_tokens[token]
+
+    return {"message": "Password reset successfully"}

@@ -139,3 +139,6 @@ Scripts/python.exe
 *.pyc
 *.pyc
 *.pyc
+app/__pycache__/scraper.cpython-311.pyc
+app/__pycache__/main.cpython-311.pyc
+app/__pycache__/auth.cpython-311.pyc

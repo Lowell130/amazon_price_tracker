@@ -1,18 +1,36 @@
 <template>
   <section class="bg-gray-50 dark:bg-gray-900">
-    <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-      <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-        <img class="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg" alt="logo" />
-        MyApp <!-- Sostituisci con il nome della tua app -->
-      </a>
-      <div class="w-full bg-white rounded-lg shadow dark:border sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+    <div
+      class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0"
+    >
+      <!-- <a
+        href="#"
+        class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
+      >
+        <img
+          class="w-8 h-8 mr-2"
+          src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
+          alt="logo"
+        />
+        MyApp
+    
+      </a> -->
+      <div
+        class="w-full bg-white rounded-lg shadow dark:border sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700"
+      >
         <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-          <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+          <h1
+            class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white"
+          >
             Create a new account
           </h1>
           <form @submit.prevent="register" class="space-y-4 md:space-y-6">
             <div>
-              <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
+              <label
+                for="username"
+                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Username</label
+              >
               <input
                 v-model="username"
                 id="username"
@@ -23,7 +41,27 @@
               />
             </div>
             <div>
-              <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
+              <label
+                for="email"
+                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Email</label
+              >
+              <input
+                v-model="email"
+                id="email"
+                type="email"
+                placeholder="Your email"
+                class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label
+                for="password"
+                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Password</label
+              >
               <input
                 v-model="password"
                 id="password"
@@ -41,7 +79,10 @@
             </button>
             <p class="text-sm font-light text-gray-500 dark:text-gray-400">
               Already have an account?
-              <router-link to="/login" class="font-medium text-primary-600 hover:underline dark:text-primary-500">
+              <router-link
+                to="/login"
+                class="font-medium text-primary-600 hover:underline dark:text-primary-500"
+              >
                 Sign in
               </router-link>
             </p>
@@ -54,30 +95,31 @@
 
 <script>
 export default {
-  name: 'RegisterPage',
+  name: "RegisterPage",
   data() {
     return {
-      username: '',
-      password: '',
+      username: "",
+      password: "",
+      email: "", // Aggiungi il campo email
     };
   },
   methods: {
     async register() {
       try {
         await fetch(`${process.env.VUE_APP_API_BASE_URL}/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: this.username, password: this.password }),
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: this.username,
+            password: this.password,
+            email: this.email, // Invia l'email al backend
+          }),
         });
-        this.$router.push('/login'); // Redirect al login dopo la registrazione
+        this.$router.push("/login");
       } catch (error) {
-        console.error('Errore nella registrazione:', error);
+        console.error("Errore nella registrazione:", error);
       }
     },
   },
 };
 </script>
-
-<style scoped>
-/* Aggiungi stili opzionali se necessario */
-</style>

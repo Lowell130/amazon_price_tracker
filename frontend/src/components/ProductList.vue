@@ -3,7 +3,7 @@
     <div class="mx-auto max-w-screen-2xl px-4 lg:px-12">
 
 
-      <div class="bg-white dark:bg-gray-800 relative shadow-md overflow-hidden flex flex-wrap border-b justify-start gap-4 items-center p-4 bg-gray-50 dark:bg-gray-700">
+      <div class="bg-white dark:bg-gray-800 relative shadow-md overflow-hidden flex flex-wrap border-b dark:border-gray-600 justify-start gap-4 items-center p-4 bg-gray-50 dark:bg-gray-700">
   <!-- Search Product -->
   <div class="mb-2 sm:mb-0 w-full sm:w-auto">
     <div class="relative">
@@ -53,15 +53,15 @@
   <!-- filtro stato -->
 <div class="mb-2 sm:mb-0 w-full sm:w-auto">
   <select
-    v-model="filters.selectedCondition"
-    @change="applyFilters"
-    class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg p-2 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-  >
-    <option value="">All Conditions</option>
-    <option value="Nuovo">New</option>
-    <option value="Usato">Used</option>
-    <option value="Non disponibile">Unavailable</option>
-  </select>
+  v-model="filters.selectedCondition"
+  @change="applyFilters"
+  class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg p-2 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+>
+  <option value="">All Conditions</option>
+  <option value="Nuovo">New</option>
+  <option value="Usato">Used</option>
+  <option value="Non disponibile">Unavailable</option>
+</select>
 </div>
 
    <!-- show favorite -->
@@ -93,7 +93,7 @@
 
 
 
-      <div class="bg-white dark:bg-gray-800 relative shadow-md overflow-hidden">
+      <div class="bg-white dark:bg-gray-800 relative shadow-md overflow-hidden rounded-b-lg">
         <!-- Spinner -->
 
         <SpinnerComp v-if="isLoading" />
@@ -329,10 +329,10 @@
                 >
                   <div class="flex items-center space-x-4">
                     <a
-                      :href="product.product_url"
+                      :href="product.affiliate"
                       target="_blank"
                       type="button"
-                      class="text-xs font-medium px-2 py-0.5 rounded dark:bg-yellow-400 dark:text-white"
+                      class="text-xs font-medium px-2 py-0.5 rounded dark:text-white"
                     >
                       <svg
                         class="w-6 h-6 text-gray-400"
@@ -356,7 +356,7 @@
                       href="#"
                       @click="viewPriceHistory(product.asin)"
                       type="button"
-                      class="text-xs font-medium px-2 py-0.5 rounded dark:bg-green-500 dark:text-white"
+                      class="text-xs font-medium px-2 py-0.5 rounded dark:text-white"
                     >
                       <svg
                         class="w-6 h-6 text-gray-400"
@@ -378,28 +378,30 @@
                     </a>
 
                     <a
-                      href="#"
-                      type="button"
-                      @click="removeProduct(product.asin)"
-                      class="text-xs font-medium px-2 py-0.5 rounded dark:bg-red-600 dark:text-white"
-                      ><svg
-                        class="w-6 h-6 text-gray-400"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
-                        />
-                      </svg>
-                    </a>
+  href="#"
+  type="button"
+  @click.prevent="removeProduct(product.asin)"
+  class="text-xs font-medium px-2 py-0.5 rounded dark:text-white"
+>
+  <svg
+    class="w-6 h-6 text-gray-400"
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <path
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+    />
+  </svg>
+</a>
+
                   </div>
                 </td>
               </tr>
@@ -408,10 +410,7 @@
        
         
         </div>
-        <nav
-  class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4"
-  aria-label="Table navigation"
->
+        <nav class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 text-xs bg-gray-50 dark:bg-gray-700 rounded-b-lg">
   <span
     class="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto"
   >
@@ -428,7 +427,7 @@
       <button
         :disabled="currentPage === 1"
         @click="changePage(currentPage - 1)"
-        class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50"
+        class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50"
       >
         Previous
       </button>
@@ -443,8 +442,8 @@
         @click="changePage(page)"
         :class="{
           'flex items-center justify-center px-3 h-8 leading-tight': true,
-          'text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 dark:border-gray-700 dark:bg-gray-700 dark:text-white': currentPage === page,
-          'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white': currentPage !== page,
+          'text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white': currentPage === page,
+          'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white': currentPage !== page,
         }"
       >
         {{ page }}
@@ -456,7 +455,7 @@
       <button
         :disabled="currentPage === totalPages"
         @click="changePage(currentPage + 1)"
-        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50"
+        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50"
       >
         Next
       </button>
@@ -491,6 +490,7 @@ export default {
         searchQuery: "",
         selectedCategory: "",
         selectedPriceRange: "",
+        selectedCondition: "", // Aggiunto valore predefinito corretto
       },
       priceRanges: [
         { label: "€0 - €10", value: [0, 10] },
@@ -625,6 +625,7 @@ applyFilters() {
     this.filters.searchQuery = "";
     this.filters.selectedCategory = "";
     this.filters.selectedPriceRange = "";
+    this.filters.selectedCondition = ""; // Ripristina la condizione
 
     // Ripristina la lista di prodotti
     this.filteredProducts = [...this.localProducts];
@@ -697,12 +698,43 @@ applyFilters() {
       }
     },
 
+    async removeProduct(asin) {
+    const confirmDelete = confirm(
+      "Sei sicuro di voler eliminare questo prodotto dal monitoraggio?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetchWithToken(
+        `${process.env.VUE_APP_API_BASE_URL}/remove-product/${asin}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail);
+      }
+
+      // Aggiorna localmente la lista dei prodotti
+      this.localProducts = this.localProducts.filter(
+        (product) => product.asin !== asin
+      );
+
+      // Applica i filtri per aggiornare la vista
+      this.applyFilters();
+    } catch (error) {
+      console.error("Errore durante l'eliminazione del prodotto:", error);
+    }
+  },
+
     viewPriceHistory(asin) {
       this.$router.push(`/products/${asin}`);
     },
-    removeProduct(asin) {
-      this.$emit("remove-product", asin);
-    },
+    // removeProduct(asin) {
+    //   this.$emit("remove-product", asin);
+    // },
     
   },
   

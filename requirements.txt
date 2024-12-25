@@ -8,3 +8,4 @@ pydantic        # Per la gestione dei modelli dati (incluso in FastAPI)
 apscheduler
 pymongo
 fake-useragent
+pydantic[email]
