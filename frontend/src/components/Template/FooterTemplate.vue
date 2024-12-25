@@ -17,10 +17,10 @@
               <linearGradient id="paint8_linear_11430_22515" x1="7.15667" y1="21.5399" x2="14.0824" y2="31.9579" gradientUnits="userSpaceOnUse"><stop stop-color="#0092FF"/><stop offset="1" stop-color="#45B2FF"/></linearGradient>
               </defs>
           </svg>
-          Flowbite    
+          AMZPriceAlert  
       </a>
-      <p class="my-6 text-gray-500 dark:text-gray-400">Open-source library of over 400+ web components and interactive elements built for better web.</p>
-      <ul class="flex flex-wrap justify-center items-center mb-6 text-gray-900 dark:text-white">
+      <p class="my-6 text-gray-500 dark:text-gray-400">Amazon Price Tracker is an intuitive web application designed to help users monitor price changes for their favorite Amazon products. Add products, track their price history, set favorites, and receive alerts for price drops—all in one place. Simplify your shopping experience with smart tracking and insights</p>
+      <!-- <ul class="flex flex-wrap justify-center items-center mb-6 text-gray-900 dark:text-white">
           <li>
               <a href="#" class="mr-4 hover:underline md:mr-6 ">About</a>
           </li>
@@ -42,8 +42,8 @@
           <li>
               <a href="#" class="mr-4 hover:underline md:mr-6">Contact</a>
           </li>
-      </ul>
-      <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2021-2022 <a href="#" class="hover:underline">Flowbite™</a>. All Rights Reserved.</span>
+      </ul> -->
+      <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 - 2025 all Rights Reserved.</span>
   </div>
 </footer>
 </template>
