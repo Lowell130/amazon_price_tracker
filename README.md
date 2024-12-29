@@ -1,9 +1,9 @@
 
-# **Price Tracker**
+# **Amazon Price Tracker and monitoring**
 
 A powerful web application for tracking and analyzing price changes on Amazon. This project lets users monitor product prices, manage favorites, and visualize data trends with interactive charts.
 
-![Project Screenshot](path/to/screenshot.png) <!-- Replace with an actual screenshot -->
+![Project Screenshot](https://ibb.co/NN8qMCS) <!-- Replace with an actual screenshot -->
 
 ---
 
