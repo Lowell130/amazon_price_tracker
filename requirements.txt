@@ -10,3 +10,4 @@ pymongo
 fake-useragent
 pydantic[email]
 python-amazon-paapi
+python-dotenv
