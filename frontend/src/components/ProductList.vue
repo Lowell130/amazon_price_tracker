@@ -175,6 +175,7 @@
                 <th scope="col" class="p-4">Max price</th>
                 <th scope="col" class="p-4">asin</th>
                 <th scope="col" class="p-4">&nbsp;</th>
+                <th scope="col" class="p-4">&nbsp;</th>
               
               </tr>
             </thead>
@@ -215,8 +216,8 @@
                       />
                     </div>
                     <span class="ml-3 text-right">
-                      {{ product.title.substring(0, 30)
-                      }}{{ product.title.length > 30 ? "..." : "" }}
+                      {{ product.title.substring(0, 20)
+                      }}{{ product.title.length > 20 ? "..." : "" }}
                     </span>
                   </div>
                 </th>
@@ -313,6 +314,37 @@
                     product.asin
                   }}</span>
                 </td>
+
+
+
+
+
+  <!-- Pulsante per l'accordion -->
+ <!-- Accordion Toggle Button -->
+ <td class="px-4 py-3">
+                  <button
+                    @click="toggleAccordion(product.asin)"
+                    class="flex items-center text-xs font-medium px-2 py-0.5 rounded dark:text-white"
+                  >
+                    <svg
+                      :class="{ 'rotate-180': currentOpenAccordion === product.asin }"
+                      class="w-5 h-5 transition-transform"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                </td>
+
+
                 <td
                   class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                 >
@@ -393,6 +425,17 @@
 
                   </div>
                 </td>
+
+  
+   
+    </tr>
+    <!-- Riga dell'accordion -->
+   <!-- Accordion Content Row -->
+   <tr v-if="currentOpenAccordion === product.asin">
+                <td colspan="12" class="p-5">
+                  <p class="p-4">{{ product.title }}</p>
+                  <ChartPage v-if="product && product.price_history" :priceHistory="product.price_history" />
+                </td>
               </tr>
             </tbody>
           </table>
@@ -460,16 +503,18 @@
 // import PriceHistory from "./PriceHistory.vue";
 import { fetchWithToken } from "@/api";
 import SpinnerComp from "./SpinnerComp.vue";
+import ChartPage from "../components/ChartPage.vue";
 
 
 export default {
-  components: { SpinnerComp },
+  components: { SpinnerComp, ChartPage },
   props: ["products"],
   data() {
     return {
       localProducts: [], // Copia dei prodotti per il componente
       filteredProducts: [], // Prodotti filtrati
       selectedAsins: [],
+      currentOpenAccordion: null, // Tracks the currently open accordion
       isLoading: false,
       currentPage: 1,
       itemsPerPage: 30,
@@ -525,6 +570,16 @@ computed: {
 
 
   methods: {
+    toggleAccordion(asin) {
+      if (this.currentOpenAccordion === asin) {
+        this.currentOpenAccordion = null;
+      } else {
+        this.currentOpenAccordion = asin;
+      }
+    },
+
+
+
     async toggleFavorite(product) {
     try {
       // Chiamata API per aggiornare lo stato del preferito

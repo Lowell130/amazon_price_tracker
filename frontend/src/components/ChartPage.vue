@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white shadow dark:bg-gray-800 p-4 md:p-6 rounded-b-lg">
+  <div class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-b-lg">
     <div class="flex justify-between">
       <div>
         <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">
@@ -123,6 +123,7 @@ export default {
           height: "100%",
           fontFamily: "Inter, sans-serif",
           toolbar: { show: true },
+          zoom: { enabled: false }, // Disabilita lo zoom
         },
         tooltip: { enabled: true, x: { show: false } },
         fill: {
