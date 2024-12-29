@@ -17,6 +17,7 @@ import string
 from fastapi.responses import JSONResponse
 from app.utils.email import send_email
 import os  # Importa il modulo os per accedere alle variabili d'ambiente
+import re 
 
 
 
@@ -50,7 +51,21 @@ class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
 
-# Registrazione
+
+def validate_password(password: str) -> bool:
+    """Verifica se la password soddisfa i requisiti di sicurezza."""
+    if len(password) < 8:
+        return False
+    if not re.search(r'[A-Z]', password):
+        return False
+    if not re.search(r'[a-z]', password):
+        return False
+    if not re.search(r'[0-9]', password):
+        return False
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return False
+    return True
+
 @router.post("/register")
 async def register(user: User):
     if users_collection.find_one({"username": user.username}):
@@ -58,6 +73,14 @@ async def register(user: User):
 
     if users_collection.find_one({"email": user.email}):
         raise HTTPException(status_code=400, detail="Email already exists")
+
+    if not validate_password(user.password):
+        raise HTTPException(
+            status_code=400,
+            detail="Password must be at least 8 characters long, "
+                   "contain an uppercase letter, a lowercase letter, "
+                   "a number, and a special character."
+        )
 
     hashed_password = bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
     new_user = {
@@ -68,8 +91,6 @@ async def register(user: User):
     }
     users_collection.insert_one(new_user)
     return {"message": "User registered successfully"}
-
-
 
 # Login e generazione token JWT
 @router.post("/login")

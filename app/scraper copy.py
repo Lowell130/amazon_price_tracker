@@ -1,9 +1,14 @@
+# scraper.py
 from bs4 import BeautifulSoup
 import requests
 import re
 from datetime import datetime
 import time
 import random
+import logging
+
+# Configura il logging
+logging.basicConfig(level=logging.INFO)
 
 def get_asin_from_url(url):
     """Estrae l'ASIN dal link Amazon."""
@@ -23,7 +28,7 @@ def clean_price(price):
     return float(price)
 
 def fetch_product_data(url, max_retries=3, delay=2):
-    """Esegue scraping del titolo, prezzo e immagine del prodotto dal link Amazon."""
+    """Esegue scraping del titolo, prezzo, immagine e rating del prodotto dal link Amazon."""
     asin = get_asin_from_url(url)
     if not asin:
         raise ValueError("ASIN non trovato nell'URL")
@@ -86,6 +91,32 @@ def fetch_product_data(url, max_retries=3, delay=2):
     image_tag = main_container.find("img", {"id": "landingImage"})
     image_url = image_tag['src'] if image_tag else None
 
+    # Estrazione del rating
+    rating = None
+    # Primo tentativo: cerca nella classe "a-icon-alt"
+    rating_tag = main_container.find("span", {"class": "a-icon-alt"})
+    if rating_tag:
+        rating_text = rating_tag.get_text(strip=True)
+        try:
+            rating = float(rating_text.split(" ")[0].replace(",", "."))
+            logging.info(f"Rating extracted from a-icon-alt: {rating}")
+        except (ValueError, AttributeError) as e:
+            logging.error(f"Could not parse rating from a-icon-alt: {rating_text}, error: {e}")
+
+    # Secondo tentativo: cerca nella classe "a-size-base a-color-base"
+    if rating is None:
+        alt_rating_tag = main_container.find("span", {"class": "a-size-base a-color-base"})
+        if alt_rating_tag:
+            alt_rating_text = alt_rating_tag.get_text(strip=True)
+            try:
+                rating = float(alt_rating_text.replace(",", "."))
+                logging.info(f"Rating extracted from a-size-base a-color-base: {rating}")
+            except (ValueError, AttributeError) as e:
+                logging.error(f"Could not parse rating from a-size-base a-color-base: {alt_rating_text}, error: {e}")
+
+    if rating is None:
+        logging.warning("Rating not found in any expected tags.")
+
     # Ritorna i dati del prodotto
     return {
         "asin": asin,
@@ -93,8 +124,8 @@ def fetch_product_data(url, max_retries=3, delay=2):
         "price": price,
         "condition": condition,
         "image_url": image_url,
+        "rating": rating,  # Valore decimale corretto
         "availability": "Disponibile" if condition != "Non disponibile" else "Non disponibile",
         "extraction_date": datetime.now().isoformat(),
         "price_history": [{"date": datetime.now().isoformat(), "price": price}] if price else []
-        
     }

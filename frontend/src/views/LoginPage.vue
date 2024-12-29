@@ -37,6 +37,8 @@
                 required
               />
             </div>
+            <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
+
             <div class="flex items-center justify-between">
               <div class="flex items-start">
                 <div class="flex items-center h-5">
@@ -79,32 +81,36 @@ export default {
       login: '', // Campo per username o email
       password: '',
       isLoading: false,
+      errorMessage: "", // Per gli errori di login
     };
   },
   methods: {
-    async handleLogin() { // Cambiato il nome del metodo
-      this.isLoading = true;
-      try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ login: this.login, password: this.password }),
-        });
+    async handleLogin() {
+  this.isLoading = true;
+  this.errorMessage = ""; // Resetta il messaggio di errore
+  try {
+    const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ login: this.login, password: this.password }),
+    });
 
-        const data = await response.json();
+    if (response.ok) {
+      const data = await response.json();
+      localStorage.setItem("token", data.access_token);
+      this.$router.push("/dashboard");
+    } else {
+      const data = await response.json();
+      this.errorMessage = data.detail || "Login failed. Please check your credentials.";
+    }
+  } catch (error) {
+    console.error("Error during login:", error);
+    this.errorMessage = "An unexpected error occurred. Please try again.";
+  } finally {
+    this.isLoading = false;
+  }
+},
 
-        if (data.access_token) {
-          localStorage.setItem('token', data.access_token);
-          this.$router.push('/dashboard');
-        } else {
-          alert('Login fallito');
-        }
-      } catch (error) {
-        console.error('Errore nel login:', error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
   },
 };
 

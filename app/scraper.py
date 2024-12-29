@@ -1,36 +1,14 @@
+# scraper.py
 from bs4 import BeautifulSoup
 import requests
 import re
 from datetime import datetime
 import time
 import random
-from fake_useragent import UserAgent
-import os
 import logging
 
 # Configura il logging
 logging.basicConfig(level=logging.INFO)
-
-# Inizializza Fake User Agent
-ua = UserAgent()
-
-# Funzione per caricare la lista di proxy
-def load_proxies(file_path):
-    """Carica una lista di proxy da un file di testo."""
-    with open(file_path, 'r') as file:
-        return [line.strip() for line in file.readlines() if line.strip()]
-
-# Percorso del file dei proxy
-proxy_file_path = 'utils/list.txt'
-
-# Carica i proxy se il file non è vuoto
-if os.path.exists(proxy_file_path) and os.path.getsize(proxy_file_path) > 0:
-    proxy_list = load_proxies(proxy_file_path)
-else:
-    proxy_list = []  # Imposta una lista vuota se non ci sono proxy
-
-# Log della lista di proxy caricati
-logging.info(f"Proxy list: {proxy_list}")
 
 def get_asin_from_url(url):
     """Estrae l'ASIN dal link Amazon."""
@@ -39,7 +17,7 @@ def get_asin_from_url(url):
 
 def clean_price(price):
     """Rimuove simboli di valuta e spazi dal prezzo, restituendo un valore numerico come stringa normalizzata."""
-    price = re.sub(r"[^\d,\.]", "", price)
+    price = re.sub(r"[^\d,\.]", "", price)  # Rimuove simboli non numerici eccetto la virgola e il punto
     if "," in price and "." in price:
         if price.index(",") > price.index("."):
             price = price.replace(".", "").replace(",", ".")
@@ -50,32 +28,19 @@ def clean_price(price):
     return float(price)
 
 def fetch_product_data(url, max_retries=3, delay=2):
-    """Esegue scraping del titolo, prezzo e immagine del prodotto dal link Amazon."""
+    """Esegue scraping del titolo, prezzo, immagine e rating del prodotto dal link Amazon."""
     asin = get_asin_from_url(url)
     if not asin:
         raise ValueError("ASIN non trovato nell'URL")
 
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
+        "Accept-Language": "it-IT,it;q=0.9"
+    }
+
     for attempt in range(max_retries):
         try:
-            # Genera un nuovo User-Agent casuale
-            headers = {
-                "User-Agent": ua.random,
-                "Accept-Language": "it-IT,it;q=0.9"
-            }
-
-            # Seleziona un proxy casuale
-            if proxy_list:
-                proxy = random.choice(proxy_list)
-                proxies = {
-                    "http": proxy,
-                    "https": proxy
-                }
-            else:
-                proxies = None  # Nessun proxy
-
-            # Effettua la richiesta HTTP con il proxy
-            response = requests.get(url, headers=headers, proxies=proxies, timeout=10)
-
+            response = requests.get(url, headers=headers)
             if response.status_code == 200:
                 break
             elif attempt < max_retries - 1:
@@ -126,6 +91,32 @@ def fetch_product_data(url, max_retries=3, delay=2):
     image_tag = main_container.find("img", {"id": "landingImage"})
     image_url = image_tag['src'] if image_tag else None
 
+    # Estrazione del rating
+    rating = None
+    # Primo tentativo: cerca nella classe "a-icon-alt"
+    rating_tag = main_container.find("span", {"class": "a-icon-alt"})
+    if rating_tag:
+        rating_text = rating_tag.get_text(strip=True)
+        try:
+            rating = float(rating_text.split(" ")[0].replace(",", "."))
+            logging.info(f"Rating extracted from a-icon-alt: {rating}")
+        except (ValueError, AttributeError) as e:
+            logging.error(f"Could not parse rating from a-icon-alt: {rating_text}, error: {e}")
+
+    # Secondo tentativo: cerca nella classe "a-size-base a-color-base"
+    if rating is None:
+        alt_rating_tag = main_container.find("span", {"class": "a-size-base a-color-base"})
+        if alt_rating_tag:
+            alt_rating_text = alt_rating_tag.get_text(strip=True)
+            try:
+                rating = float(alt_rating_text.replace(",", "."))
+                logging.info(f"Rating extracted from a-size-base a-color-base: {rating}")
+            except (ValueError, AttributeError) as e:
+                logging.error(f"Could not parse rating from a-size-base a-color-base: {alt_rating_text}, error: {e}")
+
+    if rating is None:
+        logging.warning("Rating not found in any expected tags.")
+
     # Ritorna i dati del prodotto
     return {
         "asin": asin,
@@ -133,6 +124,7 @@ def fetch_product_data(url, max_retries=3, delay=2):
         "price": price,
         "condition": condition,
         "image_url": image_url,
+        "rating": rating,  # Valore decimale corretto
         "availability": "Disponibile" if condition != "Non disponibile" else "Non disponibile",
         "extraction_date": datetime.now().isoformat(),
         "price_history": [{"date": datetime.now().isoformat(), "price": price}] if price else []

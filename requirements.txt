@@ -9,3 +9,4 @@ apscheduler
 pymongo
 fake-useragent
 pydantic[email]
+python-amazon-paapi
