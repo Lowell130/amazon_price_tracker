@@ -350,7 +350,7 @@
                 >
                   <div class="flex items-center space-x-4">
                     <a
-                      :href="product.product_url"
+                      :href="product.affiliate"
                       target="_blank"
                       type="button"
                       class="text-xs font-medium px-2 py-0.5 rounded dark:text-white"
