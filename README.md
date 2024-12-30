@@ -23,7 +23,8 @@ Follow these steps to run the project locally.
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/Lowell130/amazon_price_tracker.git
-   cd price-tracker
+   cd amazon_price_tracker
+
    ```
 
 2. **Install dependencies for backend:**
