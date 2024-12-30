@@ -1,7 +1,10 @@
 
-# **Amazon Price Tracker and monitoring**
+# **Amazon.it Price Tracker and monitoring**
 
-A powerful web application for tracking and analyzing price changes on Amazon. This project lets users monitor product prices, manage favorites, and visualize data trends with interactive charts.
+A powerful web application for tracking and analyzing price changes on Amazon.it. This project lets users monitor product prices, manage favorites, and visualize data trends with interactive charts.
+
+Currently, the application supports only **Amazon.it** and is built using **Vue.js**, **Python**, and **MongoDB**.
+
 
 
 ---
@@ -23,12 +26,18 @@ Follow these steps to run the project locally.
    cd price-tracker
    ```
 
-2. **Install dependencies:**
+2. **Install dependencies for backend:**
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Set up environment variables:**
+3. **Install dependencies for frontend:**
+   ```bash
+   cd frontend/
+   npm install
+   ```
+
+4. **Set up environment variables:**
    Create a `.env` file in the root directory with the following structure:
    ```env
    # MongoDB Configuration
@@ -41,28 +50,42 @@ Follow these steps to run the project locally.
    SMTP_PORT=587
 
    # Other Configurations
-   FRONTEND_BASE_URL=http://localhost:8080
+      FRONTEND_BASE_URL=http://localhost:8080
    ```
 
-4. **Run the server:**
+5. **Run the server:**
    ```bash
    python -m uvicorn app.main:app --reload
    ```
+6. **Run the frontend:**
+   ```bash
+   npm run serve
+   ```
 
-5. **Access the application:**
+7. **Access the application:**
    Open your browser and navigate to `http://127.0.0.1:8000`.
 
 ---
 
 ## 📂 **Project Structure**
 ```
-├── main.py            # Entry point for the application
-├── db.py              # Database connection
-├── email_service.py   # Email utility functions
-├── static/            # Static assets
-├── templates/         # HTML templates
-├── requirements.txt   # Python dependencies
-└── .env.example       # Example of environment variables file
+amazon_price_tracker/
+├── app/                  # Backend dell'applicazione
+│   ├── utils/           # Utility e moduli di supporto
+│   │   └── email.py    # Modulo per l'invio di email
+│   ├── auth.py          # Gestione dell'autenticazione
+│   ├── config.py        # Configurazioni dell'applicazione
+│   ├── crud.py          # Operazioni CRUD sul database
+│   ├── db.py            # Configurazione del database
+│   ├── main.py          # Entry point dell'applicazione
+│   └── scraper.py       # Modulo per il web scraping
+├── frontend/            # Frontend dell'applicazione
+│   ├── public/         # File pubblici e asset statici
+│   ├── src/            # Codice sorgente del frontend
+│   └── ...             # Altri file e directory del frontend
+├── README.md            # Documentazione del progetto
+├── .gitignore           # File per escludere file e cartelle specifiche da Git
+└── requirements.txt     # Dipendenze Python necessarie
 ```
 
 ---
