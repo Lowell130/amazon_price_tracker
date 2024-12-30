@@ -1,7 +1,7 @@
 
 # **Amazon.it Price Tracker and monitoring**
 
-A powerful web application for tracking and analyzing price changes on Amazon.it. This project lets users monitor product prices, manage favorites, and visualize data trends with interactive charts.
+A full-stack powerful web application for tracking and analyzing price changes on Amazon.it. This project lets users monitor product prices, manage favorites, and visualize data trends with interactive charts.
 
 Currently, the application supports only **Amazon.it** and is built using **Vue.js**, **Python**, and **MongoDB**.
 
