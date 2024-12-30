@@ -70,22 +70,22 @@ Follow these steps to run the project locally.
 ## 📂 **Project Structure**
 ```
 amazon_price_tracker/
-├── app/                  # Backend dell'applicazione
-│   ├── utils/           # Utility e moduli di supporto
-│   │   └── email.py    # Modulo per l'invio di email
-│   ├── auth.py          # Gestione dell'autenticazione
-│   ├── config.py        # Configurazioni dell'applicazione
-│   ├── crud.py          # Operazioni CRUD sul database
-│   ├── db.py            # Configurazione del database
-│   ├── main.py          # Entry point dell'applicazione
-│   └── scraper.py       # Modulo per il web scraping
-├── frontend/            # Frontend dell'applicazione
-│   ├── public/         # File pubblici e asset statici
-│   ├── src/            # Codice sorgente del frontend
-│   └── ...             # Altri file e directory del frontend
-├── README.md            # Documentazione del progetto
-├── .gitignore           # File per escludere file e cartelle specifiche da Git
-└── requirements.txt     # Dipendenze Python necessarie
+├── app/                  
+│   ├── utils/           
+│   │   └── email.py    
+│   ├── auth.py          
+│   ├── config.py        
+│   ├── crud.py          
+│   ├── db.py            
+│   ├── main.py          
+│   └── scraper.py       
+├── frontend/            
+│   ├── public/         
+│   ├── src/            
+│   └── ...             
+├── README.md            
+├── .gitignore           
+└── requirements.txt     
 ```
 
 ---
