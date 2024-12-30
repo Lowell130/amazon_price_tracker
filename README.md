@@ -117,7 +117,7 @@ Link to the live demo (if available): [Price Tracker Demo](https://amazon-price-
 
 ## 📧 **Contact**
 For questions or feedback, feel free to reach out:
-- **Email**: your-email@example.com
+- **Email**: blackfdayit@gmail.com
 
 
 ---
