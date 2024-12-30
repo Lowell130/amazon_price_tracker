@@ -20,29 +20,7 @@
           AMZPriceAlert  
       </a>
       <p class="my-6 text-gray-500 dark:text-gray-400">Amazon Price Tracker is an intuitive web application designed to help users monitor price changes for their favorite Amazon products. Add products, track their price history, set favorites, and receive alerts for price drops—all in one place. Simplify your shopping experience with smart tracking and insights</p>
-      <!-- <ul class="flex flex-wrap justify-center items-center mb-6 text-gray-900 dark:text-white">
-          <li>
-              <a href="#" class="mr-4 hover:underline md:mr-6 ">About</a>
-          </li>
-          <li>
-              <a href="#" class="mr-4 hover:underline md:mr-6">Premium</a>
-          </li>
-          <li>
-              <a href="#" class="mr-4 hover:underline md:mr-6 ">Campaigns</a>
-          </li>
-          <li>
-              <a href="#" class="mr-4 hover:underline md:mr-6">Blog</a>
-          </li>
-          <li>
-              <a href="#" class="mr-4 hover:underline md:mr-6">Affiliate Program</a>
-          </li>
-          <li>
-              <a href="#" class="mr-4 hover:underline md:mr-6">FAQs</a>
-          </li>
-          <li>
-              <a href="#" class="mr-4 hover:underline md:mr-6">Contact</a>
-          </li>
-      </ul> -->
+  
       <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 - 2025 all Rights Reserved.</span>
   </div>
 </footer>
