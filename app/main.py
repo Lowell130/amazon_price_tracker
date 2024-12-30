@@ -106,7 +106,7 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
 
     # Genera il link affiliato
     asin = product_data["asin"]  # Assume che l'ASIN sia ottenuto dallo scraping
-    affiliate_tag = "affiliate_tag"  # Sostituisci con il tuo tag affiliato
+   
     affiliate_link = f"https://www.amazon.it/gp/product/{asin}/?tag={affiliate_tag}"
 
     # Inizializza i dati del prodotto
