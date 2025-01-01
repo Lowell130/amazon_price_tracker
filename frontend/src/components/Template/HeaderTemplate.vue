@@ -24,7 +24,7 @@
       <!-- <router-link v-if="!isAuthenticated" to="/reset-password" class="block py-2 px-3 text-black  rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">Reset</router-link> -->
 
       <button class="block py-2 px-3 text-black  rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500" v-if="isAuthenticated" @click="logout">Logout</button>
-      <ThemeToggle />
+      <!-- <ThemeToggle /> -->
     </ul>
     </div>
   </div>
@@ -38,7 +38,7 @@
 <script>
  import { jwtDecode } from 'jwt-decode' // Importazione specifica
  import { onMounted } from 'vue'
- import ThemeToggle from '../ThemeToggle.vue';
+//  import ThemeToggle from '../ThemeToggle.vue';
 import { 
     initAccordions, 
     initCarousels, 
@@ -58,9 +58,9 @@ export default {
         isAuthenticated: false, // Stato iniziale dell'autenticazione
       };
     },
-    components: {
-      ThemeToggle
-    },
+    // components: {
+    //   ThemeToggle
+    // },
     
     mounted() {
       this.checkAuth();
