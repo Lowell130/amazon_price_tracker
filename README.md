@@ -51,8 +51,8 @@ Follow these steps to run the project locally.
    SMTP_PORT=587
 
    # Other Configurations
-      VUE_APP_API_BASE_URL=http://127.0.0.1:8000/api
-      FRONTEND_BASE_URL=http://localhost:8080
+   VUE_APP_API_BASE_URL=http://127.0.0.1:8000/api
+   FRONTEND_BASE_URL=http://localhost:8080
    ```
 
 5. **Run the server:**
