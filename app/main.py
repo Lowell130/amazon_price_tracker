@@ -29,10 +29,12 @@ load_dotenv()
 
 # Recupera le informazioni dal file .env
 affiliate_tag = os.getenv("AFFILIATE_TAG")
-allowed_origins = os.getenv("ALLOWED_ORIGINS").split(',')
 
-# Usa le variabili di ambiente
-origins = allowed_origins
+origins = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "https://amazon-price-tracker-delta.vercel.app"
+]
 
 app.add_middleware(
     CORSMiddleware,

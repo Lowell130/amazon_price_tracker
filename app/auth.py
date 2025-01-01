@@ -148,18 +148,21 @@ async def dashboard(current_user: str = Depends(get_current_user)):
 # Endpoint per eliminare un prodotto monitorato dall'utente
 @router.delete("/remove-product/{asin}")
 async def remove_product(asin: str, current_user: str = Depends(get_current_user)):
+    # Verifica che l'utente esista
     db_user = users_collection.find_one({"username": current_user})
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    updated_products = [p for p in db_user.get("products", []) if p["asin"] != asin]
-    if len(updated_products) == len(db_user.get("products", [])):
+    # Usa $pull per rimuovere direttamente il prodotto dalla lista
+    result = users_collection.update_one(
+        {"_id": db_user["_id"]},
+        {"$pull": {"products": {"asin": asin}}}
+    )
+
+    # Verifica che il prodotto sia stato effettivamente rimosso
+    if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="Product not found")
 
-    users_collection.update_one(
-        {"_id": db_user["_id"]},
-        {"$set": {"products": updated_products}}
-    )
     return {"message": "Product removed successfully"}
 
 # Refresh del token
