@@ -15,6 +15,8 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import logging
+import os
+from dotenv import load_dotenv
 
 # Configura il logger
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -22,11 +24,15 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:8080",
-    "http://127.0.0.1:8080",
-    "https://amazon-price-tracker-delta.vercel.app"
-]
+# Carica le variabili dal file .env
+load_dotenv()
+
+# Recupera le informazioni dal file .env
+affiliate_tag = os.getenv("AFFILIATE_TAG")
+allowed_origins = os.getenv("ALLOWED_ORIGINS").split(',')
+
+# Usa le variabili di ambiente
+origins = allowed_origins
 
 app.add_middleware(
     CORSMiddleware,
@@ -100,7 +106,7 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
 
     # Genera il link affiliato
     asin = product_data["asin"]  # Assume che l'ASIN sia ottenuto dallo scraping
-    affiliate_tag = "newdev-21"  # Sostituisci con il tuo tag affiliato
+   
     affiliate_link = f"https://www.amazon.it/gp/product/{asin}/?tag={affiliate_tag}"
 
     # Inizializza i dati del prodotto
