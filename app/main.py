@@ -17,6 +17,7 @@ from email.mime.text import MIMEText
 import logging
 import os
 from dotenv import load_dotenv
+from fastapi import Depends, HTTPException, status
 
 # Configura il logger
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -53,6 +54,75 @@ class ProductRequest(BaseModel):
     category: Optional[str] = None  # Campo facoltativo per la categoria
 
 
+def admin_required(current_user: str = Depends(get_current_user)):
+    user = users_collection.find_one({"username": current_user})
+    if not user or not user.get("admin", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator privileges required"
+        )
+    return user
+
+
+@app.post("/api/admin/generate-price-drops-report", dependencies=[Depends(admin_required)])
+async def generate_price_drops_report():
+    """
+    Genera una collezione separata con tutte le variazioni di prezzo in positivo.
+    Accessibile solo agli amministratori.
+    """
+    try:
+        price_drops_collection = users_collection.database["price_drops"]
+
+        # Rimuove i dati precedenti nella collezione
+        price_drops_collection.delete_many({})
+
+        # Analizza gli utenti e i prodotti
+        users = users_collection.find({})
+        report = {
+            "generation_date": datetime.now().isoformat(),
+            "drops": []  # Array che contiene tutte le variazioni
+        }
+
+        for user in users:
+            for product in user.get("products", []):
+                price_history = product.get("price_history", [])
+                if len(price_history) < 2:
+                    continue  # Non ci sono abbastanza dati per calcolare una variazione
+
+                # Ordina per data
+                price_history = sorted(price_history, key=lambda x: x["date"])
+                old_price = price_history[-2]["price"]
+                new_price = price_history[-1]["price"]
+
+                if new_price < old_price:  # Verifica calo di prezzo
+                    report["drops"].append({
+                        "asin": product["asin"],
+                        "title": product["title"],
+                        "old_price": old_price,
+                        "new_price": new_price,
+                        "price_drop": round(old_price - new_price, 2),
+                        "user": user["username"],
+                        "category": product.get("category"),
+                        "date": price_history[-1]["date"],
+                        "affiliate": product.get("affiliate"),
+                        "condition": product.get("condition", "Unknown"),
+                        "image_url": product.get("image_url", ""),
+                        "rating": product.get("rating", None),
+                        "availability": product.get("availability", "Unknown"),
+                        "insertion_date": product.get("insertion_date", None),
+                    })
+
+        # Inserisce i dati nella nuova collezione come un singolo documento
+        price_drops_collection.insert_one(report)
+
+        return {
+            "message": "Price drops report generated",
+            "total_price_drops": len(report["drops"]),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating report: {str(e)}")
+
+
 @app.get("/api/product-details/{asin}")
 async def product_details(asin: str, current_user: str = Depends(get_current_user)):
     """
@@ -85,7 +155,6 @@ async def update_selected_prices(
         raise HTTPException(status_code=500, detail=f"Error updating selected products: {str(e)}")
 
 
-
 @app.post("/api/add-product/")
 async def add_product(request: ProductRequest, current_user: str = Depends(get_current_user)):
     """
@@ -96,19 +165,18 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Verifica che il prodotto non sia già monitorato
-    for product in db_user.get("products", []):
-        if product["product_url"] == request.product_url:
-            raise HTTPException(status_code=400, detail="Product already being tracked")
-
     # Esegue scraping del prodotto
     product_data = fetch_product_data(request.product_url)
     if not product_data or not product_data.get("price"):
         raise HTTPException(status_code=400, detail="Error fetching product data")
 
-    # Genera il link affiliato
     asin = product_data["asin"]  # Assume che l'ASIN sia ottenuto dallo scraping
-   
+
+    # Verifica che l'ASIN non sia già monitorato
+    if any(product["asin"] == asin for product in db_user.get("products", [])):
+        raise HTTPException(status_code=400, detail="Product already being tracked")
+
+    # Genera il link affiliato
     affiliate_link = f"https://www.amazon.it/gp/product/{asin}/?tag={affiliate_tag}"
 
     # Inizializza i dati del prodotto
@@ -131,6 +199,8 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
         {"$push": {"products": product_data}}
     )
     return {"message": "Product added successfully", "affiliate": affiliate_link}
+
+
 
 
 @app.get("/api/product-details/{asin}")
@@ -282,10 +352,45 @@ def update_prices(user_filter=None, asin_filter=None):
 
 
 
+@app.post("/api/update-product/{asin}")
+async def update_product_price(asin: str, current_user: str = Depends(get_current_user)):
+    """
+    Aggiorna manualmente il prezzo di un singolo prodotto.
+    """
+    try:
+        # Chiamata per aggiornare i prezzi solo per un prodotto specifico
+        updated_products = update_prices(user_filter=current_user, asin_filter=[asin])
+
+        # Verifica se il prodotto è stato aggiornato
+        if not updated_products:
+            raise HTTPException(status_code=404, detail="Product not found or not updated")
+
+        # Recupera i dettagli aggiornati del prodotto
+        db_user = users_collection.find_one({"username": current_user})
+        product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
+
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found after update")
+
+        return {
+            "message": f"Product {asin} updated successfully",
+            "product": {
+                "asin": product["asin"],
+                "price": product["price"],
+                "price_history": product["price_history"],
+                "max_price": product["max_price"],
+                "min_price": product["min_price"],
+                "average_price": product["average_price"],
+                "availability": product.get("availability", "Unknown"),
+                "condition": product.get("condition", "Unknown"),
+            },
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating product: {str(e)}")
 
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_prices, 'interval', hours=5)
+scheduler.add_job(update_prices, 'interval', hours=1)
 scheduler.start()
 
 

@@ -17,7 +17,8 @@ import string
 from fastapi.responses import JSONResponse
 from app.utils.email import send_email
 import os  # Importa il modulo os per accedere alle variabili d'ambiente
-import re 
+import re
+from typing import List
 
 
 
@@ -109,8 +110,6 @@ async def login(user: UserLogin):
     return {"access_token": token, "token_type": "bearer"}
 
 
-
-
 # Funzione per ottenere l'utente corrente tramite JWT
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
@@ -136,6 +135,30 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+
+@router.post("/remove-products/")
+async def remove_products(asin_list: List[str], current_user: str = Depends(get_current_user)):
+    """
+    Rimuove i prodotti specificati nella lista di ASIN dal monitoraggio dell'utente corrente.
+    """
+    # Verifica che l'utente esista
+    db_user = users_collection.find_one({"username": current_user})
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Usa $pull per rimuovere direttamente i prodotti corrispondenti agli ASIN
+    result = users_collection.update_one(
+        {"_id": db_user["_id"]},
+        {"$pull": {"products": {"asin": {"$in": asin_list}}}}
+    )
+
+    # Verifica che i prodotti siano stati effettivamente rimossi
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="No products were removed")
+
+    return {"message": "Products removed successfully", "removed_asins": asin_list}
+
+
 # Endpoint per ottenere i dati della dashboard
 @router.get("/dashboard")
 async def dashboard(current_user: str = Depends(get_current_user)):
@@ -144,6 +167,22 @@ async def dashboard(current_user: str = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="User not found")
 
     return {"products": db_user.get("products", [])}
+
+# Endpoint Specifico per Recuperare Informazioni Utente
+@router.get("/users/me")
+async def get_user_info(current_user: str = Depends(get_current_user)):
+    db_user = users_collection.find_one({"username": current_user})
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {
+        "username": db_user["username"],
+        "email": db_user.get("email"),
+        "admin": db_user.get("admin", False)  # Recupera il flag admin
+    }
+
+
+
 
 # Endpoint per eliminare un prodotto monitorato dall'utente
 @router.delete("/remove-product/{asin}")

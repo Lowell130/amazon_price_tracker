@@ -312,6 +312,9 @@ export default {
 
     if (!response.ok) {
       const errorData = await response.json();
+      if (errorData.detail === "Product already being tracked") {
+        alert("This product is already being tracked!");
+      }
       throw new Error(errorData.detail);
     }
 
@@ -328,8 +331,6 @@ export default {
     this.modalMessage = ""; // Reset del messaggio della modale
   }
 },
-
-
 
     async fetchProducts() {
       try {

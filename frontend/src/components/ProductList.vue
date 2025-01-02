@@ -126,28 +126,29 @@
      
                 <th scope="col" class="p-4">
                   <button
-                    @click="updateSelectedPrices"
-                    class="flex bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
-                  >
-                    <svg
-                      class="w-4 h-4 text-white dark:text-white"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"
-                      />
-                    </svg>
-                    {{ selectedAsins.length }}
-                  </button>
+  @click="deleteSelectedProducts"
+  class="flex bg-red-600 text-white p-2 rounded hover:bg-red-700"
+>
+  <svg
+    class="w-4 h-4 text-white dark:text-white"
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <path
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+    />
+  </svg>
+  {{ selectedAsins.length }}
+</button>
+
                 </th>
                 <th scope="col" class="p-4">Product</th>
                 <th scope="col" class="p-4">Condition</th>
@@ -356,7 +357,7 @@
                       class="text-xs font-medium px-2 py-0.5 rounded dark:text-white"
                     >
                       <svg
-                        class="w-6 h-6 text-gray-400"
+                        class="w-6 h-6 text-orange-400 hover:text-orange-700"
                         aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -379,33 +380,22 @@
                       type="button"
                       class="text-xs font-medium px-2 py-0.5 rounded dark:text-white"
                     >
-                      <svg
-                        class="w-6 h-6 text-gray-400"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M4 4v15a1 1 0 0 0 1 1h15M8 16l2.5-5.5 3 3L17.273 7 20 9.667"
-                        />
-                      </svg>
+                    <svg class="w-6 h-6 text-blue-400 hover:text-blue-600 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+</svg>
+
                     </a>
+
+
 
                     <a
   href="#"
-  type="button"
-  @click.prevent="removeProduct(product.asin)"
+  @click.prevent="updateProductPrice(product)"
   class="text-xs font-medium px-2 py-0.5 rounded dark:text-white"
 >
   <svg
-    class="w-6 h-6 text-gray-400"
+    :class="{ 'animate-spin': loadingProducts[product.asin] }"
+    class="w-6 h-6 text-green-400 hover:text-green-600"
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -418,10 +408,13 @@
       stroke-linecap="round"
       stroke-linejoin="round"
       stroke-width="2"
-      d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+      d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"
     />
   </svg>
 </a>
+
+
+
 
                   </div>
                 </td>
@@ -514,6 +507,7 @@ export default {
       localProducts: [], // Copia dei prodotti per il componente
       filteredProducts: [], // Prodotti filtrati
       selectedAsins: [],
+      loadingProducts: {}, // Stato di caricamento per i singoli prodotti
       currentOpenAccordion: null, // Tracks the currently open accordion
       isLoading: false,
       currentPage: 1,
@@ -530,7 +524,10 @@ export default {
         { label: "€0 - €10", value: [0, 10] },
         { label: "€10 - €50", value: [10, 50] },
         { label: "€50 - €100", value: [50, 100] },
-        { label: "€100+", value: [100, Infinity] },
+        { label: "€100 - €300", value: [100, 300] },
+        { label: "€300 - €600", value: [300, 600] },
+        { label: "€600 - €1000", value: [600, 1000] },
+        { label: "€1200+", value: [1200, Infinity] },
       ],
     }
   },
@@ -570,6 +567,48 @@ computed: {
 
 
   methods: {
+
+    async deleteSelectedProducts() {
+  if (this.selectedAsins.length === 0) {
+    alert("Select at least one product to delete.");
+    return;
+  }
+
+  const confirmDelete = confirm(
+    "Are you sure you want to delete the selected products?"
+  );
+  if (!confirmDelete) return;
+
+  try {
+    const response = await fetchWithToken(
+      `${process.env.VUE_APP_API_BASE_URL}/remove-products/`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(this.selectedAsins),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail);
+    }
+
+    const data = await response.json();
+    alert(`Deleted products: ${data.removed_asins.join(", ")}`);
+
+    // Aggiorna la lista localmente
+    this.localProducts = this.localProducts.filter(
+      (product) => !this.selectedAsins.includes(product.asin)
+    );
+    this.applyFilters();
+    this.selectedAsins = []; // Deselect all
+  } catch (error) {
+    console.error("Error deleting selected products:", error);
+  }
+},
+
+
     toggleAccordion(asin) {
       if (this.currentOpenAccordion === asin) {
         this.currentOpenAccordion = null;
@@ -708,7 +747,54 @@ applyFilters() {
     });
   },
 
+  async updateProductPrice(product) {
+  if (this.loadingProducts[product.asin]) return; // Evita aggiornamenti multipli
 
+  const confirmUpdate = confirm(
+    `Do you want to manually update the price for ${product.title}?`
+  );
+  if (!confirmUpdate) return;
+
+  // Imposta lo stato di caricamento
+  this.loadingProducts = {
+    ...this.loadingProducts,
+    [product.asin]: true,
+  };
+
+  try {
+    const response = await fetchWithToken(
+      `${process.env.VUE_APP_API_BASE_URL}/update-product/${product.asin}`,
+      {
+        method: "POST",
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail);
+    }
+
+    const data = await response.json();
+    alert(`Updated price for ${product.title}: €${data.product.price}`);
+
+    // Aggiorna i dettagli del prodotto direttamente nel frontend
+    product.price = data.product.price;
+    product.price_history = data.product.price_history;
+    product.max_price = data.product.max_price;
+    product.min_price = data.product.min_price;
+    product.average_price = data.product.average_price;
+    product.availability = data.product.availability;
+    product.condition = data.product.condition;
+  } catch (error) {
+    console.error("Error updating product price:", error);
+  } finally {
+    // Resetta lo stato di caricamento
+    this.loadingProducts = {
+      ...this.loadingProducts,
+      [product.asin]: false,
+    };
+  }
+},
 
 
     async updateSelectedPrices() {
@@ -790,5 +876,18 @@ applyFilters() {
 nav a, nav button {
     margin-right: 0!important
     
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 </style>
