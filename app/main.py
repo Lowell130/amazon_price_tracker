@@ -18,6 +18,11 @@ import logging
 import os
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query
+from typing import Optional, List
+from app.db import users_collection
+
+router = APIRouter()
 
 # Configura il logger
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -351,6 +356,45 @@ def update_prices(user_filter=None, asin_filter=None):
     return updated_products
 
 
+@router.get("/api/public/price-drops")
+async def get_price_drops(
+    category: Optional[str] = None,
+    limit: int = Query(10, ge=1, le=100),  # Limita il numero di risultati per pagina
+    skip: int = Query(0, ge=0)  # Salta i primi N risultati
+):
+    """
+    Restituisce i prodotti con diminuzione di prezzo.
+    - `category`: filtro opzionale per categoria.
+    - `limit`: numero massimo di risultati da restituire (default 10, massimo 100).
+    - `skip`: salta i primi N risultati (default 0).
+    """
+    try:
+        price_drops_collection = users_collection.database["price_drops"]
+        price_drops_data = price_drops_collection.find_one(sort=[("generation_date", -1)])
+        
+        if not price_drops_data:
+            raise HTTPException(status_code=404, detail="No price drops found.")
+
+        drops = price_drops_data["drops"]
+        
+        # Filtra per categoria se specificato
+        if category:
+            drops = [drop for drop in drops if drop.get("category") == category]
+
+        # Paginazione
+        total_drops = len(drops)
+        drops = drops[skip : skip + limit]
+
+        return {
+            "total_drops": total_drops,
+            "displayed_drops": len(drops),
+            "data": drops
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving price drops: {str(e)}")
+app.include_router(router)
+
+
 
 @app.post("/api/update-product/{asin}")
 async def update_product_price(asin: str, current_user: str = Depends(get_current_user)):
@@ -390,7 +434,7 @@ async def update_product_price(asin: str, current_user: str = Depends(get_curren
 
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_prices, 'interval', hours=1)
+scheduler.add_job(update_prices, 'interval', hours=5)
 scheduler.start()
 
 
