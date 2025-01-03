@@ -356,10 +356,10 @@ def update_prices(user_filter=None, asin_filter=None):
     return updated_products
 
 
-@router.get("/api/public/price-drops")
+@app.get("/api/public/price-drops")
 async def get_price_drops(
     category: Optional[str] = None,
-    limit: int = Query(10, ge=1, le=100),  # Limita il numero di risultati per pagina
+    limit: int = Query(16, ge=1, le=100),  # Limita il numero di risultati per pagina
     skip: int = Query(0, ge=0)  # Salta i primi N risultati
 ):
     """
@@ -381,6 +381,9 @@ async def get_price_drops(
         if category:
             drops = [drop for drop in drops if drop.get("category") == category]
 
+        # Ordina per calo di prezzo (descrescente)
+        drops.sort(key=lambda x: x.get("price_drop", 0), reverse=True)
+
         # Paginazione
         total_drops = len(drops)
         drops = drops[skip : skip + limit]
@@ -392,6 +395,7 @@ async def get_price_drops(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving price drops: {str(e)}")
+
 app.include_router(router)
 
 

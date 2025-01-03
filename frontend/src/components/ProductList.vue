@@ -174,7 +174,7 @@
     </th>
     <th scope="col" class="p-4">Diff</th>
                 <th scope="col" class="p-4">Max price</th>
-                <th scope="col" class="p-4">asin</th>
+                <!-- <th scope="col" class="p-4">asin</th> -->
                 <th scope="col" class="p-4">&nbsp;</th>
                 <th scope="col" class="p-4">&nbsp;</th>
               
@@ -218,7 +218,7 @@
                     </div>
                     <span class="ml-3 text-right">
                       {{ product.title.substring(0, 20)
-                      }}{{ product.title.length > 20 ? "..." : "" }}
+                      }}{{ product.title.length > 20 ? "..." : "" }} <span class="text-xs text-gray-400 dark:text-white">{{ product.asin }}</span>
                     </span>
                   </div>
                 </th>
@@ -308,13 +308,13 @@
                 >
                   <span>-</span>
                 </td>
-                <td
+                <!-- <td
                   class="px-4 py-3 font-medium"
                 >
                   <span class="text-gray-500 dark:text-gray-400">{{
                     product.asin
                   }}</span>
-                </td>
+                </td> -->
 
 
 
@@ -446,46 +446,46 @@
     of
     <span class="font-semibold text-gray-900 dark:text-white">{{ products.length }}</span>
   </span>
+ 
   <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
-    <!-- Previous Button -->
-    <li>
-      <button
-        :disabled="currentPage === 1"
-        @click="changePage(currentPage - 1)"
-        class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50"
-      >
-        Previous
-      </button>
-    </li>
-
-    <!-- Page Numbers -->
-    <li
-      v-for="page in totalPages"
-      :key="page"
+  <!-- Previous Button -->
+  <li>
+    <button
+      :disabled="currentPage === 1"
+      @click="changePage(currentPage - 1)"
+      class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50"
     >
-      <button
-        @click="changePage(page)"
-        :class="{
-          'flex items-center justify-center px-3 h-8 leading-tight': true,
-          'text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white': currentPage === page,
-          'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white': currentPage !== page,
-        }"
-      >
-        {{ page }}
-      </button>
-    </li>
+      Previous
+    </button>
+  </li>
 
-    <!-- Next Button -->
-    <li>
-      <button
-        :disabled="currentPage === totalPages"
-        @click="changePage(currentPage + 1)"
-        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50"
-      >
-        Next
-      </button>
-    </li>
-  </ul>
+  <!-- Dynamic Page Numbers -->
+  <li v-for="page in visiblePages" :key="page">
+    <button
+      @click="changePage(page)"
+      :class="{
+        'flex items-center justify-center px-3 h-8 leading-tight': true,
+        'text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white': currentPage === page,
+        'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white': currentPage !== page,
+      }"
+    >
+      {{ page }}
+    </button>
+  </li>
+
+  <!-- Next Button -->
+  <li>
+    <button
+      :disabled="currentPage === totalPages"
+      @click="changePage(currentPage + 1)"
+      class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50"
+    >
+      Next
+    </button>
+  </li>
+</ul>
+
+
 </nav>
       </div>
     </div>
@@ -546,6 +546,34 @@ export default {
 
 
 computed: {
+  visiblePages() {
+    const pages = [];
+    const maxVisible = 5; // Numero massimo di pagine visibili
+    const total = this.totalPages;
+
+    if (total <= maxVisible) {
+      for (let i = 1; i <= total; i++) {
+        pages.push(i);
+      }
+    } else {
+      const half = Math.floor(maxVisible / 2);
+      let start = Math.max(this.currentPage - half, 1);
+      let end = Math.min(start + maxVisible - 1, total);
+
+      if (end - start + 1 < maxVisible) {
+        start = Math.max(end - maxVisible + 1, 1);
+      }
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      if (start > 1) pages.unshift("...");
+      if (end < total) pages.push("...");
+    }
+
+    return pages;
+  },
     uniqueCategories() {
       return [...new Set(this.products.map((product) => product.category))];
     },
@@ -563,10 +591,18 @@ computed: {
     endIndex() {
       return Math.min(this.startIndex + this.itemsPerPage, this.filteredProducts.length);
     },
+
   },
 
 
   methods: {
+    changePage(page) {
+    if (page === '...') return; // Non fare nulla se cliccato su '...'
+
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  },
 
     async deleteSelectedProducts() {
   if (this.selectedAsins.length === 0) {
@@ -716,11 +752,7 @@ applyFilters() {
     this.currentPage = 1; // Resetta la paginazione
   },
 
-  changePage(page) {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-    }
-  },
+
 
   sort(column) {
     if (this.sortBy === column) {
@@ -873,6 +905,15 @@ applyFilters() {
 
 
 <style scoped>
+.paginator-ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  font-size: 14px;
+  color: gray;
+}
 nav a, nav button {
     margin-right: 0!important
     

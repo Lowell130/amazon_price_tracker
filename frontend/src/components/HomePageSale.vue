@@ -116,8 +116,8 @@
               <p class="mt-2 text-primary-800 text-xs font-medium">Category: {{ product.category }}</p>
               <p class="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">Old Price: <span class="line-through">€{{ product.old_price }}</span></p>
               <p class="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">New Price: <span class="font-bold">€{{ product.new_price }}</span></p>
-              <p v-if="product.price_drop" class="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
-                Price dropped: - €{{ product.price_drop }}
+              <p v-if="product.price_drop" class="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+                Price dropped: <span class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">- €{{ product.price_drop }}</span>
               </p>
              
             </div>
@@ -154,7 +154,5 @@
   };
   </script>
   
-  <style scoped>
-  /* Aggiungi eventuali stili personalizzati */
-  </style>
+ 
   
