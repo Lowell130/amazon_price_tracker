@@ -5,6 +5,9 @@ A full-stack powerful web application for tracking and analyzing price changes o
 
 Currently, the application supports only **Amazon.it** and is built using **Vue.js**, **Python**, and **MongoDB**.
 
+---
+
+![Screenshot of Amazon Price Tracker](https://github.com/Lowell130/amazon_price_tracker/blob/main/frontend/public/1.png)
 
 
 ---
