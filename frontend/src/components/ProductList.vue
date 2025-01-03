@@ -721,7 +721,7 @@ applyFilters() {
 
   this.filteredProducts = this.localProducts.filter((product) => {
     // Filtra per ricerca
-    const matchesSearchQuery = product.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearchQuery =  product.title.toLowerCase().includes(searchQuery.toLowerCase()) || product.asin.toLowerCase().includes(searchQuery.toLowerCase());
 
     // Filtra per categoria
     const matchesCategory = !selectedCategory || product.category === selectedCategory;
