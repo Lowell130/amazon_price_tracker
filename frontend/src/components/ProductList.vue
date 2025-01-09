@@ -604,7 +604,7 @@ computed: {
     }
   },
 
-    async deleteSelectedProducts() {
+  async deleteSelectedProducts() {
   if (this.selectedAsins.length === 0) {
     alert("Select at least one product to delete.");
     return;
@@ -616,6 +616,7 @@ computed: {
   if (!confirmDelete) return;
 
   try {
+    // Chiamata API per eliminare i prodotti
     const response = await fetchWithToken(
       `${process.env.VUE_APP_API_BASE_URL}/remove-products/`,
       {
@@ -633,16 +634,26 @@ computed: {
     const data = await response.json();
     alert(`Deleted products: ${data.removed_asins.join(", ")}`);
 
-    // Aggiorna la lista localmente
+    // Rimuovi i prodotti localmente mantenendo i filtri
     this.localProducts = this.localProducts.filter(
       (product) => !this.selectedAsins.includes(product.asin)
     );
-    this.applyFilters();
-    this.selectedAsins = []; // Deselect all
+    this.filteredProducts = this.filteredProducts.filter(
+      (product) => !this.selectedAsins.includes(product.asin)
+    );
+
+    // Gestione della paginazione: Riduci la pagina se rimane vuota
+    if (this.startIndex >= this.filteredProducts.length && this.currentPage > 1) {
+      this.currentPage -= 1;
+    }
+
+    // Deseleziona tutti i prodotti
+    this.selectedAsins = [];
   } catch (error) {
     console.error("Error deleting selected products:", error);
   }
-},
+}
+,
 
 
     toggleAccordion(asin) {
