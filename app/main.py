@@ -359,7 +359,7 @@ def update_prices(user_filter=None, asin_filter=None):
 @app.get("/api/public/price-drops")
 async def get_price_drops(
     category: Optional[str] = None,
-    limit: int = Query(42, ge=1, le=100),  # Limita il numero di risultati per pagina
+    limit: int = Query(50, ge=1, le=100),  # Limita il numero di risultati per pagina
     skip: int = Query(0, ge=0)  # Salta i primi N risultati
 ):
     """
