@@ -1,5 +1,15 @@
 <template>
     <section class="bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-12">
+      <div class="flex flex-col justify-center items-center h-56">
+  <h1 class="mb-4 pb-3 text-3xl font-extrabold text-gray-900 dark:text-white md:text-5xl lg:text-6xl">
+    <span class="text-transparent bg-clip-text bg-gradient-to-r to-red-600 from-amber-400">Best Price</span> Drop Today
+  </h1>
+  <svg class="w-10 h-10 text-gray-800 dark:text-white animate-bounce" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19V5m0 14-4-4m4 4 4-4"/>
+  </svg>
+</div>
+
+    
       <div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
         <!-- Loading State -->
         <div v-if="isLoading" class="flex justify-center items-center h-96">
@@ -17,8 +27,8 @@
         </div>
   
         <!-- Products List -->
-        <div v-else class="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
          
+        <div v-else class="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
             <div
             v-for="product in products"
             :key="product.asin"
