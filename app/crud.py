@@ -5,7 +5,7 @@ from app.scraper import fetch_product_data
 
 
 def add_product_to_user(username, product_url):
-    """Aggiunge un nuovo prodotto al database dell'utente con gestione completa dei prezzi."""
+    """Aggiunge un nuovo prodotto al database dell'utente con gestione completa dei prezzi e dettagli."""
     # Esegui scraping del prodotto
     product_data = fetch_product_data(product_url)
 
@@ -22,21 +22,20 @@ def add_product_to_user(username, product_url):
     if any(p["asin"] == product_data["asin"] for p in user.get("products", [])):
         raise ValueError("Il prodotto è già monitorato")
 
-    # Inizializza i dati dei prezzi per il prodotto
+    # Inizializza i dati del prodotto
     initial_price = float(product_data["price"])
     product_data["max_price"] = initial_price
     product_data["min_price"] = initial_price
     product_data["average_price"] = initial_price
     product_data["price_history"] = [{"date": datetime.now().isoformat(), "price": initial_price}]
 
-    # Aggiungi il prodotto alla lista dell'utente
+    # Aggiungi il prodotto con i dettagli alla lista dell'utente
     users_collection.update_one(
         {"username": username},
         {"$push": {"products": product_data}}
     )
 
     return {"message": "Prodotto aggiunto con successo"}
-
 
 def get_price_history(username, asin):
     user = users_collection.find_one({"username": username})

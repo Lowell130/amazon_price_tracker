@@ -172,7 +172,15 @@
                     </svg>
       </span>
     </th>
-    <th scope="col" class="p-4">Diff</th>
+    <th scope="col" class="p-4">
+  <span class="flex items-center cursor-pointer" @click="sort('DIFF')">
+    Diff
+    <svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+    </svg>
+  </span>
+</th>
+
                 <th scope="col" class="p-4">Max price</th>
                 <!-- <th scope="col" class="p-4">asin</th> -->
                 <th scope="col" class="p-4">&nbsp;</th>
@@ -425,11 +433,40 @@
     <!-- Riga dell'accordion -->
    <!-- Accordion Content Row -->
    <tr v-if="currentOpenAccordion === product.asin">
-                <td colspan="12" class="p-5">
-                  <p class="p-4">{{ product.title }}</p>
-                  <ChartPage v-if="product && product.price_history" :priceHistory="product.price_history" />
-                </td>
-              </tr>
+  <td colspan="12" class="p-5">
+    <p class="py-4">{{ product.title }}</p>
+
+    <!-- Aggiungi la tabella per i dettagli -->
+    <div class="relative overflow-x-auto">
+      <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th scope="col" class="px-6 py-3">Dettaglio</th>
+            <th scope="col" class="px-6 py-3">Valore</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr 
+            v-for="(detail, index) in product.details" 
+            :key="index" 
+            class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                   
+              {{ Object.keys(detail)[0] }}
+            </th>
+            <td class="px-6 py-4">
+              {{ Object.values(detail)[0] }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <h3 class="my-4 text-3xl font-extrabold text-gray-900 dark:text-white md:text-3xl lg:text-4xl"><span class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">See below</span> Price History</h3>
+    <!-- ChartPage per la cronologia dei prezzi -->
+    <ChartPage v-if="product && product.price_history" :priceHistory="product.price_history" />
+  </td>
+</tr>
+
             </tbody>
           </table>
        
@@ -543,7 +580,7 @@ export default {
       currentOpenAccordion: null, // Tracks the currently open accordion
       isLoading: false,
       currentPage: 1,
-      itemsPerPage: 30,
+      itemsPerPage: 50,
       sortBy: null,
       sortDirection: "asc",
       filters: {
@@ -628,6 +665,14 @@ computed: {
 
 
   methods: {
+    extractPriceDiff(priceHistory) {
+  if (!priceHistory || priceHistory.length < 2) {
+    return 0; // Nessuna differenza se non ci sono abbastanza dati
+  }
+  const lastPrice = priceHistory[priceHistory.length - 1].price;
+  const previousPrice = priceHistory[priceHistory.length - 2].price;
+  return lastPrice - previousPrice;
+},
     changePage(page) {
     if (page === '...') return; // Non fare nulla se cliccato su '...'
 
@@ -798,29 +843,39 @@ applyFilters() {
 
 
   sort(column) {
-    if (this.sortBy === column) {
-      this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
-    } else {
-      this.sortBy = column;
-      this.sortDirection = "asc";
-    }
+  if (this.sortBy === column) {
+    this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
+  } else {
+    this.sortBy = column;
+    this.sortDirection = "asc";
+  }
 
-    this.filteredProducts.sort((a, b) => {
-      let valueA = a[column];
-      let valueB = b[column];
+  this.filteredProducts.sort((a, b) => {
+    let valueA, valueB;
+
+    if (column === "DIFF") {
+      // Estrai la differenza dai valori di cronologia dei prezzi
+      const diffA = this.extractPriceDiff(a.price_history);
+      const diffB = this.extractPriceDiff(b.price_history);
+      valueA = diffA || 0;
+      valueB = diffB || 0;
+    } else {
+      valueA = a[column];
+      valueB = b[column];
 
       if (typeof valueA === "string") {
         valueA = valueA.toLowerCase();
         valueB = valueB.toLowerCase();
       }
+    }
 
-      if (this.sortDirection === "asc") {
-        return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
-      } else {
-        return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
-      }
-    });
-  },
+    if (this.sortDirection === "asc") {
+      return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
+    } else {
+      return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
+    }
+  });
+},
 
   async updateProductPrice(product) {
   if (this.loadingProducts[product.asin]) return; // Evita aggiornamenti multipli

@@ -163,7 +163,7 @@ async def update_selected_prices(
 @app.post("/api/add-product/")
 async def add_product(request: ProductRequest, current_user: str = Depends(get_current_user)):
     """
-    Aggiunge un prodotto per l'utente corrente.
+    Aggiunge un prodotto per l'utente corrente, includendo i dettagli estratti.
     """
     # Recupera l'utente dal database
     db_user = users_collection.find_one({"username": current_user})
@@ -175,7 +175,7 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
     if not product_data or not product_data.get("price"):
         raise HTTPException(status_code=400, detail="Error fetching product data")
 
-    asin = product_data["asin"]  # Assume che l'ASIN sia ottenuto dallo scraping
+    asin = product_data["asin"]
 
     # Verifica che l'ASIN non sia già monitorato
     if any(product["asin"] == asin for product in db_user.get("products", [])):
@@ -184,21 +184,14 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
     # Genera il link affiliato
     affiliate_link = f"https://www.amazon.it/gp/product/{asin}/?tag={affiliate_tag}"
 
-    # Inizializza i dati del prodotto
-    initial_price = float(product_data["price"])
+    # Aggiunge i dati del prodotto
     product_data.update({
         "product_url": request.product_url,
-        "category": request.category,  # Aggiunge la categoria
-        "insertion_date": datetime.now().isoformat(),
-        "price_history": [{"date": datetime.now().isoformat(), "price": initial_price}],
-        "max_price": initial_price,
-        "min_price": initial_price,
-        "average_price": initial_price,
-        "is_favorite": False,  # Aggiunge il campo is_favorite con valore predefinito
-        "affiliate": affiliate_link,  # Aggiunge il link affiliato
+        "category": request.category,
+        "affiliate": affiliate_link,
     })
 
-    # Aggiunge il prodotto al database dell'utente
+    # Salva nel database
     users_collection.update_one(
         {"_id": db_user["_id"]},
         {"$push": {"products": product_data}}
@@ -206,16 +199,19 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
     return {"message": "Product added successfully", "affiliate": affiliate_link}
 
 
-
-
 @app.get("/api/product-details/{asin}")
 async def product_details(asin: str, current_user: str = Depends(get_current_user)):
+    """
+    Ottiene i dettagli completi di un prodotto specifico dato l'ASIN.
+    """
     db_user = users_collection.find_one({"username": current_user})
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
+
     product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
+
     return {
         "asin": product["asin"],
         "title": product["title"],
@@ -223,8 +219,10 @@ async def product_details(asin: str, current_user: str = Depends(get_current_use
         "max_price": product["max_price"],
         "min_price": product["min_price"],
         "average_price": product["average_price"],
-        "price_history": product["price_history"]
+        "price_history": product["price_history"],
+        "details": product.get("details", [])  # Aggiungi i dettagli
     }
+
 
 @app.patch("/api/favorite/{asin}")
 async def toggle_favorite(asin: str, current_user: str = Depends(get_current_user)):
@@ -359,7 +357,7 @@ def update_prices(user_filter=None, asin_filter=None):
 @app.get("/api/public/price-drops")
 async def get_price_drops(
     category: Optional[str] = None,
-    limit: int = Query(16, ge=1, le=100),  # Limita il numero di risultati per pagina
+    limit: int = Query(42, ge=1, le=100),  # Limita il numero di risultati per pagina
     skip: int = Query(0, ge=0)  # Salta i primi N risultati
 ):
     """
@@ -380,6 +378,9 @@ async def get_price_drops(
         # Filtra per categoria se specificato
         if category:
             drops = [drop for drop in drops if drop.get("category") == category]
+        
+        # Escludi i prodotti con "condition" uguale a "Non disponibile"
+        drops = [drop for drop in drops if drop.get("condition") != "Non disponibile"]
 
         # Ordina per calo di prezzo (descrescente)
         drops.sort(key=lambda x: x.get("price_drop", 0), reverse=True)
@@ -395,6 +396,9 @@ async def get_price_drops(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving price drops: {str(e)}")
+
+
+
 
 app.include_router(router)
 

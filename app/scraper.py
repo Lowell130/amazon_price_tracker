@@ -117,7 +117,20 @@ def fetch_product_data(url, max_retries=3, delay=2):
     if rating is None:
         logging.warning("Rating not found in any expected tags.")
 
-    # Ritorna i dati del prodotto
+       # Estrazione dettagli prodotto
+    details = []
+    details_section = soup.find("table", class_="a-normal a-spacing-micro")
+    if details_section:
+        rows = details_section.find_all("tr")
+        for row in rows:
+            try:
+                key = row.find("td", class_="a-span3").get_text(strip=True)
+                value = row.find("td", class_="a-span9").get_text(strip=True)
+                details.append({key: value})
+            except AttributeError:
+                continue  # Ignora righe che non seguono la struttura prevista
+
+    # Ritorna i dati del prodotto (con i dettagli)
     return {
         "asin": asin,
         "title": title,
@@ -126,6 +139,7 @@ def fetch_product_data(url, max_retries=3, delay=2):
         "image_url": image_url,
         "rating": rating,  # Valore decimale corretto
         "availability": "Disponibile" if condition != "Non disponibile" else "Non disponibile",
+        "details": details,  # Aggiungi i dettagli
         "extraction_date": datetime.now().isoformat(),
         "price_history": [{"date": datetime.now().isoformat(), "price": price}] if price else []
     }
