@@ -1,8 +1,11 @@
 import requests
-from telegram import Bot, InputMediaPhoto
+from telegram import Bot
 import asyncio
+from io import BytesIO
+from PIL import Image
 
 # Configurazione
+# Configura il TOKEN del bot e l'ID chat
 TELEGRAM_BOT_TOKEN = "7404452966:AAEQMpSGVlycpNLi5iv_AsBRLW0quTTwyMU"
 CHAT_ID = "1078459133"
 API_URL = "https://amazon-price-tracker-3kx4.onrender.com/api/public/price-drops"
@@ -14,6 +17,23 @@ async def get_price_drops():
         return response.json().get("data", [])
     return []
 
+async def resize_image(url, size=(300, 300)):
+    """Ridimensiona l'immagine prima di inviarla a Telegram."""
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            img = Image.open(BytesIO(response.content))
+            img.thumbnail(size)  # Ridimensiona mantenendo le proporzioni
+            img_with_padding = Image.new("RGB", size, (255, 255, 255))  # Aggiunge uno sfondo bianco
+            img_with_padding.paste(img, ((size[0] - img.size[0]) // 2, (size[1] - img.size[1]) // 2))
+            output = BytesIO()
+            img_with_padding.save(output, format="JPEG")
+            output.seek(0)
+            return output
+    except Exception as e:
+        print(f"Errore nel ridimensionamento immagine: {e}")
+        return None
+
 async def send_price_drops():
     """Invia i prodotti con calo di prezzo su Telegram"""
     drops = await get_price_drops()
@@ -23,7 +43,7 @@ async def send_price_drops():
 
     bot = Bot(token=TELEGRAM_BOT_TOKEN)
     
-    for product in drops[:5]:  # Invia massimo 5 prodotti per evitare spam
+    for product in drops:  
         title = product.get("title", "Sconosciuto")
         old_price = product.get("old_price", "N/A")
         new_price = product.get("new_price", "N/A")
@@ -52,9 +72,17 @@ async def send_price_drops():
 
         try:
             if image_url:
-                await bot.send_photo(chat_id=CHAT_ID, photo=image_url, caption=message, parse_mode="Markdown")
+                resized_image = await resize_image(image_url)
+                if resized_image:
+                    await bot.send_photo(chat_id=CHAT_ID, photo=resized_image, caption=message, parse_mode="Markdown")
+                else:
+                    await bot.send_message(chat_id=CHAT_ID, text=message, parse_mode="Markdown", disable_web_page_preview=True)
             else:
                 await bot.send_message(chat_id=CHAT_ID, text=message, parse_mode="Markdown", disable_web_page_preview=True)
+
+            # ⏳ Aspetta 2 secondi prima di inviare il prossimo messaggio per evitare limiti di Telegram
+            await asyncio.sleep(2)  
+
         except Exception as e:
             print("❌ Errore Telegram:", str(e))
 

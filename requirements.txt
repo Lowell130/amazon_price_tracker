@@ -12,3 +12,4 @@ pydantic[email]
 python-amazon-paapi
 python-dotenv
 python-telegram-bot
+pillow
