@@ -8,13 +8,13 @@ import os
 
 load_dotenv()
 TEL_TOKEN = os.getenv("TEL_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+CHANNEL_ID = os.getenv("CHANNEL_ID")
 
 
 # Configurazione
 # Configura il TOKEN del bot e l'ID chat
 TELEGRAM_BOT_TOKEN = TEL_TOKEN
-CHAT_ID = CHAT_ID
+CHAT_ID = CHANNEL_ID
 API_URL = "https://amazon-price-tracker-3kx4.onrender.com/api/public/price-drops"
 
 async def get_price_drops():
