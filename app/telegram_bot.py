@@ -3,11 +3,18 @@ from telegram import Bot
 import asyncio
 from io import BytesIO
 from PIL import Image
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+TEL_TOKEN = os.getenv("TEL_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
+
 
 # Configurazione
 # Configura il TOKEN del bot e l'ID chat
-TELEGRAM_BOT_TOKEN = "7404452966:AAEQMpSGVlycpNLi5iv_AsBRLW0quTTwyMU"
-CHAT_ID = "1078459133"
+TELEGRAM_BOT_TOKEN = TEL_TOKEN
+CHAT_ID = CHAT_ID
 API_URL = "https://amazon-price-tracker-3kx4.onrender.com/api/public/price-drops"
 
 async def get_price_drops():
