@@ -60,17 +60,19 @@
           Add product
         </button>
 
-
-        <button
+        <button 
+  v-if="isAdmin" 
   @click="openConfirmModal"
-  :disabled="isLoading" type="button"
-                class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white rounded-lg md:w-auto bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800">
-                <svg class="w-5 h-5 mr-2 -ml-1 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
-</svg>
+  :disabled="isLoading" 
+  type="button"
+  class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white rounded-lg md:w-auto bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800">
+  <svg class="w-5 h-5 mr-2 -ml-1 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
+  </svg>
+  Update all
+</button>
 
-          Update all
-        </button>
+
 
        
           </div>
@@ -221,7 +223,7 @@
 import ProductList from "../components/ProductList.vue";
 import UpdateProd from "../components/UpdateProd.vue";
 // import CombinedPriceChart from '../components/CombinedPriceChart.vue';
-import { jwtDecode } from "jwt-decode"; // Importazione specifica
+// import { jwtDecode } from "jwt-decode"; // Importazione specifica
 import { fetchWithToken } from "@/api";
 
 export default {
@@ -229,6 +231,7 @@ export default {
   components: { ProductList, UpdateProd },
   data() {
     return {
+      
       showConfirmModal: false, // Stato della visibilità della modale di conferma
       modalMessage: "", // Messaggio dinamico della modale
       productUrl: "",
@@ -263,6 +266,7 @@ export default {
       username: "",
       errorMessage: "",
       isLoading: false,
+      isAdmin: false, // Stato per controllare se l'utente è admin
       
     };
   },
@@ -271,13 +275,33 @@ export default {
     await this.fetchProducts();
   },
   methods: {
-    getUsername() {
-      const token = localStorage.getItem("token");
-      if (token) {
-        const decodedToken = jwtDecode(token);
-        this.username = decodedToken.sub;
-      }
-    },
+    async getUsername() {
+  try {
+    const response = await fetchWithToken(
+      `${process.env.VUE_APP_API_BASE_URL}/users/me`,
+      { method: "GET" }
+    );
+
+    if (!response.ok) {
+      throw new Error("Errore nel recupero delle informazioni utente");
+    }
+
+    const userData = await response.json();
+    console.log("User data:", userData); // Debug
+
+    this.username = userData.username;
+    this.isAdmin = userData.admin;
+    console.log("Is Admin in Dashboard:", this.isAdmin); // Debug
+
+    this.$forceUpdate(); // Forza l'aggiornamento della UI
+
+  } catch (error) {
+    console.error("Errore nel caricamento delle informazioni utente:", error);
+    this.$router.push("/login");
+  }
+}
+
+,
     // Funzione per bonificare il link Amazon
     cleanAmazonUrl(url) {
       // Rimuovi i backslash di escape davanti a '/'
