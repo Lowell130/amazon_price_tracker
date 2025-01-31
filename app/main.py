@@ -21,6 +21,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional, List
 from app.db import users_collection
+import subprocess
 
 router = APIRouter()
 
@@ -74,7 +75,8 @@ def admin_required(current_user: str = Depends(get_current_user)):
 @app.post("/api/admin/generate-price-drops-report", dependencies=[Depends(admin_required)])
 async def generate_price_drops_report():
     """
-    Genera una collezione separata con tutte le variazioni di prezzo in positivo.
+    Genera una collezione separata con tutte le variazioni di prezzo in positivo
+    e avvia il bot Telegram per notificare gli utenti.
     Accessibile solo agli amministratori.
     """
     try:
@@ -122,14 +124,15 @@ async def generate_price_drops_report():
         # Inserisce i dati nella nuova collezione come un singolo documento
         price_drops_collection.insert_one(report)
 
+        # ✅ Avvia il bot Telegram dopo aver aggiornato i dati
+        subprocess.Popen(["python", "app/telegram_bot.py"])
+
         return {
-            "message": "Price drops report generated",
+            "message": "Price drops report generated and Telegram bot started",
             "total_price_drops": len(report["drops"]),
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating report: {str(e)}")
-
-
 @app.get("/api/product-details/{asin}")
 async def product_details(asin: str, current_user: str = Depends(get_current_user)):
     """

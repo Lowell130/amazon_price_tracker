@@ -172,6 +172,7 @@
                     </svg>
       </span>
     </th>
+    <th scope="col" class="p-4">Max price</th>
     <th scope="col" class="p-4">
   <span class="flex items-center cursor-pointer" @click="sort('DIFF')">
     Diff
@@ -181,7 +182,7 @@
   </span>
 </th>
 
-                <th scope="col" class="p-4">Max price</th>
+             
                 <!-- <th scope="col" class="p-4">asin</th> -->
                 <th scope="col" class="p-4">&nbsp;</th>
                 <th scope="col" class="p-4">&nbsp;</th>
@@ -302,11 +303,8 @@
   <span v-if="product.price !== null">{{ product.price }}</span>
   <span v-else class="text-red-500">Unavailable</span>
 </td>
-       
-<td class="px-4 py-3 font-medium">
-  <span v-html="calculatePriceDiff(product)"></span>
-</td>
-                <td v-if="product.max_price"
+
+<td v-if="product.max_price"
                   class="px-4 py-3 font-medium"
                 >
                   <span>{{ product.max_price }}</span>
@@ -316,6 +314,11 @@
                 >
                   <span>-</span>
                 </td>
+       
+<td class="px-4 py-3 font-medium">
+  <span v-html="calculatePriceDiff(product)"></span>
+</td>
+             
                 <!-- <td
                   class="px-4 py-3 font-medium"
                 >
