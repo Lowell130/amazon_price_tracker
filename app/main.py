@@ -447,7 +447,7 @@ async def update_product_price(asin: str, current_user: str = Depends(get_curren
 
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_prices, 'interval', hours=2)
+scheduler.add_job(update_prices, 'interval', hours=1)
 scheduler.start()
 
 
