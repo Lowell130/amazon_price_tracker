@@ -11,7 +11,7 @@
           AMZCartManager
         </a>
         <p class="my-6 text-gray-500 dark:text-gray-400">
-          Amazon Price Tracker is an intuitive web application designed to help users monitor price changes for their favorite Amazon products. Add products, track their price history, set favorites, and receive alerts for price drops—all in one place. Simplify your shopping experience with smart tracking and insights.
+          Amazon Product Cart Manager and Monitoring is an intuitive web application designed to help users monitor price changes for their favorite Amazon products. Add products, track their price history, set favorites, and receive alerts for price drops—all in one place. Simplify your shopping experience with smart tracking and insights.
         </p>
         <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 - 2025 all Rights Reserved.</span>
       </div>
