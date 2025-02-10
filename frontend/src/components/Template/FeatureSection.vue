@@ -3,7 +3,7 @@
       <div class="py-8 px-4 mx-auto max-w-screen-xl sm:py-16 lg:px-6">
           <div class="max-w-screen-md mb-8 lg:mb-16">
               <h2 class="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-                  Why Choose Our Amazon Price Tracker?
+                  Why Choose Our Product Cart Manager and Monitoring?
               </h2>
               <p class="text-gray-500 sm:text-xl dark:text-gray-400">
                   Discover the ultimate tool for tracking product prices on Amazon.it. Manage your favorite items, monitor price trends, and stay informed with price-drop alerts.
