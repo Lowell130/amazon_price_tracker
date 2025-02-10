@@ -1,7 +1,7 @@
 
-# **Amazon.it Price Tracker and monitoring**
+# **Amazon.it Product Cart Manager and Monitoring**
 
-A full-stack powerful web application for tracking and analyzing price changes on Amazon.it. This project lets users monitor product prices, manage favorites, and visualize data trends with interactive charts.
+A full-stack powerful web application for tracking and analyzing price changes on Amazon.it Cart. This project lets users monitor product prices, manage favorites, and visualize data trends with interactive charts.
 
 Currently, the application supports only **Amazon.it** and is built using **Vue.js**, **Python**, and **MongoDB**.
 
@@ -116,7 +116,7 @@ We welcome contributions! Follow these steps to get started:
 ---
 
 ## 🌟 **Demo**
-Link to the live demo (if available): [Price Tracker Demo](https://amazon-price-tracker-delta.vercel.app/)
+Link to the live demo (if available): [Product Cart Manager and Monitoring Demo](https://amazon-price-tracker-delta.vercel.app/)
 
 ---
 
