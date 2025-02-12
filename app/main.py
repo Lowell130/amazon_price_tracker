@@ -220,6 +220,28 @@ async def public_product_details(asin: str):
     return product["products"][0]  # Restituisce solo il prodotto specifico
 
 
+# @app.get("/api/public/all-products")
+# async def get_all_products():
+#     """
+#     Restituisce tutti i prodotti disponibili pubblicamente nel database.
+#     """
+#     try:
+#         products_cursor = users_collection.find({}, {"products": 1})  # Estrai solo i prodotti
+#         all_products = []
+
+#         for user in products_cursor:
+#             if "products" in user:
+#                 all_products.extend(user["products"])  # Aggiungi tutti i prodotti alla lista
+
+#         if not all_products:
+#             raise HTTPException(status_code=404, detail="No products found")
+
+#         return {"total_products": len(all_products), "products": all_products}
+
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Error retrieving products: {str(e)}")
+
+
 
 # @app.get("/api/product-details/{asin}")
 # async def product_details(asin: str, current_user: str = Depends(get_current_user)):

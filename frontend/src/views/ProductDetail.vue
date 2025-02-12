@@ -133,20 +133,20 @@ export default {
   },
 };
 
-// ✅ Funzione per aggiornare i meta tag
+// ✅ Funzione per aggiornare i meta tag in italiano
 function updateMetaTags(product) {
   if (!product) return;
 
-  const description = `Monitor the price of ${product.title}. Check price history and get notified on price drops.`;
+  const description = `Monitora il prezzo di ${product.title}. Controlla la cronologia dei prezzi e ricevi notifiche sui ribassi.`;
 
-  setOrCreateMeta("title", `${product.title} - Price Tracker`);
+  setOrCreateMeta("title", `${product.title} - Monitor Prezzi Amazon`);
   setOrCreateMeta("description", description);
-  setOrCreateMeta("og:title", `${product.title} - Price Tracker`);
+  setOrCreateMeta("og:title", `${product.title} - Monitor Prezzi Amazon`);
   setOrCreateMeta("og:description", description);
   setOrCreateMeta("og:image", product.image_url || "/default-image.jpg");
   setOrCreateMeta("og:url", window.location.href);
   setOrCreateMeta("twitter:card", "summary_large_image");
-  setOrCreateMeta("twitter:title", `${product.title} - Price Tracker`);
+  setOrCreateMeta("twitter:title", `${product.title} - Monitor Prezzi Amazon`);
   setOrCreateMeta("twitter:description", description);
   setOrCreateMeta("twitter:image", product.image_url || "/default-image.jpg");
 
@@ -174,19 +174,19 @@ function setOrCreateMeta(name, content) {
   meta.setAttribute("content", content);
 }
 
-// ✅ Ripristina i meta tag ai valori predefiniti quando si lascia la pagina
+// ✅ Ripristina i meta tag ai valori predefiniti in italiano quando si lascia la pagina
 function resetMetaTags() {
-  document.title = "Amazon Price Tracker - Track Prices & Get the Best Deals";
+  document.title = "Monitor Prezzi Amazon - Monitora e Trova Offerte";
 
   const defaultMetaTags = {
-    "description": "Track Amazon product prices and get notified on price drops.",
-    "og:title": "Amazon Price Tracker",
-    "og:description": "Monitor price history and find the best discounts.",
+    "description": "Monitora i prezzi dei prodotti su Amazon e ricevi notifiche quando il prezzo scende.",
+    "og:title": "Monitor Prezzi Amazon",
+    "og:description": "Scopri la cronologia dei prezzi e trova le migliori offerte su Amazon.",
     "og:image": "/default-meta-image.jpg",
     "og:url": window.location.origin,
     "twitter:card": "summary_large_image",
-    "twitter:title": "Amazon Price Tracker",
-    "twitter:description": "Find the best Amazon deals with price tracking.",
+    "twitter:title": "Monitor Prezzi Amazon",
+    "twitter:description": "Segui i prezzi dei prodotti su Amazon e trova il momento migliore per acquistare.",
     "twitter:image": "/default-meta-image.jpg",
   };
 
@@ -201,20 +201,20 @@ function resetMetaTags() {
   }
 }
 
-// ✅ Aggiunge dati strutturati Schema.org JSON-LD
+// ✅ Aggiunge dati strutturati Schema.org JSON-LD in italiano
 function setStructuredData(product) {
   const jsonLd = {
     "@context": "https://schema.org/",
     "@type": "Product",
     "name": product.title,
     "image": product.image_url || "/default-image.jpg",
-    "description": `Monitor the price of ${product.title}. Check price history and get notified on price drops.`,
+    "description": `Monitora il prezzo di ${product.title}. Controlla la cronologia dei prezzi e ricevi notifiche sui ribassi.`,
     "offers": {
-      "@type": "Offer",
+      "@type": "Offerta",
       "priceCurrency": "EUR",
       "price": product.price,
       "availability": "https://schema.org/InStock",
-      "seller": { "@type": "Organization", "name": "Amazon" },
+      "seller": { "@type": "Organizzazione", "name": "Amazon" },
     }
   };
 
@@ -226,4 +226,5 @@ function setStructuredData(product) {
   }
   script.textContent = JSON.stringify(jsonLd);
 }
+
 </script>

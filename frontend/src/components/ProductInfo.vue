@@ -54,14 +54,20 @@
           </p>       
 
           <p class="mt-4">
-            <a
-              :href="product.affiliate"
-              target="_blank"
-              class=" text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-yellow-600 dark:hover:bg-yellow-700 focus:outline-none dark:focus:ring-yellow-800"
-            >
-              View on Amazon
-            </a>
-          </p>
+  <a
+    :href="product.affiliate"
+    target="_blank"
+    class="flex items-center justify-center text-black bg-[#FF9900] hover:bg-[#FFB74D] focus:ring-4 focus:ring-yellow-300 font-bold rounded-lg text-lg px-6 py-3 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none shadow-lg w-full md:w-auto"
+  >
+    View on Amazon.it
+  </a>
+</p>
+
+
+
+
+
+
         </div>
       </div>
     </div>
