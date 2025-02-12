@@ -485,16 +485,12 @@ async def update_product_price(asin: str, current_user: str = Depends(get_curren
         raise HTTPException(status_code=500, detail=f"Error updating product: {str(e)}")
 
 
-scheduler = BackgroundScheduler()
-scheduler.add_job(update_prices, 'interval', hours=3)
-scheduler.start()
-
-
-
-
-@app.on_event("shutdown")
-def shutdown_event():
-    scheduler.shutdown()
+# scheduler = BackgroundScheduler()
+# scheduler.add_job(update_prices, 'interval', hours=3)
+# scheduler.start()
+# @app.on_event("shutdown")
+# def shutdown_event():
+#     scheduler.shutdown()
 
 @app.get("/")
 async def root():
