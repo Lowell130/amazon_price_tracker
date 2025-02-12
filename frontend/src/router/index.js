@@ -15,7 +15,7 @@ const routes = [
   { path: "/login", name: "Login", component: LoginPage },
   { path: "/dashboard", name: "Dashboard", component: DashboardPage, meta: { requiresAuth: true } },
   { path: "/profile", name: "Profile", component: ProfilePage, meta: { requiresAuth: true } },
-  { path: "/products/:asin", name: "ProductDetail", component: ProductDetail, meta: { requiresAuth: true } },
+  { path: "/products/:asin", name: "ProductDetail", component: ProductDetail }, // 🔥 RESO PUBBLICO
   { path: "/password-reset-request", name: "PasswordResetRequest", component: PasswordResetRequest },
   { path: "/reset-password", name: "ResetPassword", component: PasswordReset },
 ];
@@ -27,6 +27,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("token");
+
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!token) {
       next("/login");
@@ -46,7 +47,7 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
-    next();
+    next(); // 🔥 Ora le pagine pubbliche possono essere visitate senza login
   }
 });
 

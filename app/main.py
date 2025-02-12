@@ -133,20 +133,7 @@ async def generate_price_drops_report():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating report: {str(e)}")
-@app.get("/api/product-details/{asin}")
-async def product_details(asin: str, current_user: str = Depends(get_current_user)):
-    """
-    Ottiene i dettagli completi di un prodotto specifico dato l'ASIN.
-    """
-    db_user = users_collection.find_one({"username": current_user})
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-
-    return product
+    
 
 
 @app.post("/api/update-selected-prices/")
@@ -206,27 +193,56 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
 
 @app.get("/api/product-details/{asin}")
 async def product_details(asin: str, current_user: str = Depends(get_current_user)):
-    """
-    Ottiene i dettagli completi di un prodotto specifico dato l'ASIN.
-    """
-    db_user = users_collection.find_one({"username": current_user})
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
+     """
+     Ottiene i dettagli completi di un prodotto specifico dato l'ASIN.
+     """
+     db_user = users_collection.find_one({"username": current_user})
+     if not db_user:
+         raise HTTPException(status_code=404, detail="User not found")
+     product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
+     if not product:
+         raise HTTPException(status_code=404, detail="Product not found")
 
-    product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
-    if not product:
+     return product
+
+
+@app.get("/api/public/product-details/{asin}")
+async def public_product_details(asin: str):
+    """
+    Endpoint pubblico per ottenere i dettagli di un prodotto senza autenticazione.
+    """
+    product = users_collection.find_one({"products.asin": asin}, {"products.$": 1})
+    
+    if not product or "products" not in product:
         raise HTTPException(status_code=404, detail="Product not found")
+    
+    return product["products"][0]  # Restituisce solo il prodotto specifico
 
-    return {
-        "asin": product["asin"],
-        "title": product["title"],
-        "current_price": product["price"],
-        "max_price": product["max_price"],
-        "min_price": product["min_price"],
-        "average_price": product["average_price"],
-        "price_history": product["price_history"],
-        "details": product.get("details", [])  # Aggiungi i dettagli
-    }
+
+
+# @app.get("/api/product-details/{asin}")
+# async def product_details(asin: str, current_user: str = Depends(get_current_user)):
+#     """
+#     Ottiene i dettagli completi di un prodotto specifico dato l'ASIN.
+#     """
+#     db_user = users_collection.find_one({"username": current_user})
+#     if not db_user:
+#         raise HTTPException(status_code=404, detail="User not found")
+
+#     product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
+#     if not product:
+#         raise HTTPException(status_code=404, detail="Product not found")
+
+#     return {
+#         "asin": product["asin"],
+#         "title": product["title"],
+#         "current_price": product["price"],
+#         "max_price": product["max_price"],
+#         "min_price": product["min_price"],
+#         "average_price": product["average_price"],
+#         "price_history": product["price_history"],
+#         "details": product.get("details", [])  # Aggiungi i dettagli
+#     }
 
 
 @app.patch("/api/favorite/{asin}")

@@ -1,4 +1,3 @@
-# scraper.py
 from bs4 import BeautifulSoup
 import requests
 import re
@@ -93,7 +92,6 @@ def fetch_product_data(url, max_retries=3, delay=2):
 
     # Estrazione del rating
     rating = None
-    # Primo tentativo: cerca nella classe "a-icon-alt"
     rating_tag = main_container.find("span", {"class": "a-icon-alt"})
     if rating_tag:
         rating_text = rating_tag.get_text(strip=True)
@@ -103,21 +101,7 @@ def fetch_product_data(url, max_retries=3, delay=2):
         except (ValueError, AttributeError) as e:
             logging.error(f"Could not parse rating from a-icon-alt: {rating_text}, error: {e}")
 
-    # Secondo tentativo: cerca nella classe "a-size-base a-color-base"
-    if rating is None:
-        alt_rating_tag = main_container.find("span", {"class": "a-size-base a-color-base"})
-        if alt_rating_tag:
-            alt_rating_text = alt_rating_tag.get_text(strip=True)
-            try:
-                rating = float(alt_rating_text.replace(",", "."))
-                logging.info(f"Rating extracted from a-size-base a-color-base: {rating}")
-            except (ValueError, AttributeError) as e:
-                logging.error(f"Could not parse rating from a-size-base a-color-base: {alt_rating_text}, error: {e}")
-
-    if rating is None:
-        logging.warning("Rating not found in any expected tags.")
-
-       # Estrazione dettagli prodotto
+    # Estrazione dettagli prodotto
     details = []
     details_section = soup.find("table", class_="a-normal a-spacing-micro")
     if details_section:
@@ -130,7 +114,10 @@ def fetch_product_data(url, max_retries=3, delay=2):
             except AttributeError:
                 continue  # Ignora righe che non seguono la struttura prevista
 
-    # Ritorna i dati del prodotto (con i dettagli)
+    # **Aggiunta della chiave insertion_date**
+    insertion_date = datetime.now().isoformat()
+
+    # Ritorna i dati del prodotto con `insertion_date`
     return {
         "asin": asin,
         "title": title,
@@ -141,5 +128,6 @@ def fetch_product_data(url, max_retries=3, delay=2):
         "availability": "Disponibile" if condition != "Non disponibile" else "Non disponibile",
         "details": details,  # Aggiungi i dettagli
         "extraction_date": datetime.now().isoformat(),
-        "price_history": [{"date": datetime.now().isoformat(), "price": price}] if price else []
+        "price_history": [{"date": datetime.now().isoformat(), "price": price}] if price else [],
+        "insertion_date": insertion_date  # ✅ Chiave ripristinata
     }
