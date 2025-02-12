@@ -43,7 +43,9 @@ origins = [
     "http://127.0.0.1:8080",
     "https://amazon-price-tracker-delta.vercel.app",
     "amazon-price-tracker-git-main-lowell130s-projects.vercel.app",
-    "amazon-price-tracker-ndlrmkzir-lowell130s-projects.vercel.app"
+    "amazon-price-tracker-ndlrmkzir-lowell130s-projects.vercel.app",
+    "https://pricehub.it",
+    "https://www.pricehub.it",
 ]
 
 app.add_middleware(
