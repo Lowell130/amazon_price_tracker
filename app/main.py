@@ -1,4 +1,5 @@
 #main.py
+#python -m uvicorn app.main:app --reload
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
