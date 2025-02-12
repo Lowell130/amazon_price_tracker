@@ -5,7 +5,7 @@
         class="bg-white dark:bg-gray-800 relative shadow-md rounded-t-lg overflow-hidden"
       >
         <div class="flex-1 flex items-center space-x-2">
-          <span class="pl-5 pt-4 text-sm text-gray-900 dark:text-white">Welcome: <span class="font-bold">{{ username }}</span></span>
+          <span class="pl-5 pt-4 text-sm text-gray-900 dark:text-white">Hey: <span class="font-bold">{{ username }}</span></span>
         </div>
 
         <div

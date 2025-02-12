@@ -8,11 +8,10 @@
               fill="url(#paint0_linear_11430_22515)"
             />
           </svg>
-          AMZCartManager
+          PriceHub.it
         </a>
         <p class="my-6 text-gray-500 dark:text-gray-400">
-          Amazon Product Cart Manager and Monitoring is an intuitive web application designed to help users monitor price changes for their favorite Amazon products. Add products, track their price history, set favorites, and receive alerts for price drops—all in one place. Simplify your shopping experience with smart tracking and insights.
-        </p>
+          PriceHub.it - Gestore e Monitoraggio Carrello Prodotti Amazon è un'applicazione web intuitiva progettata per aiutare gli utenti a monitorare le variazioni di prezzo dei loro prodotti preferiti su Amazon. Aggiungi prodotti, traccia lo storico dei prezzi, imposta i preferiti e ricevi avvisi sui ribassi—tutto in un unico posto. Semplifica la tua esperienza di shopping con un monitoraggio intelligente e approfondimenti utili.        </p>
         <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 - 2025 all Rights Reserved.</span>
       </div>
       <button
