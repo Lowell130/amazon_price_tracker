@@ -24,6 +24,7 @@ export default {
 
     // Definizione dei meta tag SEO
     const metaTags = [
+      { name: "google-site-verification", content: "P49LKh784JL9PH7nUU4Rc_8g7MKljsgA_HaG8THAsL0" },
       { name: "description", content: "Monitora i prezzi su Amazon con il nostro strumento gratuito. Ricevi notifiche sui ribassi, confronta l'andamento dei prezzi e acquista al momento giusto!" },
       { name: "keywords", content: "monitoraggio prezzi Amazon, sconti Amazon, offerte Amazon, tracking prezzi, Amazon price tracker" },
       { name: "robots", content: "index, follow" },
