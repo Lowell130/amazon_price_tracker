@@ -23,6 +23,14 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import Optional, List
 from app.db import users_collection
 import subprocess
+from fastapi import FastAPI, Response
+from xml.etree.ElementTree import Element, SubElement, tostring
+from datetime import datetime
+from app.db import users_collection
+import os
+from dotenv import load_dotenv
+# Carica variabili d'ambiente
+load_dotenv()
 
 router = APIRouter()
 
@@ -32,8 +40,8 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-# Carica le variabili dal file .env
-load_dotenv()
+# URL base del sito (gestita da variabili d'ambiente)
+BASE_URL = os.getenv("BASE_URL", "https://www.pricehub.it")
 
 # Recupera le informazioni dal file .env
 affiliate_tag = os.getenv("AFFILIATE_TAG")
@@ -73,6 +81,47 @@ def admin_required(current_user: str = Depends(get_current_user)):
             detail="Administrator privileges required"
         )
     return user
+
+
+@app.get("/sitemap.xml", response_class=Response)
+async def generate_sitemap():
+    """
+    Genera una sitemap dinamica in XML con i prodotti disponibili nel database.
+    """
+    urlset = Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
+
+    # Homepage
+    url = SubElement(urlset, "url")
+    SubElement(url, "loc").text = f"{BASE_URL}/"
+    SubElement(url, "lastmod").text = datetime.today().strftime("%Y-%m-%d")
+    SubElement(url, "priority").text = "1.0"
+
+    # Pagina prodotti
+    url = SubElement(urlset, "url")
+    SubElement(url, "loc").text = f"{BASE_URL}/products"
+    SubElement(url, "lastmod").text = datetime.today().strftime("%Y-%m-%d")
+    SubElement(url, "priority").text = "0.8"
+
+    # Recupera tutti i prodotti dal database
+    products_cursor = users_collection.find({}, {"products": 1})
+    all_products = []
+
+    for user in products_cursor:
+        if "products" in user:
+            all_products.extend(user["products"])
+
+    # Genera un URL per ogni prodotto
+    for product in all_products:
+        product_url = f"{BASE_URL}/products/{product['asin']}"
+        url = SubElement(urlset, "url")
+        SubElement(url, "loc").text = product_url
+        SubElement(url, "lastmod").text = datetime.today().strftime("%Y-%m-%d")
+        SubElement(url, "priority").text = "0.7"
+
+    # Converti in stringa XML
+    xml_data = tostring(urlset, encoding="utf-8", method="xml")
+
+    return Response(content=xml_data, media_type="application/xml")
 
 
 @app.post("/api/admin/generate-price-drops-report", dependencies=[Depends(admin_required)])

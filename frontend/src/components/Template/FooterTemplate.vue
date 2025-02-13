@@ -11,7 +11,7 @@
           PriceHub.it
         </a>
         <p class="my-6 text-gray-500 dark:text-gray-400">
-          PriceHub.it - Gestore e Monitoraggio Carrello Prodotti Amazon è un'applicazione web intuitiva progettata per aiutare gli utenti a monitorare le variazioni di prezzo dei loro prodotti preferiti su Amazon. Aggiungi prodotti, traccia lo storico dei prezzi, imposta i preferiti e ricevi avvisi sui ribassi—tutto in un unico posto. Semplifica la tua esperienza di shopping con un monitoraggio intelligente e approfondimenti utili.        </p>
+          PriceHub.it è un'applicazione web intuitiva progettata per aiutare gli utenti a monitorare le variazioni di prezzo dei loro prodotti preferiti su Amazon. Aggiungi prodotti, traccia lo storico dei prezzi, imposta i preferiti e ricevi avvisi sui ribassi—tutto in un unico posto. Semplifica la tua esperienza di shopping con un monitoraggio intelligente e approfondimenti utili.        </p>
         <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 - 2025 all Rights Reserved.</span>
       </div>
       <button

@@ -238,6 +238,7 @@ export default {
       selectedCategory: "", // Nuova variabile per la categoria selezionata
       showModal: false, // Stato della visibilità della modale
       categories: [
+      "Audio",
         "Automotive",
         "Baby Products",
         "Beauty Care",
