@@ -110,7 +110,8 @@
     </div>
     <!-- <CombinedPriceChart :products="products" /> -->
 
-    <ProductList :products="products" @refresh-products="fetchProducts" />
+    <ProductList :products="products" :categories="categories" @refresh-products="fetchProducts" />
+
     <!-- Modale -->
     <div
       v-if="showModal"

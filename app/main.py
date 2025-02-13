@@ -29,6 +29,7 @@ from datetime import datetime
 from app.db import users_collection
 import os
 from dotenv import load_dotenv
+from fastapi import Body
 # Carica variabili d'ambiente
 load_dotenv()
 
@@ -81,6 +82,44 @@ def admin_required(current_user: str = Depends(get_current_user)):
             detail="Administrator privileges required"
         )
     return user
+
+
+@app.patch("/api/update-product-info/{asin}")
+async def update_product_info(
+    asin: str,
+    updated_data: dict = Body(...),  # Riceve i dati aggiornati
+    current_user: str = Depends(get_current_user)
+):
+    """
+    Aggiorna le informazioni di un prodotto specifico nel database (es. categoria).
+    """
+    try:
+        # Trova l'utente
+        db_user = users_collection.find_one({"username": current_user})
+        if not db_user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Trova il prodotto nella lista dell'utente
+        products = db_user.get("products", [])
+        product = next((p for p in products if p["asin"] == asin), None)
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        # Aggiorna solo i campi presenti in `updated_data`
+        for key, value in updated_data.items():
+            if key in product:  # Solo se il campo esiste nel prodotto
+                product[key] = value
+
+        # Salva le modifiche nel database
+        users_collection.update_one(
+            {"_id": db_user["_id"], "products.asin": asin},
+            {"$set": {f"products.$.{key}": value for key, value in updated_data.items()}}
+        )
+
+        return {"message": "Product updated successfully", "updated_product": product}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating product info: {str(e)}")
 
 
 @app.get("/sitemap.xml", response_class=Response)

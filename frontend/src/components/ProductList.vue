@@ -286,18 +286,18 @@
 
 
 
+<td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+  <select
+    v-model="product.category"
+    @change="updateProductCategory(product)"
+    class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg p-2 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+  >
+    <option v-for="category in categories" :key="category" :value="category">
+      {{ category }}
+    </option>
+  </select>
+</td>
 
-                <td
-                  class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                >
-                  <span
-                    class="bg-primary-100 text-primary-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-primary-900 dark:text-primary-300"
-                    v-if="product.category"
-                    >{{ product.category }}</span
-                  >
-
-                  <span v-else>-</span>
-                </td>
 
                 <td class="px-4 py-3 font-medium">
   <span v-if="product.price !== null">{{ product.price }}</span>
@@ -573,7 +573,8 @@ import ChartPage from "../components/ChartPage.vue";
 
 export default {
   components: { SpinnerComp, ChartPage },
-  props: ["products"],
+  props: ["products", "categories"],
+
   data() {
     return {
       localProducts: [], // Copia dei prodotti per il componente
@@ -668,6 +669,28 @@ computed: {
 
 
   methods: {
+    async updateProductCategory(product) {
+    try {
+      const response = await fetchWithToken(
+        `${process.env.VUE_APP_API_BASE_URL}/update-product-info/${product.asin}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ category: product.category }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail);
+      }
+
+      const data = await response.json();
+      alert(`Category updated: ${data.updated_product.category}`);
+    } catch (error) {
+      console.error("Error updating product category:", error);
+    }
+  },
     extractPriceDiff(priceHistory) {
   if (!priceHistory || priceHistory.length < 2) {
     return 0; // Nessuna differenza se non ci sono abbastanza dati
