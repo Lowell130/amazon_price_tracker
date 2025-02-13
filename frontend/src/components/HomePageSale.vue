@@ -2,7 +2,7 @@
     <section class="bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-12">
       <div class="flex flex-col justify-center items-center h-56">
   <h1 class="mb-4 pb-3 text-3xl font-extrabold text-gray-900 dark:text-white md:text-4xl lg:text-5xl">
-    <span class="text-transparent bg-clip-text bg-gradient-to-r to-red-600 from-amber-400">Maggiore Calo di</span> Prezzo di Oggi
+    <span class="text-transparent bg-clip-text bg-gradient-to-r to-red-600 from-amber-400">Migliori</span> Prezzi
   </h1>
   <svg class="w-10 h-10 text-gray-800 dark:text-white animate-bounce" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19V5m0 14-4-4m4 4 4-4"/>
