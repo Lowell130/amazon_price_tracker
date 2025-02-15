@@ -5,7 +5,9 @@
         class="bg-white dark:bg-gray-800 relative shadow-md rounded-t-lg overflow-hidden"
       >
         <div class="flex-1 flex items-center space-x-2">
-          <span class="pl-5 pt-4 text-sm text-gray-900 dark:text-white">Hey: <span class="font-bold">{{ username }}</span></span>
+          <span class="pl-5 pt-4 text-sm text-gray-900 dark:text-white"
+            >Hey: <span class="font-bold">{{ username }}</span></span
+          >
         </div>
 
         <div
@@ -45,36 +47,53 @@
           <div
             class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 w-full md:w-auto"
           >
-          <button
-          @click="addProduct" type="button"
+            <button
+              @click="addProduct"
+              type="button"
+              class="flex items-center justify-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
+            >
+              <svg
+                class="h-5 w-5 mr-2 -ml-1"
+                fill="currentColor"
+                viewbox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                />
+              </svg>
+              Add product
+            </button>
 
-          
-          class="flex items-center justify-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800">
-        
-        
-                <svg class="h-5 w-5 mr-2 -ml-1" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
-               aria-hidden="true">
-            <path clip-rule="evenodd" fill-rule="evenodd"
-                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
-          </svg>
-          Add product
-        </button>
-
-        <button 
-  v-if="isAdmin" 
-  @click="openConfirmModal"
-  :disabled="isLoading" 
-  type="button"
-  class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white rounded-lg md:w-auto bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800">
-  <svg class="w-5 h-5 mr-2 -ml-1 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
-  </svg>
-  Update all
-</button>
-
-
-
-       
+            <button
+              v-if="isAdmin"
+              @click="openConfirmModal"
+              :disabled="isLoading"
+              type="button"
+              class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white rounded-lg md:w-auto bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
+            >
+              <svg
+                class="w-5 h-5 mr-2 -ml-1 text-white dark:text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"
+                />
+              </svg>
+              Update all
+            </button>
           </div>
         </div>
 
@@ -110,7 +129,11 @@
     </div>
     <!-- <CombinedPriceChart :products="products" /> -->
 
-    <ProductList :products="products" :categories="categories" @refresh-products="fetchProducts" />
+    <ProductList
+      :products="products"
+      :categories="categories"
+      @refresh-products="fetchProducts"
+    />
 
     <!-- Modale -->
     <div
@@ -168,55 +191,57 @@
       </div>
     </div>
     <!-- EndModale -->
-     <!-- Modale update all -->
-      <!-- Modale di conferma per Update All -->
-<div
-  v-if="showConfirmModal"
-  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
->
-  <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 w-11/12 max-w-md p-6">
-    <button
-      @click="closeConfirmModal"
-      class="absolute top-3 right-3 text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-4 h-4"
+    <!-- Modale update all -->
+    <!-- Modale di conferma per Update All -->
+    <div
+      v-if="showConfirmModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
     >
-      <svg
-        class="w-4 h-4"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
+      <div
+        class="relative bg-white rounded-lg shadow dark:bg-gray-700 w-11/12 max-w-md p-6"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M6 18L18 6M6 6l12 12"
-        />
-      </svg>
-    </button>
-    <div class="text-center">
-      <h3 class="mb-5 text-lg font-medium text-gray-700">
-        Are you sure you want to update all prices?
-      </h3>
-      <div class="flex justify-center space-x-4">
-        <button
-          @click="confirmUpdateAll"
-          class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-800"
-        >
-          Yes
-        </button>
         <button
           @click="closeConfirmModal"
-          class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+          class="absolute top-3 right-3 text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-4 h-4"
         >
-          Cancel
+          <svg
+            class="w-4 h-4"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
         </button>
+        <div class="text-center">
+          <h3 class="mb-5 text-lg font-medium text-gray-700">
+            Are you sure you want to update all prices?
+          </h3>
+          <div class="flex justify-center space-x-4">
+            <button
+              @click="confirmUpdateAll"
+              class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-800"
+            >
+              Yes
+            </button>
+            <button
+              @click="closeConfirmModal"
+              class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
-      <!-- end modale update all -->
+    <!-- end modale update all -->
   </section>
 </template>
 
@@ -232,14 +257,13 @@ export default {
   components: { ProductList, UpdateProd },
   data() {
     return {
-      
       showConfirmModal: false, // Stato della visibilità della modale di conferma
       modalMessage: "", // Messaggio dinamico della modale
       productUrl: "",
       selectedCategory: "", // Nuova variabile per la categoria selezionata
       showModal: false, // Stato della visibilità della modale
       categories: [
-      "Audio",
+        "Audio",
         "Automotive",
         "Baby Products",
         "Beauty Care",
@@ -247,6 +271,7 @@ export default {
         "DIY",
         "Electronics",
         "Fashion",
+        "Gaming",
         "Garden",
         "Groceries",
         "Health & Wellness",
@@ -269,7 +294,6 @@ export default {
       errorMessage: "",
       isLoading: false,
       isAdmin: false, // Stato per controllare se l'utente è admin
-      
     };
   },
   async created() {
@@ -278,32 +302,33 @@ export default {
   },
   methods: {
     async getUsername() {
-  try {
-    const response = await fetchWithToken(
-      `${process.env.VUE_APP_API_BASE_URL}/users/me`,
-      { method: "GET" }
-    );
+      try {
+        const response = await fetchWithToken(
+          `${process.env.VUE_APP_API_BASE_URL}/users/me`,
+          { method: "GET" }
+        );
 
-    if (!response.ok) {
-      throw new Error("Errore nel recupero delle informazioni utente");
-    }
+        if (!response.ok) {
+          throw new Error("Errore nel recupero delle informazioni utente");
+        }
 
-    const userData = await response.json();
-    console.log("User data:", userData); // Debug
+        const userData = await response.json();
+        console.log("User data:", userData); // Debug
 
-    this.username = userData.username;
-    this.isAdmin = userData.admin;
-    console.log("Is Admin in Dashboard:", this.isAdmin); // Debug
+        this.username = userData.username;
+        this.isAdmin = userData.admin;
+        console.log("Is Admin in Dashboard:", this.isAdmin); // Debug
 
-    this.$forceUpdate(); // Forza l'aggiornamento della UI
+        this.$forceUpdate(); // Forza l'aggiornamento della UI
+      } catch (error) {
+        console.error(
+          "Errore nel caricamento delle informazioni utente:",
+          error
+        );
+        this.$router.push("/login");
+      }
+    },
 
-  } catch (error) {
-    console.error("Errore nel caricamento delle informazioni utente:", error);
-    this.$router.push("/login");
-  }
-}
-
-,
     // Funzione per bonificare il link Amazon
     cleanAmazonUrl(url) {
       // Rimuovi i backslash di escape davanti a '/'
@@ -314,49 +339,49 @@ export default {
     },
 
     async addProduct() {
-  try {
-    if (!this.selectedCategory) {
-      this.showModal = true;
-      return;
-    }
+      try {
+        if (!this.selectedCategory) {
+          this.showModal = true;
+          return;
+        }
 
-    this.modalMessage = "Adding product...";
-    this.isLoading = true;
+        this.modalMessage = "Adding product...";
+        this.isLoading = true;
 
-    const cleanedUrl = this.cleanAmazonUrl(this.productUrl);
-    const response = await fetchWithToken(
-      `${process.env.VUE_APP_API_BASE_URL}/add-product/`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          product_url: cleanedUrl,
-          category: this.selectedCategory,
-        }),
+        const cleanedUrl = this.cleanAmazonUrl(this.productUrl);
+        const response = await fetchWithToken(
+          `${process.env.VUE_APP_API_BASE_URL}/add-product/`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              product_url: cleanedUrl,
+              category: this.selectedCategory,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (errorData.detail === "Product already being tracked") {
+            alert("This product is already being tracked!");
+          }
+          throw new Error(errorData.detail);
+        }
+
+        const data = await response.json();
+        console.log("Affiliate link generated:", data.affiliate); // Verifica il link affiliato
+
+        this.productUrl = "";
+        this.selectedCategory = "";
+        await this.fetchProducts();
+      } catch (error) {
+        console.error(error.message);
+      } finally {
+        this.isLoading = false;
+        this.modalMessage = ""; // Reset del messaggio della modale
       }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      if (errorData.detail === "Product already being tracked") {
-        alert("This product is already being tracked!");
-      }
-      throw new Error(errorData.detail);
-    }
-
-    const data = await response.json();
-    console.log("Affiliate link generated:", data.affiliate); // Verifica il link affiliato
-
-    this.productUrl = "";
-    this.selectedCategory = "";
-    await this.fetchProducts();
-  } catch (error) {
-    console.error(error.message);
-  } finally {
-    this.isLoading = false;
-    this.modalMessage = ""; // Reset del messaggio della modale
-  }
-},
+    },
 
     async fetchProducts() {
       try {
@@ -376,7 +401,7 @@ export default {
     async updatePricesManual() {
       try {
         this.modalMessage = "Update product please wait...";
-    this.isLoading = true;
+        this.isLoading = true;
         const response = await fetchWithToken(
           `${process.env.VUE_APP_API_BASE_URL}/update-prices-manual/`,
           {
@@ -402,15 +427,15 @@ export default {
       this.showModal = false; // Nasconde la modale
     },
     openConfirmModal() {
-    this.showConfirmModal = true;
-  },
-  closeConfirmModal() {
-    this.showConfirmModal = false;
-  },
-  async confirmUpdateAll() {
-    this.closeConfirmModal();
-    await this.updatePricesManual(); // Chiama la funzione originale per aggiornare i prezzi
-  },
+      this.showConfirmModal = true;
+    },
+    closeConfirmModal() {
+      this.showConfirmModal = false;
+    },
+    async confirmUpdateAll() {
+      this.closeConfirmModal();
+      await this.updatePricesManual(); // Chiama la funzione originale per aggiornare i prezzi
+    },
   },
 };
 </script>

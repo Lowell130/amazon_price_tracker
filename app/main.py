@@ -30,6 +30,7 @@ from app.db import users_collection
 import os
 from dotenv import load_dotenv
 from fastapi import Body
+
 # Carica variabili d'ambiente
 load_dotenv()
 
@@ -50,6 +51,7 @@ affiliate_tag = os.getenv("AFFILIATE_TAG")
 origins = [
     "http://localhost:8080",
     "http://127.0.0.1:8080",
+    "http://localhost:3000",
     "https://amazon-price-tracker-delta.vercel.app",
     "amazon-price-tracker-git-main-lowell130s-projects.vercel.app",
     "amazon-price-tracker-ndlrmkzir-lowell130s-projects.vercel.app",
@@ -384,15 +386,31 @@ async def toggle_favorite(asin: str, current_user: str = Depends(get_current_use
     return {"message": "Favorite status updated", "is_favorite": new_favorite_status}
 
 
-@app.post("/api/update-prices-manual/")
-async def update_prices_manual(current_user: str = Depends(get_current_user)):
-    """Aggiorna manualmente i prezzi dei prodotti per l'utente corrente."""
-    try:
-        update_prices(user_filter=current_user)
-        return {"message": "Price update triggered manually"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Error during manual price update")
+# @app.post("/api/update-prices-manual/")
+# async def update_prices_manual(current_user: str = Depends(get_current_user)):
+#     """Aggiorna manualmente i prezzi dei prodotti per l'utente corrente."""
+#     try:
+#         update_prices(user_filter=current_user)
+#         return {"message": "Price update triggered manually"}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail="Error during manual price update")
     
+
+@app.post("/api/update-prices-manual/", dependencies=[Depends(admin_required)])
+async def update_prices_manual():
+    """Aggiorna manualmente i prezzi di **tutti** i prodotti nel database. Accessibile solo agli admin."""
+    try:
+        # Aggiorna tutti i prodotti senza filtri
+        updated_products = update_prices(user_filter=None)  
+
+        return {
+            "message": "Manual price update for all products completed",
+            "updated_products_count": len(updated_products),
+        }
+    except Exception as e:
+        logger.error(f"Error updating all prices manually: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error during manual price update: {str(e)}")
+
 
 # Funzione per inviare email
 def send_email(to_email, product_title, old_price, new_price):

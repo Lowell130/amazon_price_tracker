@@ -5,18 +5,39 @@ from datetime import datetime
 import time
 import random
 import logging
+from urllib.parse import unquote, urlparse, parse_qs
 
 # Configura il logging
 logging.basicConfig(level=logging.INFO)
 
 def get_asin_from_url(url):
-    """Estrae l'ASIN dal link Amazon."""
-    match = re.search(r"/([A-Z0-9]{10})(?:[/?]|$)", url)
-    return match.group(1) if match else None
+    """Estrae l'ASIN da link Amazon, inclusi quelli con parametri di tracking pubblicitario."""
+    # Decodifica l'URL per gestire link con parametri GET complessi
+    decoded_url = unquote(url)
+    
+    # Prova a trovare direttamente l'ASIN nella parte principale dell'URL
+    match = re.search(r"/dp/([A-Z0-9]{10})", decoded_url)
+    if match:
+        logging.info(f"ASIN estratto direttamente: {match.group(1)}")
+        return match.group(1)
+
+    # Se non trovato, cerca all'interno dei parametri della query (per link sponsorizzati)
+    parsed_url = urlparse(decoded_url)
+    query_params = parse_qs(parsed_url.query)
+    
+    if 'url' in query_params:
+        nested_url = query_params['url'][0]  # Prende il primo valore
+        match_nested = re.search(r"/dp/([A-Z0-9]{10})", nested_url)
+        if match_nested:
+            logging.info(f"ASIN estratto dai parametri GET: {match_nested.group(1)}")
+            return match_nested.group(1)
+
+    logging.warning("ASIN non trovato nell'URL fornito")
+    return None
 
 def clean_price(price):
-    """Rimuove simboli di valuta e spazi dal prezzo, restituendo un valore numerico come stringa normalizzata."""
-    price = re.sub(r"[^\d,\.]", "", price)  # Rimuove simboli non numerici eccetto la virgola e il punto
+    """Rimuove simboli di valuta e spazi dal prezzo, restituendo un valore numerico."""
+    price = re.sub(r"[^\d,\.]", "", price)  # Mantiene solo numeri, virgole e punti
     if "," in price and "." in price:
         if price.index(",") > price.index("."):
             price = price.replace(".", "").replace(",", ".")
@@ -24,10 +45,14 @@ def clean_price(price):
             price = price.replace(",", "")
     elif "," in price:
         price = price.replace(",", ".")
-    return float(price)
+    
+    try:
+        return float(price)
+    except ValueError:
+        return None
 
 def fetch_product_data(url, max_retries=3, delay=2):
-    """Esegue scraping del titolo, prezzo, immagine e rating del prodotto dal link Amazon."""
+    """Esegue scraping del titolo, prezzo, immagine e rating del prodotto da un link Amazon."""
     asin = get_asin_from_url(url)
     if not asin:
         raise ValueError("ASIN non trovato nell'URL")
@@ -97,9 +122,9 @@ def fetch_product_data(url, max_retries=3, delay=2):
         rating_text = rating_tag.get_text(strip=True)
         try:
             rating = float(rating_text.split(" ")[0].replace(",", "."))
-            logging.info(f"Rating extracted from a-icon-alt: {rating}")
+            logging.info(f"Rating estratto: {rating}")
         except (ValueError, AttributeError) as e:
-            logging.error(f"Could not parse rating from a-icon-alt: {rating_text}, error: {e}")
+            logging.error(f"Impossibile estrarre il rating: {rating_text}, errore: {e}")
 
     # Estrazione dettagli prodotto
     details = []
@@ -114,20 +139,19 @@ def fetch_product_data(url, max_retries=3, delay=2):
             except AttributeError:
                 continue  # Ignora righe che non seguono la struttura prevista
 
-    # **Aggiunta della chiave insertion_date**
-    insertion_date = datetime.now().isoformat()
+    # Data di estrazione
+    extraction_date = datetime.now().isoformat()
 
-    # Ritorna i dati del prodotto con `insertion_date`
+    # Ritorna i dati del prodotto
     return {
         "asin": asin,
         "title": title,
         "price": price,
         "condition": condition,
         "image_url": image_url,
-        "rating": rating,  # Valore decimale corretto
+        "rating": rating,
         "availability": "Disponibile" if condition != "Non disponibile" else "Non disponibile",
-        "details": details,  # Aggiungi i dettagli
-        "extraction_date": datetime.now().isoformat(),
-        "price_history": [{"date": datetime.now().isoformat(), "price": price}] if price else [],
-        "insertion_date": insertion_date  # ✅ Chiave ripristinata
+        "details": details,
+        "extraction_date": extraction_date,
+        "price_history": [{"date": extraction_date, "price": price}] if price else [],
     }
