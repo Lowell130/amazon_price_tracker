@@ -172,7 +172,7 @@
                     </svg>
       </span>
     </th>
-    <th scope="col" class="p-4">Max price</th>
+    <th scope="col" class="p-4">Max €</th>
     <th scope="col" class="p-4">
   <span class="flex items-center cursor-pointer" @click="sort('DIFF')">
     Diff
