@@ -59,7 +59,7 @@
     target="_blank"
     class="flex items-center justify-center text-black bg-[#FF9900] hover:bg-[#FFB74D] focus:ring-4 focus:ring-yellow-300 font-bold rounded-lg text-lg px-6 py-3 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none shadow-lg w-full md:w-auto"
   >
-    View on Amazon.it
+    Vedi su Amazon.it
   </a>
 </p>
 

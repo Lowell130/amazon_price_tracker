@@ -18,16 +18,60 @@
       <!-- Dettagli del prodotto -->
       <ProductInfo v-if="product" :product="product" />
 
-      <!-- Sezione Dettagli Prodotto -->
-      <div v-if="product && product.details?.length" class="mt-6 bg-white dark:bg-gray-800 p-4">
-        <h3 class="my-5 text-3xl font-extrabold text-gray-900 dark:text-white md:text-3xl lg:text-4xl"><span class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Product</span> Details</h3>
+    
+
+      <!-- Tabella dei prezzi -->
+      <div class="mt-6 bg-white dark:bg-gray-800 p-4">
+      <h3 class="my-5 text-3xl font-extrabold text-gray-900 dark:text-white md:text-3xl lg:text-4xl"><span class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Storico</span> Prezzi</h3>
+
+      <div class="bg-white dark:bg-gray-800 relative overflow-hidden mt-6">
+
+        <div v-if="product" class="overflow-x-auto">
+          <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+              <tr>
+                <th scope="col" class="px-4 py-4">Metrica</th>
+                <th scope="col" class="px-4 py-3">Valore</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b dark:border-gray-700">
+                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">Prezzo Max</th>
+                <td class="px-4 py-3">{{ product.max_price || '-' }}€</td>
+              </tr>
+              <tr class="border-b dark:border-gray-700">
+                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">Prezzo Min</th>
+                <td class="px-4 py-3">{{ product.min_price || '-' }}€</td>
+              </tr>
+              <tr class="border-b dark:border-gray-700">
+                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">Prezzo Medio</th>
+                <td class="px-4 py-3">{{ product.average_price || '-' }}€</td>
+              </tr>
+              <tr class="border-b dark:border-gray-700">
+                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">Prezzo Corrente</th>
+                <td class="px-4 py-3">{{ product.price || '-' }}€</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+      <!-- Grafico della cronologia dei prezzi -->
+      <div class="mb-3">
+        <ChartPage v-if="product && product.price_history" :priceHistory="product.price_history" />
+      </div>
+
+        <!-- Sezione Dettagli Prodotto -->
+        <div v-if="product && product.details?.length" class="mt-6 bg-white dark:bg-gray-800 p-4">
+        <h3 class="my-5 text-3xl font-extrabold text-gray-900 dark:text-white md:text-3xl lg:text-4xl"><span class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Dettagli</span> Prodotto</h3>
 
         <div class="relative overflow-x-auto">
           <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
-                <th scope="col" class="px-6 py-3">Detail</th>
-                <th scope="col" class="px-6 py-3">Value</th>
+                <th scope="col" class="px-6 py-3">Metrica</th>
+                <th scope="col" class="px-6 py-3">Valore</th>
               </tr>
             </thead>
             <tbody>
@@ -42,48 +86,6 @@
             </tbody>
           </table>
         </div>
-      </div>
-
-      <!-- Tabella dei prezzi -->
-      <div class="mt-6 bg-white dark:bg-gray-800 p-4">
-      <h3 class="my-5 text-3xl font-extrabold text-gray-900 dark:text-white md:text-3xl lg:text-4xl"><span class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Price</span> History</h3>
-
-      <div class="bg-white dark:bg-gray-800 relative overflow-hidden mt-6">
-
-        <div v-if="product" class="overflow-x-auto">
-          <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-              <tr>
-                <th scope="col" class="px-4 py-4">Metric</th>
-                <th scope="col" class="px-4 py-3">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="border-b dark:border-gray-700">
-                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">Maximum Price</th>
-                <td class="px-4 py-3">{{ product.max_price || '-' }}€</td>
-              </tr>
-              <tr class="border-b dark:border-gray-700">
-                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">Minimum Price</th>
-                <td class="px-4 py-3">{{ product.min_price || '-' }}€</td>
-              </tr>
-              <tr class="border-b dark:border-gray-700">
-                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">Average Price</th>
-                <td class="px-4 py-3">{{ product.average_price || '-' }}€</td>
-              </tr>
-              <tr class="border-b dark:border-gray-700">
-                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">Current Price</th>
-                <td class="px-4 py-3">{{ product.price || '-' }}€</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-      <!-- Grafico della cronologia dei prezzi -->
-      <div class="mb-3">
-        <ChartPage v-if="product && product.price_history" :priceHistory="product.price_history" />
       </div>
 
     </div>

@@ -5,7 +5,7 @@
         <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">
           {{ latestPrice }}€
         </h5>
-        <p class="text-base font-normal text-gray-500 dark:text-gray-400">Latest Price</p>
+        <p class="text-base font-normal text-gray-500 dark:text-gray-400">Attuale</p>
       </div>
  
 
@@ -62,7 +62,7 @@
     <div ref="chartContainer" class="h-50 w-full"></div>
     <div class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between">
       <div class="flex justify-between items-center pt-5">
-        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Price History</p>
+        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Grafico storico prezzo</p>
       </div>
     </div>
   </div>

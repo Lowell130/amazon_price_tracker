@@ -464,7 +464,7 @@
         </tbody>
       </table>
     </div>
-    <h3 class="my-5 text-3xl font-extrabold text-gray-900 dark:text-white md:text-3xl lg:text-4xl"><span class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">See below</span> Price History</h3>
+    <h3 class="my-5 text-3xl font-extrabold text-gray-900 dark:text-white md:text-3xl lg:text-4xl"><span class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Storico</span> Prezzi</h3>
     <!-- ChartPage per la cronologia dei prezzi -->
     <ChartPage v-if="product && product.price_history" :priceHistory="product.price_history" />
   </td>

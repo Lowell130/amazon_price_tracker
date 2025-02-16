@@ -263,31 +263,8 @@ export default {
       selectedCategory: "", // Nuova variabile per la categoria selezionata
       showModal: false, // Stato della visibilità della modale
       categories: [
-        "Audio",
-        "Automotive",
-        "Baby Products",
-        "Beauty Care",
-        "Books",
-        "DIY",
-        "Electronics",
-        "Fashion",
-        "Gaming",
-        "Garden",
-        "Groceries",
-        "Health & Wellness",
-        "Home",
-        "Kitchen",
-        "Monitor",
-        "Office Supplies",
-        "Pets",
-        "Smart-TV",
-        "Smartphones",
-        "Smartwatches",
-        "Sports",
-        "Tablet",
-        "Technology",
-        "Toys & Games",
-        "Travel Gear",
+       "Audio", "Automotive", "Baby Products", "Beauty Care", "Books", "DIY", "Electronics", "Fashion", "Gaming", "Garden", "Groceries", "Health & Wellness", "Home", "Kitchen", "Monitor", "Notebook", "Office Supplies", "PC", "Pets", "Smart-TV", "Smartphones", "Smartwatches", "Sports", "Tablet", "Technology", "Toys & Games", "Travel Gear", "Video"
+
       ], // Lista categorie
       products: [],
       username: "",

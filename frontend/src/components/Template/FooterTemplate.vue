@@ -10,8 +10,10 @@
           </svg>
           PriceHub.it
         </a>
-        <p class="my-6 text-gray-500 dark:text-gray-400">
-          PriceHub.it è un'applicazione web intuitiva progettata per aiutare gli utenti a monitorare le variazioni di prezzo dei loro prodotti preferiti su Amazon. Aggiungi prodotti, traccia lo storico dei prezzi, imposta i preferiti e ricevi avvisi sui ribassi—tutto in un unico posto. Semplifica la tua esperienza di shopping con un monitoraggio intelligente e approfondimenti utili.        </p>
+        <p class="my-6 text-sm text-gray-500 dark:text-white">
+          PriceHub.it è un'applicazione web intuitiva progettata per aiutare gli utenti a monitorare le variazioni di prezzo dei loro prodotti preferiti su Amazon. Aggiungi prodotti, traccia lo storico dei prezzi, imposta i preferiti e ricevi avvisi sui ribassi. Semplifica la tua esperienza di shopping con un monitoraggio intelligente e approfondimenti utili.
+
+PriceHub.it partecipa al <span class="font-bold">Programma Affiliazione di Amazon Europa</span>, un programma che consente ai siti di percepire una commissione pubblicitaria fornendo link ad Amazon.it. Ciò significa che, se effettui un acquisto tramite i nostri link, potremmo ricevere una commissione senza alcun costo aggiuntivo per te.  </p>
         <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 - 2025 all Rights Reserved.</span>
       </div>
       <button
