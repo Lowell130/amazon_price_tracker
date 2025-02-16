@@ -203,8 +203,10 @@ function resetMetaTags() {
   }
 }
 
-// ✅ Aggiunge dati strutturati Schema.org JSON-LD in italiano
+// ✅ Aggiunge dati strutturati Schema.org JSON-LD correttamente
 function setStructuredData(product) {
+  if (!product || !product.price) return; // Evita errori se il prodotto non è ancora caricato
+
   const jsonLd = {
     "@context": "https://schema.org/",
     "@type": "Product",
@@ -212,14 +214,18 @@ function setStructuredData(product) {
     "image": product.image_url || "/default-image.jpg",
     "description": `Monitora il prezzo di ${product.title}. Controlla la cronologia dei prezzi e ricevi notifiche sui ribassi.`,
     "offers": {
-      "@type": "Offerta",
+      "@type": "Offer",  // ✅ Corretto "Offer" (non "Offerta")
       "priceCurrency": "EUR",
-      "price": product.price,
+      "price": parseFloat(product.price),  // ✅ Assicura che il prezzo sia numerico
       "availability": "https://schema.org/InStock",
-      "seller": { "@type": "Organizzazione", "name": "Amazon" },
+      "seller": {
+        "@type": "Organization",  // ✅ Corretto "Organization" (non "Organizzazione")
+        "name": "Amazon"
+      }
     }
   };
 
+  // ✅ Inserisce il JSON-LD nella pagina
   let script = document.querySelector('script[type="application/ld+json"]');
   if (!script) {
     script = document.createElement("script");
@@ -228,5 +234,6 @@ function setStructuredData(product) {
   }
   script.textContent = JSON.stringify(jsonLd);
 }
+
 
 </script>
