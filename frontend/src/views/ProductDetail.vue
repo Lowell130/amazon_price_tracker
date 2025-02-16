@@ -139,7 +139,7 @@ function updateMetaTags(product) {
 
   const description = `Monitora il prezzo di ${product.title}. Controlla la cronologia dei prezzi e ricevi notifiche sui ribassi.`;
 
-  setOrCreateMeta("title", `${product.title} - Monitor Prezzi Amazon`);
+  setOrCreateMeta("title", `Storico prezzi per ${product.title}`);
   setOrCreateMeta("description", description);
   setOrCreateMeta("og:title", `${product.title} - Monitor Prezzi Amazon`);
   setOrCreateMeta("og:description", description);
