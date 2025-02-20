@@ -35,7 +35,7 @@
             class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
           >
             <div class="h-56 w-full">
-              <a :href="product.affiliate" target="_blank">
+              <a :href="`/products/${product.asin}`" target="_blank">
                 <img
                   class="mx-auto h-full object-contain dark:hidden"
                   :src="product.image_url"
@@ -78,7 +78,7 @@
 
             <div class="flex items-center justify-end gap-1">
                 <a
-  :href="product.affiliate"
+  :href="`/products/${product.asin}`"
   type="button"
   data-tooltip-target="tooltip-quick-look-2"
   class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -119,7 +119,7 @@
 
 
             <div class="pt-6">
-              <a :href="product.affiliate" target="_blank" class="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white">
+              <a :href="`/products/${product.asin}`" target="_blank" class="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white">
                 {{ product.title.substring(0, 25)
                       }}{{ product.title.length > 25 ? "..." : "" }}
               </a>
