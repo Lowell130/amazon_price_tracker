@@ -141,6 +141,8 @@ def fetch_product_data(url, max_retries=3, delay=2):
 
     # Data di estrazione
     extraction_date = datetime.now().isoformat()
+    insertion_date = extraction_date  # Usa lo stesso timestamp della data di estrazione
+
 
     # Ritorna i dati del prodotto
     return {
@@ -153,5 +155,6 @@ def fetch_product_data(url, max_retries=3, delay=2):
         "availability": "Disponibile" if condition != "Non disponibile" else "Non disponibile",
         "details": details,
         "extraction_date": extraction_date,
+        "insertion_date": insertion_date,  # ✅ Aggiunto nuovamente
         "price_history": [{"date": extraction_date, "price": price}] if price else [],
     }
