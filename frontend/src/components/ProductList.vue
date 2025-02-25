@@ -151,8 +151,8 @@
 
                 </th>
                 <th scope="col" class="p-4">Product</th>
-                <th scope="col" class="p-4">Condition</th>
                 <th scope="col" class="p-4">Rating</th>
+                <th scope="col" class="p-4">Condition</th>
                 <th scope="col" class="p-4">Alert</th>
    
                 <th scope="col" class="p-4">
