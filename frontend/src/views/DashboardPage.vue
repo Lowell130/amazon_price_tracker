@@ -6,7 +6,7 @@
       >
         <div class="flex-1 flex items-center space-x-2">
           <span class="pl-5 pt-4 text-sm text-gray-900 dark:text-white"
-            >Ciao: <span class="font-bold">{{ username }}</span></span
+            >Hey: <span class="font-bold">{{ username }}</span></span
           >
         </div>
 
