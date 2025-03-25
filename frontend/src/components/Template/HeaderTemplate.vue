@@ -47,8 +47,8 @@
         <div class="hidden w-full md:block md:w-auto" id="navbar-default">
           <ul class="font-small flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
             <router-link to="/" class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">Home</router-link>
-            <router-link v-if="!isAuthenticated" to="/register" class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">SignUp</router-link>
-            <router-link v-if="!isAuthenticated" to="/login" class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">SignIn</router-link>
+            <router-link v-if="!isAuthenticated" to="/register" class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">Registrati</router-link>
+            <router-link v-if="!isAuthenticated" to="/login" class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">Login</router-link>
             <router-link v-if="isAuthenticated" to="/dashboard" class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">Dashboard</router-link>
             <router-link v-if="isAuthenticated" to="/profile" class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">Profile</router-link>
             <button class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500" v-if="isAuthenticated" @click="logout">Logout</button>
