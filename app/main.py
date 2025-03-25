@@ -21,12 +21,15 @@ from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional, List
-from app.db import users_collection
+
+
 import subprocess
 from fastapi import FastAPI, Response
 from xml.etree.ElementTree import Element, SubElement, tostring
 from datetime import datetime
-from app.db import users_collection
+from app.db import public_alerts_collection
+from pydantic import BaseModel, EmailStr
+
 import os
 from dotenv import load_dotenv
 from fastapi import Body
@@ -84,6 +87,89 @@ def admin_required(current_user: str = Depends(get_current_user)):
             detail="Administrator privileges required"
         )
     return user
+
+class GuestAlertSubscription(BaseModel):
+    email: EmailStr
+    asin: str
+
+
+@router.post("/api/public/subscribe-alert")
+async def subscribe_to_price_alert(data: GuestAlertSubscription):
+    existing = public_alerts_collection.find_one({"email": data.email, "asin": data.asin})
+    if existing:
+        return {"message": "Hai già richiesto un avviso per questo prodotto."}
+
+    try:
+        public_alerts_collection.insert_one({
+            "email": data.email,
+            "asin": data.asin,
+            "subscribed_at": datetime.utcnow()
+        })
+        return {"message": "Iscrizione completata. Ti avviseremo in caso di ribasso di prezzo!"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Errore interno del server.")
+
+@router.delete("/api/public/unsubscribe-alert")
+async def unsubscribe_alert(email: EmailStr = Query(...), asin: str = Query(...)):
+    """
+    Cancella una sottoscrizione email per un prodotto pubblico.
+    """
+    result = public_alerts_collection.delete_one({"email": email, "asin": asin})
+    if result.deleted_count == 1:
+        return {"message": "Sottoscrizione cancellata con successo."}
+    else:
+        raise HTTPException(status_code=404, detail="Nessuna sottoscrizione trovata.")
+
+
+@app.get("/api/public/search-products")
+async def search_products(title: str = Query(..., min_length=2)):
+    """
+    Ricerca prodotti per titolo, restituendo anche old_price, new_price e price_drop.
+    """
+    try:
+        words = title.lower().split()
+        regex_conditions = [{"$regexMatch": {"input": "$$product.title", "regex": rf"\b{word}\b", "options": "i"}} for word in words]
+
+        products_cursor = users_collection.aggregate([
+            {
+                "$project": {
+                    "filtered_products": {
+                        "$filter": {
+                            "input": "$products",
+                            "as": "product",
+                            "cond": { "$and": regex_conditions }
+                        }
+                    }
+                }
+            },
+            {"$unwind": "$filtered_products"}
+        ])
+
+        all_products = [doc["filtered_products"] for doc in products_cursor]
+
+        if not all_products:
+            raise HTTPException(status_code=404, detail="Nessun prodotto trovato.")
+
+        # 🔧 Aggiungi calcoli per price drop
+        for product in all_products:
+            old_price = product.get("old_price")
+            new_price = product.get("new_price") or product.get("price")
+            if old_price and new_price:
+                try:
+                    product["price_drop"] = round(old_price - new_price, 2)
+                except:
+                    product["price_drop"] = None
+            else:
+                product["price_drop"] = None
+
+        return {"products": all_products}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Errore nella ricerca: {str(e)}")
+
+
+
+
 
 
 @app.patch("/api/update-product-info/{asin}")
@@ -413,38 +499,40 @@ async def update_prices_manual():
 
 
 # Funzione per inviare email
-def send_email(to_email, product_title, old_price, new_price):
-    sender_email = "blackfdayit@gmail.com"  # Inserisci la tua email
-    sender_password = "zxbt cnqg ckqe tqbq"  # Inserisci la tua password o un token
+def send_email(to_email, product_title, old_price, new_price, asin):
+    sender_email = "blackfdayit@gmail.com"
+    sender_password = "zxbt cnqg ckqe tqbq"
     subject = f"📉 Price Drop Alert: {product_title}"
+
+    product_url = f"{BASE_URL}/products/{asin}"
+
     body = f"""
     Il prodotto "{product_title}" che hai aggiunto ai preferiti ha subito un calo di prezzo!
 
-    Prezzo precedente: {old_price} €
-    Nuovo prezzo: {new_price} €
+    🔻 Prezzo precedente: {old_price} €
+    ✅ Nuovo prezzo: {new_price} €
+
+    👉 <a href="{product_url}">Clicca qui per vedere il prodotto</a>
 
     Affrettati a controllare!
     """
 
-    # Configura SMTP
     try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)  # Configura il server SMTP
+        server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls()
         server.login(sender_email, sender_password)
 
-        # Creazione del messaggio
         msg = MIMEMultipart()
         msg["From"] = sender_email
         msg["To"] = to_email
         msg["Subject"] = subject
-        msg.attach(MIMEText(body, "plain"))
+        msg.attach(MIMEText(body, "html"))  # <-- Usa HTML per abilitare i link
 
         server.sendmail(sender_email, to_email, msg.as_string())
         server.quit()
         print(f"Email inviata a {to_email} per il prodotto {product_title}")
     except Exception as e:
         print(f"Errore durante l'invio dell'email: {e}")
-
 
 def update_prices(user_filter=None, asin_filter=None):
     query = {"username": user_filter} if user_filter else {}
@@ -475,12 +563,17 @@ def update_prices(user_filter=None, asin_filter=None):
 
                 if product.get("is_favorite", False) and old_price and new_price < old_price:
                     logger.info(f"Price drop detected for {product['title']}. Sending email.")
-                    send_email(email, product["title"], old_price, new_price)
+                    send_email(email, product["title"], old_price, new_price, product["asin"])
+
 
                 product["price_history"].append({"date": datetime.now().isoformat(), "price": new_price})
                 product["price"] = new_price
                 product["availability"] = "Disponibile"
                 product["condition"] = updated_data["condition"]
+
+                # ✅ AGGIUNTA QUI: salva le info del coupon
+                product["coupon"] = updated_data.get("coupon", False)
+                product["coupon_value"] = updated_data.get("coupon_value")
 
                 # Calcola max, min, e average price
                 price_history = product["price_history"]
@@ -509,7 +602,7 @@ def update_prices(user_filter=None, asin_filter=None):
 @app.get("/api/public/price-drops")
 async def get_price_drops(
     category: Optional[str] = None,
-    limit: int = Query(50, ge=1, le=100),  # Limita il numero di risultati per pagina
+    limit: int = Query(64, ge=1, le=100),  # Limita il numero di risultati per pagina
     skip: int = Query(0, ge=0)  # Salta i primi N risultati
 ):
     """

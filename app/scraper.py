@@ -144,6 +144,26 @@ def fetch_product_data(url, max_retries=3, delay=2):
     insertion_date = extraction_date  # Usa lo stesso timestamp della data di estrazione
 
 
+    # Coupon: controlla se esiste un badge o testo che indichi la presenza di un coupon
+    coupon = False
+    coupon_value = None
+
+    coupon_section = soup.find("i", class_="newCouponBadge")
+    if coupon_section:
+        # Cerca il valore del coupon accanto al badge
+        coupon_text_container = coupon_section.find_parent("span")
+        if coupon_text_container:
+            sibling_text = coupon_text_container.get_text(strip=True)
+            match = re.search(r"(\d+[.,]?\d*)\s*€", sibling_text)
+            if match:
+                coupon = True
+                coupon_value = match.group(1).replace(",", ".")
+            else:
+                coupon = True  # presente, ma valore non trovato
+
+
+
+
     # Ritorna i dati del prodotto
     return {
         "asin": asin,
@@ -157,4 +177,6 @@ def fetch_product_data(url, max_retries=3, delay=2):
         "extraction_date": extraction_date,
         "insertion_date": insertion_date,  # ✅ Aggiunto nuovamente
         "price_history": [{"date": extraction_date, "price": price}] if price else [],
+        "coupon": coupon,
+        "coupon_value": float(coupon_value) if coupon_value else None
     }

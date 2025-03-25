@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="mx-auto max-w-screen-2xl px-4 lg:px-12">
+    <div class="mx-auto max-w-screen-2xl px-4 lg:px-8">
 
 
       <div class="bg-white dark:bg-gray-800 relative shadow-md overflow-hidden flex flex-wrap border-b dark:border-gray-600 justify-start gap-4 items-center p-4 bg-gray-50 dark:bg-gray-700">
@@ -63,6 +63,21 @@
   <option value="Non disponibile">Unavailable</option>
 </select>
 </div>
+
+<!-- Solo con coupon -->
+<div class="mb-2 sm:mb-0 w-full sm:w-auto flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="couponToggle"
+    v-model="filters.onlyWithCoupon"
+    @change="applyFilters"
+    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+  />
+  <label for="couponToggle" class="text-sm text-gray-900 dark:text-gray-300">
+    Solo con coupon
+  </label>
+</div>
+
 
    <!-- show favorite -->
    <div class="mb-2 sm:mb-0 w-full sm:w-auto">
@@ -153,6 +168,16 @@
                 <th scope="col" class="p-4">Product</th>
                 <th scope="col" class="p-4">Rating</th>
                 <th scope="col" class="p-4">Condition</th>
+                <th scope="col" class="p-4">
+  <span class="flex items-center cursor-pointer" @click="sort('coupon_value')">
+    Coupon
+    <svg class="w-4 h-4 ms-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+    </svg>
+  </span>
+</th>
+
+
                 <th scope="col" class="p-4">Alert</th>
    
                 <th scope="col" class="p-4">
@@ -263,9 +288,14 @@
     v-else
     class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
   >
-    Unavailable
+    NA
   </span>
 </td>
+<td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+  <span class="bg-green-300 text-green-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-green-900 dark:text-green-500" v-if="product.coupon_value">€{{ product.coupon_value }}</span>
+  <span v-else>-</span>
+</td>
+
 
                 <td class="px-4 py-3 font-medium">
   <!-- Cuore cliccabile -->
@@ -361,7 +391,7 @@
                   class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                 >
                   <div class="flex items-center space-x-4">
-                    <a
+                    <!-- <a
                       :href="product.affiliate"
                       target="_blank"
                       type="button"
@@ -384,7 +414,8 @@
                           d="M13.213 9.787a3.391 3.391 0 0 0-4.795 0l-3.425 3.426a3.39 3.39 0 0 0 4.795 4.794l.321-.304m-.321-4.49a3.39 3.39 0 0 0 4.795 0l3.424-3.426a3.39 3.39 0 0 0-4.794-4.795l-1.028.961"
                         />
                       </svg>
-                    </a>
+                    </a> -->
+
                     <a
                       href="#"
                       @click="viewPriceHistory(product.asin)"
@@ -847,7 +878,16 @@ applyFilters() {
     // Filtra per condizione
     const matchesCondition = !selectedCondition || product.condition === selectedCondition;
 
-    return matchesSearchQuery && matchesCategory && matchesPriceRange && matchesCondition;
+    const matchesCoupon = !this.filters.onlyWithCoupon || product.coupon_value > 0;
+
+    return matchesSearchQuery && matchesCategory && matchesPriceRange && matchesCondition && matchesCoupon;
+    
+
+    
+
+
+
+
   });
 
   this.currentPage = 1; // Resetta la paginazione quando filtri
@@ -859,6 +899,8 @@ applyFilters() {
     this.filters.selectedCategory = "";
     this.filters.selectedPriceRange = "";
     this.filters.selectedCondition = ""; // Ripristina la condizione
+    this.filters.onlyWithCoupon = false;
+
 
     // Ripristina la lista di prodotti
     this.filteredProducts = [...this.localProducts];

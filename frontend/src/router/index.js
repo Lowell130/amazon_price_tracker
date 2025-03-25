@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { jwtDecode } from 'jwt-decode' // Importazione specifica
+import { jwtDecode } from "jwt-decode"; // Importazione specifica
 import HomePage from "../views/HomePage.vue";
 import RegisterPage from "../views/RegisterPage.vue";
 import LoginPage from "../views/LoginPage.vue";
 import DashboardPage from "../views/DashboardPage.vue";
 import ProfilePage from "../views/ProfilePage.vue";
 import ProductDetail from "../views/ProductDetail.vue";
+import SearchResults from "../views/SearchResults.vue"; // 🔥 Nuova pagina per la ricerca
 import PasswordResetRequest from "../views/PasswordResetRequest.vue";
 import PasswordReset from "../views/PasswordReset.vue";
 
@@ -16,6 +17,7 @@ const routes = [
   { path: "/dashboard", name: "Dashboard", component: DashboardPage, meta: { requiresAuth: true } },
   { path: "/profile", name: "Profile", component: ProfilePage, meta: { requiresAuth: true } },
   { path: "/products/:asin", name: "ProductDetail", component: ProductDetail }, // 🔥 RESO PUBBLICO
+  { path: "/search", name: "SearchResults", component: SearchResults }, // 🔥 Nuova route per la ricerca dei prodotti
   { path: "/password-reset-request", name: "PasswordResetRequest", component: PasswordResetRequest },
   { path: "/reset-password", name: "ResetPassword", component: PasswordReset },
 ];
@@ -25,6 +27,7 @@ const router = createRouter({
   routes,
 });
 
+// Protezione delle route con autenticazione
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("token");
 

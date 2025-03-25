@@ -16,5 +16,7 @@ if not MONGO_URI:
 client = MongoClient(MONGO_URI)
 db = client["price_tracker"]
 users_collection = db["users"]
+public_alerts_collection = db["public_alerts"]
+
 
 print("Connesso con successo al database remoto!")
