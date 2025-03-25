@@ -1,0 +1,15 @@
+fastapi         # Framework per costruire API web
+uvicorn         # Server ASGI per eseguire FastAPI
+bcrypt          # Per hashing delle password
+pyjwt           # Per la gestione dei token JWT
+requests        # Per fare richieste HTTP ai link Amazon
+beautifulsoup4  # Per il parsing HTML e scraping dei dati Amazon
+pydantic        # Per la gestione dei modelli dati (incluso in FastAPI)
+apscheduler
+pymongo
+fake-useragent
+pydantic[email]
+python-amazon-paapi
+python-dotenv
+python-telegram-bot
+pillow
