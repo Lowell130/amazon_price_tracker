@@ -50,12 +50,16 @@ def clean_price(price):
         return float(price)
     except ValueError:
         return None
-
 def fetch_product_data(url, max_retries=3, delay=2):
     """Esegue scraping del titolo, prezzo, immagine e rating del prodotto da un link Amazon."""
+    logging.info(f"Inizio scraping per URL: {url}")
+
     asin = get_asin_from_url(url)
     if not asin:
+        logging.error("ASIN non trovato nell'URL")
         raise ValueError("ASIN non trovato nell'URL")
+    
+    logging.info(f"ASIN trovato: {asin}")
 
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
@@ -64,7 +68,9 @@ def fetch_product_data(url, max_retries=3, delay=2):
 
     for attempt in range(max_retries):
         try:
+            logging.info(f"Tentativo {attempt + 1} di richiesta HTTP...")
             response = requests.get(url, headers=headers)
+            logging.info(f"Status code: {response.status_code}")
             if response.status_code == 200:
                 break
             elif attempt < max_retries - 1:
@@ -72,50 +78,55 @@ def fetch_product_data(url, max_retries=3, delay=2):
             else:
                 raise Exception("Impossibile accedere al link Amazon dopo vari tentativi")
         except requests.exceptions.RequestException as e:
+            logging.error(f"Errore di rete: {e}")
             if attempt == max_retries - 1:
                 raise Exception(f"Errore di rete durante l'accesso al link Amazon: {e}")
             time.sleep(delay + random.uniform(0, 1))
 
     soup = BeautifulSoup(response.content, "html.parser")
     main_container = soup.find("div", {"id": "dp"})
+
     if not main_container:
+        logging.warning("Contenitore principale del prodotto non trovato (id='dp')")
         raise ValueError("Contenitore principale del prodotto non trovato")
 
-    # Estrazione e pulizia del titolo
+    logging.info("Contenitore principale trovato")
+
     title_tag = main_container.find(id="productTitle")
     title = title_tag.get_text(strip=True) if title_tag else "Titolo non disponibile"
+    logging.info(f"Titolo prodotto: {title}")
 
-    # Identificazione e gestione delle diverse condizioni del prodotto
     condition = "Nuovo"
     price = None
 
-    # 1. Controllo se il prodotto è usato
     used_section = main_container.find("div", {"id": "usedBuySection"})
     if used_section:
+        logging.info("Sezione prodotto usato trovata")
         used_price_tag = used_section.find("span", {"class": "a-color-price"})
         if used_price_tag:
             price = clean_price(used_price_tag.get_text(strip=True))
+            logging.info(f"Prezzo usato trovato: {price}")
             condition = "Usato"
 
-    # 2. Controllo se il prodotto è non disponibile
     out_of_stock_section = main_container.find("div", {"id": "outOfStock"})
     if out_of_stock_section:
+        logging.info("Prodotto non disponibile (out of stock)")
         condition = "Non disponibile"
         price = None
 
-    # 3. Altrimenti, cerca il prezzo per un prodotto nuovo
     if price is None and condition == "Nuovo":
+        logging.info("Ricerca prezzo nuovo...")
         new_price_section = main_container.find("div", {"id": "corePrice_feature_div"})
         if new_price_section:
             price_tag = new_price_section.find("span", {"class": "a-offscreen"})
             if price_tag:
                 price = clean_price(price_tag.get_text(strip=True))
+                logging.info(f"Prezzo nuovo trovato: {price}")
 
-    # Estrazione dell'URL dell'immagine
     image_tag = main_container.find("img", {"id": "landingImage"})
     image_url = image_tag['src'] if image_tag else None
+    logging.info(f"Immagine trovata: {image_url}")
 
-    # Estrazione del rating
     rating = None
     rating_tag = main_container.find("span", {"class": "a-icon-alt"})
     if rating_tag:
@@ -126,7 +137,6 @@ def fetch_product_data(url, max_retries=3, delay=2):
         except (ValueError, AttributeError) as e:
             logging.error(f"Impossibile estrarre il rating: {rating_text}, errore: {e}")
 
-    # Estrazione dettagli prodotto
     details = []
     details_section = soup.find("table", class_="a-normal a-spacing-micro")
     if details_section:
@@ -137,20 +147,17 @@ def fetch_product_data(url, max_retries=3, delay=2):
                 value = row.find("td", class_="a-span9").get_text(strip=True)
                 details.append({key: value})
             except AttributeError:
-                continue  # Ignora righe che non seguono la struttura prevista
+                continue
 
-    # Data di estrazione
     extraction_date = datetime.now().isoformat()
-    insertion_date = extraction_date  # Usa lo stesso timestamp della data di estrazione
+    insertion_date = extraction_date
 
-
-    # Coupon: controlla se esiste un badge o testo che indichi la presenza di un coupon
     coupon = False
     coupon_value = None
 
     coupon_section = soup.find("i", class_="newCouponBadge")
     if coupon_section:
-        # Cerca il valore del coupon accanto al badge
+        logging.info("Coupon trovato")
         coupon_text_container = coupon_section.find_parent("span")
         if coupon_text_container:
             sibling_text = coupon_text_container.get_text(strip=True)
@@ -158,13 +165,13 @@ def fetch_product_data(url, max_retries=3, delay=2):
             if match:
                 coupon = True
                 coupon_value = match.group(1).replace(",", ".")
+                logging.info(f"Valore coupon: {coupon_value}")
             else:
-                coupon = True  # presente, ma valore non trovato
+                coupon = True
+                logging.info("Coupon presente ma valore non trovato")
 
+    logging.info("Scraping completato con successo")
 
-
-
-    # Ritorna i dati del prodotto
     return {
         "asin": asin,
         "title": title,
@@ -175,7 +182,7 @@ def fetch_product_data(url, max_retries=3, delay=2):
         "availability": "Disponibile" if condition != "Non disponibile" else "Non disponibile",
         "details": details,
         "extraction_date": extraction_date,
-        "insertion_date": insertion_date,  # ✅ Aggiunto nuovamente
+        "insertion_date": insertion_date,
         "price_history": [{"date": extraction_date, "price": price}] if price else [],
         "coupon": coupon,
         "coupon_value": float(coupon_value) if coupon_value else None
