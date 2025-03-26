@@ -121,6 +121,13 @@ async def unsubscribe_alert(email: EmailStr = Query(...), asin: str = Query(...)
     else:
         raise HTTPException(status_code=404, detail="Nessuna sottoscrizione trovata.")
 
+@router.get("/api/public/check-subscription")
+async def check_subscription(email: EmailStr = Query(...), asin: str = Query(...)):
+    """
+    Controlla se una certa email è già iscritta agli avvisi per un determinato ASIN.
+    """
+    exists = public_alerts_collection.find_one({"email": email, "asin": asin})
+    return {"subscribed": bool(exists)}
 
 @app.get("/api/public/search-products")
 async def search_products(title: str = Query(..., min_length=2)):
