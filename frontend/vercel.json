@@ -2,7 +2,7 @@
     "rewrites": [
       {
         "source": "/sitemap.xml",
-        "destination": "https://amazon-price-tracker-3kx4.onrender.com/sitemap.xml"
+        "destination": "https://orca-app-jqrqm.ondigitalocean.app/sitemap.xml"
       }
     ]
   }
