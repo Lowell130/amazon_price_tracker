@@ -13,9 +13,9 @@
 
         <!-- Dettagli -->
         <div class="mt-6 sm:mt-8 lg:mt-0 p-3">
-          <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white mb-3">
-            {{ product.title }}
-          </h1>
+          <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white mb-3 break-words">
+  {{ product.title }}
+</h1>
           <p class="text-gray-600 text-sm mb-2">Category: {{ product.category }}</p>
           <p class="text-gray-600 text-sm mb-2">ASIN: {{ product.asin }}</p>
           <p class="text-gray-600 text-sm mb-2">
