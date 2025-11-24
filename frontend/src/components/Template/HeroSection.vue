@@ -30,7 +30,7 @@
             <div class="hidden lg:mt-0 lg:col-span-5 lg:flex relative">
                 <!-- Decorative Elements behind image -->
                 <div class="absolute inset-0 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full blur-3xl opacity-20 animate-pulse"></div>
-                <img src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/hero/phone-mockup.png" alt="App Mockup" class="relative z-10 drop-shadow-2xl transform hover:scale-105 transition-transform duration-500">
+                <img :src="require('@/assets/hero-image.png')" alt="App Mockup" class="relative z-10 drop-shadow-2xl transform hover:scale-105 transition-transform duration-500">
             </div>                
         </div>
     </section>
