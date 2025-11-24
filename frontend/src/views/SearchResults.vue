@@ -44,86 +44,68 @@
         <div
           v-for="product in products"
           :key="product.asin"
-          class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+          class="group relative rounded-2xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 dark:border-gray-700 dark:bg-gray-800"
         >
-          <!-- Immagine -->
-          <div class="h-56 w-full">
-            <a :href="`/products/${product.asin}`" target="_blank">
+          <div class="h-48 w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700 p-4 relative">
+            <!-- Badge Sconto -->
+            <div v-if="product.price_drop" class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md z-10">
+                -€{{ product.price_drop }}
+            </div>
+
+            <a :href="`/products/${product.asin}`" target="_blank" class="block h-full">
               <img
-                class="mx-auto h-full object-contain dark:hidden"
-                :src="product.image_url"
-                :alt="product.title"
-              />
-              <img
-                v-if="product.image_url"
-                class="mx-auto hidden h-full object-contain dark:block"
+                class="mx-auto h-full object-contain mix-blend-multiply dark:mix-blend-normal transform group-hover:scale-110 transition-transform duration-500"
                 :src="product.image_url"
                 :alt="product.title"
               />
             </a>
           </div>
 
-          <!-- Condizione -->
-          <div class="flex items-center justify-between gap-4 mt-4">
-            <span>
-              <span
-                v-if="product.condition === 'Nuovo'"
-                class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
-              >
-                Condition: New
-              </span>
-              <span
-                v-else-if="product.condition === 'Usato'"
-                class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300"
-              >
-                Condition: Used
-              </span>
-              <span
-                v-else
-                class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
-              >
-                Condition: Unavailable
-              </span>
-            </span>
-          </div>
+          <div class="pt-4">
+            <div class="mb-2 flex items-center justify-between">
+                <span
+                    v-if="product.condition === 'Nuovo'"
+                    class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
+                >
+                    Nuovo
+                </span>
+                <span
+                    v-else
+                    class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300"
+                >
+                    {{ product.condition }}
+                </span>
+                
+                <p class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[50%]">{{ product.category }}</p>
+            </div>
 
-          <!-- Dettagli prodotto -->
-          <div class="pt-6">
             <a
               :href="`/products/${product.asin}`"
               target="_blank"
-              class="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white"
+              class="block text-lg font-semibold leading-tight text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400 line-clamp-2 h-14"
             >
-              {{ product.title.length > 25 ? product.title.substring(0, 25) + '...' : product.title }}
+              {{ product.title.length > 30 ? product.title.substring(0, 30) + "..." : product.title }}
             </a>
-            <p class="mt-2 text-primary-800 text-xs font-medium">Category: {{ product.category }}</p>
 
-            <!-- Prezzi -->
-            <p v-if="product.old_price" class="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-              Old Price: <span class="line-through">€{{ product.old_price }}</span>
-            </p>
-            <p v-if="product.new_price" class="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-              New Price: <span class="font-bold">€{{ product.new_price }}</span>
-            </p>
-            <p v-if="product.price_drop" class="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-              Price dropped:
-              <span class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
-                - €{{ product.price_drop }}
-              </span>
-            </p>
+            <div class="mt-4 flex items-end justify-between">
+                <div>
+                    <p v-if="product.old_price" class="text-sm text-gray-500 line-through dark:text-gray-400">€{{ product.old_price }}</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">€{{ product.new_price || product.price }}</p>
+                </div>
+                
+                <a :href="`/products/${product.asin}`" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                    </svg>
+                    <span class="sr-only">Vedi dettagli</span>
+                </a>
+            </div>
 
-            <!-- Coupon -->
-            <p
-              v-if="product.coupon && product.coupon_value"
-              class="mt-2 text-sm font-medium text-green-600 dark:text-green-400"
-            >
-              Coupon disponibile:
-              <span
-                class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
-              >
-                -€{{ product.coupon_value }}
-              </span>
-            </p>
+            <!-- ✅ COUPON -->
+            <div v-if="product.coupon && product.coupon_value" class="mt-3 flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 p-2 rounded-lg border border-green-100 dark:border-green-800">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clip-rule="evenodd"></path><path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z"></path></svg>
+                Coupon: -€{{ product.coupon_value }}
+            </div>
           </div>
         </div>
       </div>

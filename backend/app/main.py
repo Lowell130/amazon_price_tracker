@@ -508,8 +508,8 @@ async def update_prices_manual():
 
 # Funzione per inviare email
 def send_email(to_email, product_title, old_price, new_price, asin):
-    sender_email = "blackfdayit@gmail.com"
-    sender_password = "zxbt cnqg ckqe tqbq"
+    sender_email = os.getenv("SENDER_EMAIL")
+    sender_password = os.getenv("SENDER_PASSWORD")
     subject = f"📉 Price Drop Alert: {product_title}"
 
     product_url = f"{BASE_URL}/products/{asin}"
