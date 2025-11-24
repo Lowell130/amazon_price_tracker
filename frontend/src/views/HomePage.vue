@@ -47,7 +47,7 @@ export default {
     HowItWorks,
     FeatureSection,
     HomePageSale,
-    TopMessage
+    // TopMessage
   },
 
 };
