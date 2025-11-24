@@ -6,6 +6,7 @@ import time
 import random
 import logging
 from urllib.parse import unquote, urlparse, parse_qs
+from fake_useragent import UserAgent
 
 # Configura il logging
 logging.basicConfig(level=logging.INFO)
@@ -50,7 +51,7 @@ def clean_price(price):
         return float(price)
     except ValueError:
         return None
-def fetch_product_data(url, max_retries=3, delay=2):
+def fetch_product_data(url, max_retries=5, initial_delay=2):
     """Esegue scraping del titolo, prezzo, immagine e rating del prodotto da un link Amazon."""
     logging.info(f"Inizio scraping per URL: {url}")
 
@@ -61,27 +62,59 @@ def fetch_product_data(url, max_retries=3, delay=2):
     
     logging.info(f"ASIN trovato: {asin}")
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
-        "Accept-Language": "it-IT,it;q=0.9"
-    }
+    ua = UserAgent()
+    session = requests.Session()
 
     for attempt in range(max_retries):
         try:
-            logging.info(f"Tentativo {attempt + 1} di richiesta HTTP...")
-            response = requests.get(url, headers=headers)
-            logging.info(f"Status code: {response.status_code}")
+            # Genera un User-Agent casuale per ogni tentativo
+            current_ua = ua.random
+            
+            headers = {
+                "User-Agent": current_ua,
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+                "Accept-Language": "it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Referer": "https://www.google.com/",
+                "DNT": "1",
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1",
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "cross-site",
+                "Sec-Fetch-User": "?1",
+                "Cache-Control": "max-age=0",
+            }
+
+            logging.info(f"Tentativo {attempt + 1}/{max_retries}...")
+            # logging.info(f"User-Agent: {current_ua}") 
+
+            response = session.get(url, headers=headers, timeout=15)
+            
             if response.status_code == 200:
+                logging.info(f"Successo! Status code: {response.status_code}")
                 break
-            elif attempt < max_retries - 1:
-                time.sleep(delay + random.uniform(0, 1))
+            elif response.status_code == 503:
+                logging.warning("Rilevato 503 Service Unavailable (possibile blocco temporaneo).")
             else:
-                raise Exception("Impossibile accedere al link Amazon dopo vari tentativi")
+                logging.warning(f"Status code non valido: {response.status_code}")
+
+            if attempt < max_retries - 1:
+                # Exponential backoff con jitter: 2s, 4s, 8s, 16s... + random
+                sleep_time = initial_delay * (2 ** attempt) + random.uniform(1, 3)
+                logging.info(f"Attesa di {sleep_time:.2f} secondi prima del prossimo tentativo...")
+                time.sleep(sleep_time)
+            else:
+                raise Exception(f"Impossibile accedere al link Amazon dopo {max_retries} tentativi. Status: {response.status_code}")
+
         except requests.exceptions.RequestException as e:
             logging.error(f"Errore di rete: {e}")
             if attempt == max_retries - 1:
-                raise Exception(f"Errore di rete durante l'accesso al link Amazon: {e}")
-            time.sleep(delay + random.uniform(0, 1))
+                raise Exception(f"Errore di rete critico: {e}")
+            
+            sleep_time = initial_delay * (2 ** attempt) + random.uniform(1, 3)
+            logging.info(f"Attesa di {sleep_time:.2f} secondi dopo errore di rete...")
+            time.sleep(sleep_time)
 
     soup = BeautifulSoup(response.content, "html.parser")
     main_container = soup.find("div", {"id": "dp"})
