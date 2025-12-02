@@ -281,7 +281,7 @@ export default {
     async getUsername() {
       try {
         const response = await fetchWithToken(
-          `${process.env.VUE_APP_API_BASE_URL}/users/me`,
+          `${process.env.VUE_APP_API_BASE_URL}/auth/users/me`,
           { method: "GET" }
         );
 
@@ -308,9 +308,12 @@ export default {
 
     // Funzione per bonificare il link Amazon
     cleanAmazonUrl(url) {
-      // Rimuovi i backslash di escape davanti a '/'
+      // Regex più robusta per catturare l'URL fino all'ASIN
+      // Supporta /dp/ e /gp/product/
+      // Supporta con o senza slug (titolo)
+      // Supporta http e https, con o senza www
       const match = url.match(
-        /(https:\/\/www\.amazon\.[a-z.]+\/[^/]+\/dp\/[A-Z0-9]+)/
+        /(https?:\/\/(?:www\.)?amazon\.[a-z.]+(?:\/.*)?\/(?:dp|gp\/product)\/[A-Z0-9]{10})/
       );
       return match ? match[0] : url;
     },

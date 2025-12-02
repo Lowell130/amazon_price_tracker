@@ -45,7 +45,7 @@ export default {
   methods: {
     async requestPasswordReset() {
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/request-password-reset`, {
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/auth/request-password-reset`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: this.email })

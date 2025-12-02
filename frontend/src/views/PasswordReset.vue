@@ -62,7 +62,7 @@ export default {
   methods: {
     async resetPassword() {
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/reset-password`, {
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/auth/reset-password`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: this.token, new_password: this.newPassword })

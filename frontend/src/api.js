@@ -14,7 +14,7 @@ export async function fetchWithToken(url, options = {}) {
   if (response.status === 401) {
     try {
       // Prova a ottenere un nuovo access token tramite refresh token
-      const refreshResponse = await fetch(`${process.env.VUE_APP_API_BASE_URL}/refresh-token`, {
+      const refreshResponse = await fetch(`${process.env.VUE_APP_API_BASE_URL}/auth/refresh-token`, {
         method: "POST",
         credentials: "include",  // Questo include i cookie per il refresh token
       });

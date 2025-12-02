@@ -9,6 +9,7 @@ import ProductDetail from "../views/ProductDetail.vue";
 import SearchResults from "../views/SearchResults.vue"; // 🔥 Nuova pagina per la ricerca
 import PasswordResetRequest from "../views/PasswordResetRequest.vue";
 import PasswordReset from "../views/PasswordReset.vue";
+import AdminUsersPage from "../views/AdminUsersPage.vue";
 
 const routes = [
   { path: "/", name: "Home", component: HomePage },
@@ -16,10 +17,11 @@ const routes = [
   { path: "/login", name: "Login", component: LoginPage },
   { path: "/dashboard", name: "Dashboard", component: DashboardPage, meta: { requiresAuth: true } },
   { path: "/profile", name: "Profile", component: ProfilePage, meta: { requiresAuth: true } },
-  { path: "/products/:asin", name: "ProductDetail", component: ProductDetail }, // 🔥 RESO PUBBLICO
-  { path: "/search", name: "SearchResults", component: SearchResults }, // 🔥 Nuova route per la ricerca dei prodotti
+  { path: "/products/:asin", name: "ProductDetail", component: ProductDetail },
+  { path: "/search", name: "SearchResults", component: SearchResults },
   { path: "/password-reset-request", name: "PasswordResetRequest", component: PasswordResetRequest },
   { path: "/reset-password", name: "ResetPassword", component: PasswordReset },
+  { path: "/admin/users", name: "AdminUsers", component: AdminUsersPage, meta: { requiresAuth: true, requiresAdmin: true } },
 ];
 
 const router = createRouter({
@@ -39,7 +41,15 @@ router.beforeEach((to, from, next) => {
         const decoded = jwtDecode(token);
         const now = Math.floor(Date.now() / 1000);
         if (decoded.exp > now) {
-          next();
+          if (to.matched.some((record) => record.meta.requiresAdmin)) {
+            if (decoded.admin) {
+              next();
+            } else {
+              next("/"); // Redirect non-admins to home
+            }
+          } else {
+            next();
+          }
         } else {
           localStorage.removeItem("token");
           next("/login");
@@ -50,7 +60,7 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
-    next(); // 🔥 Ora le pagine pubbliche possono essere visitate senza login
+    next();
   }
 });
 

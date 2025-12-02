@@ -80,7 +80,7 @@ export default {
     async getUserInfo() {
   try {
     const response = await fetchWithToken(
-      `${process.env.VUE_APP_API_BASE_URL}/users/me`,
+      `${process.env.VUE_APP_API_BASE_URL}/auth/users/me`,
       { method: "GET" }
     );
 

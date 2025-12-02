@@ -51,6 +51,7 @@
             <router-link v-if="!isAuthenticated" to="/login" class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">Login</router-link>
             <router-link v-if="isAuthenticated" to="/dashboard" class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">Dashboard</router-link>
             <router-link v-if="isAuthenticated" to="/profile" class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">Profile</router-link>
+            <router-link v-if="isAuthenticated && isAdmin" to="/admin/users" class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500">Admin</router-link>
             <button class="block py-2 px-3 text-black rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-black md:dark:text-blue-500" v-if="isAuthenticated" @click="logout">Logout</button>
           </ul>
         </div>
@@ -59,11 +60,8 @@
   </header>
 </template>
 
-
 <script>
- import { jwtDecode } from 'jwt-decode' // Importazione specifica
- import { onMounted } from 'vue'
-//  import ThemeToggle from '../ThemeToggle.vue';
+import { jwtDecode } from 'jwt-decode'
 import { 
     initAccordions, 
     initCarousels, 
@@ -76,20 +74,29 @@ import {
     initPopovers, 
     initTabs, 
     initTooltips } from 'flowbite'
+
 export default {
- 
+    name: "HeaderTemplate",
     data() {
       return {
-        isAuthenticated: false, // Stato iniziale dell'autenticazione
-        isBannerVisible: true, // Inizialmente il banner è visibile
+        isAuthenticated: false,
+        isAdmin: false,
+        isBannerVisible: true,
       };
     },
-    // components: {
-    //   ThemeToggle
-    // },
-    
     mounted() {
       this.checkAuth();
+      initAccordions();
+      initCarousels();
+      initCollapses();
+      initDials();
+      initDismisses();
+      initDrawers();
+      initDropdowns();
+      initModals();
+      initPopovers();
+      initTabs();
+      initTooltips();
     },
     watch: {
       "$route"() {
@@ -102,41 +109,31 @@ export default {
         if (token) {
           try {
             const decoded = jwtDecode(token);
-            const now = Math.floor(Date.now() / 1000); // Tempo attuale in secondi
+            const now = Math.floor(Date.now() / 1000);
             if (decoded.exp > now) {
-              this.isAuthenticated = true; // Token valido
+              this.isAuthenticated = true;
+              this.isAdmin = decoded.admin || false;
             } else {
-              this.logout(); // Token scaduto
+              this.logout();
             }
           } catch (error) {
             console.error("Errore nella decodifica del token:", error);
-            this.logout(); // Token non valido
+            this.logout();
           }
         } else {
-          this.isAuthenticated = false; // Nessun token presente
+          this.isAuthenticated = false;
+          this.isAdmin = false;
         }
       },
       logout() {
-        localStorage.removeItem("token"); // Rimuove il token
-        this.isAuthenticated = false; // Aggiorna lo stato
-        this.$router.push("/login"); // Reindirizza al login
+        localStorage.removeItem("token");
+        this.isAuthenticated = false;
+        this.isAdmin = false;
+        this.$router.push("/login");
       },
       closeBanner() {
-      this.isBannerVisible = false;
+        this.isBannerVisible = false;
+      },
     },
-    },
-  };
-  onMounted(() => {
-      initAccordions();
-      initCarousels();
-      initCollapses();
-      initDials();
-      initDismisses();
-      initDrawers();
-      initDropdowns();
-      initModals();
-      initPopovers();
-      initTabs();
-      initTooltips();
-  })
-  </script>
+};
+</script>
