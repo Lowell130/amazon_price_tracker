@@ -1,5 +1,5 @@
-from fastapi import APIRouter, HTTPException, Query
-from app.db import public_alerts_collection, users_collection
+from fastapi import APIRouter, HTTPException, Query, Depends
+from app.db import get_public_alerts_collection, get_users_collection
 from app.schemas import GuestAlertSubscription
 from datetime import datetime
 import re
@@ -7,7 +7,7 @@ import re
 router = APIRouter(prefix="/api/public", tags=["public"])
 
 @router.post("/subscribe-alert")
-async def subscribe_to_price_alert(data: GuestAlertSubscription):
+async def subscribe_to_price_alert(data: GuestAlertSubscription, public_alerts_collection = Depends(get_public_alerts_collection)):
     existing = public_alerts_collection.find_one({"email": data.email, "asin": data.asin})
     if existing:
         return {"message": "Hai già richiesto un avviso per questo prodotto."}
@@ -23,7 +23,7 @@ async def subscribe_to_price_alert(data: GuestAlertSubscription):
         raise HTTPException(status_code=500, detail="Errore interno del server.")
 
 @router.delete("/unsubscribe-alert")
-async def unsubscribe_alert(email: str = Query(...), asin: str = Query(...)):
+async def unsubscribe_alert(email: str = Query(...), asin: str = Query(...), public_alerts_collection = Depends(get_public_alerts_collection)):
     result = public_alerts_collection.delete_one({"email": email, "asin": asin})
     if result.deleted_count == 1:
         return {"message": "Sottoscrizione cancellata con successo."}
@@ -31,12 +31,12 @@ async def unsubscribe_alert(email: str = Query(...), asin: str = Query(...)):
         raise HTTPException(status_code=404, detail="Nessuna sottoscrizione trovata.")
 
 @router.get("/check-subscription")
-async def check_subscription(email: str = Query(...), asin: str = Query(...)):
+async def check_subscription(email: str = Query(...), asin: str = Query(...), public_alerts_collection = Depends(get_public_alerts_collection)):
     exists = public_alerts_collection.find_one({"email": email, "asin": asin})
     return {"subscribed": bool(exists)}
 
 @router.get("/search-products")
-async def search_products(title: str = Query(..., min_length=2)):
+async def search_products(title: str = Query(..., min_length=2), users_collection = Depends(get_users_collection)):
     try:
         words = title.lower().split()
         regex_conditions = [{"$regexMatch": {"input": "$$product.title", "regex": rf"\b{word}\b", "options": "i"}} for word in words]
@@ -78,19 +78,26 @@ async def search_products(title: str = Query(..., min_length=2)):
         raise HTTPException(status_code=500, detail=f"Errore nella ricerca: {str(e)}")
 
 @router.get("/product-details/{asin}")
-async def public_product_details(asin: str):
-    product = users_collection.find_one({"products.asin": asin}, {"products.$": 1})
+async def public_product_details(asin: str, users_collection = Depends(get_users_collection)):
+    product_doc = users_collection.find_one({"products.asin": asin}, {"products.$": 1})
     
-    if not product or "products" not in product:
+    if not product_doc or "products" not in product_doc:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    return product["products"][0]
+    product = product_doc["products"][0]
+    
+    # Override affiliate link with current tag
+    from app.config import AFFILIATE_TAG
+    product["affiliate"] = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
+    
+    return product
 
 @router.get("/price-drops")
 async def get_price_drops(
     category: str = None,
     limit: int = Query(64, ge=1, le=100),
-    skip: int = Query(0, ge=0)
+    skip: int = Query(0, ge=0),
+    users_collection = Depends(get_users_collection)
 ):
     try:
         price_drops_collection = users_collection.database["price_drops"]
@@ -109,6 +116,13 @@ async def get_price_drops(
 
         total_drops = len(drops)
         drops = drops[skip : skip + limit]
+
+        # Ensure all drops have the correct affiliate link
+        from app.config import AFFILIATE_TAG
+        for drop in drops:
+            asin = drop.get("asin")
+            if asin:
+                drop["affiliate"] = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
 
         return {
             "total_drops": total_drops,

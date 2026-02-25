@@ -1,137 +1,177 @@
 <template>
-  <section class="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
-    <div class="max-w-screen-xl px-4 mx-auto 2xl:px-0">
-      <div class="lg:grid lg:grid-cols-2 lg:gap-12 xl:gap-16">
+  <section class="relative overflow-hidden bg-white dark:bg-gray-900 antialiased rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 backdrop-blur-md bg-opacity-80 dark:bg-opacity-80 transition-all duration-300">
+    <!-- Decoro Sfondo (Subtle Glows) -->
+    <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-screen-xl px-6 py-10 mx-auto lg:py-16">
+      <div class="lg:grid lg:grid-cols-12 lg:gap-12 items-start">
         
-        <!-- Immagine -->
-        <div class="shrink-0 max-w-md lg:max-w-lg mx-auto w-full">
-          <div class="relative p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 flex items-center justify-center h-[400px]">
+        <!-- Colonna Immagine -->
+        <div class="lg:col-span-5 xl:col-span-5">
+          <div class="relative group p-6 bg-gradient-to-tr from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-inner border border-gray-100 dark:border-gray-700 flex items-center justify-center min-h-[400px] overflow-hidden">
             <img
-              class="w-full h-full object-contain dark:hidden transform hover:scale-105 transition-transform duration-500"
-              :src="product.image_url"
-              :alt="product.title"
-            />
-            <img
-              class="w-full h-full object-contain hidden dark:block transform hover:scale-105 transition-transform duration-500"
+              class="w-full h-full max-h-[350px] object-contain transform group-hover:scale-110 transition-transform duration-700 ease-out"
               :src="product.image_url"
               :alt="product.title"
             />
             
-            <!-- Badge Condizione -->
-            <div class="absolute top-4 left-4">
-               <span v-if="product.condition === 'Nuovo'"
-                class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1.5 rounded-full dark:bg-green-900 dark:text-green-300 shadow-sm">
+            <!-- Badge Condizione Premium -->
+            <div class="absolute top-6 left-6">
+               <div v-if="product.condition === 'Nuovo'"
+                class="flex items-center gap-1.5 bg-emerald-500 text-white text-[10px] uppercase tracking-widest font-black px-4 py-1.5 rounded-full shadow-lg shadow-emerald-500/30">
+                <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
                 Nuovo
-              </span>
-              <span v-else-if="product.condition === 'Usato'"
-                class="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300 shadow-sm">
+              </div>
+              <div v-else-if="product.condition === 'Usato'"
+                class="flex items-center gap-1.5 bg-amber-500 text-white text-[10px] uppercase tracking-widest font-black px-4 py-1.5 rounded-full shadow-lg shadow-amber-500/30">
                 Usato
-              </span>
-              <span v-else
-                class="bg-red-100 text-red-800 text-xs font-bold px-3 py-1.5 rounded-full dark:bg-red-900 dark:text-red-300 shadow-sm">
-                Non disponibile
-              </span>
+              </div>
+              <div v-else
+                class="bg-rose-500 text-white text-[10px] uppercase tracking-widest font-black px-4 py-1.5 rounded-full shadow-lg shadow-rose-500/30">
+                N/A
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Dettagli -->
-        <div class="mt-8 lg:mt-0 lg:pr-6">
-          <h1 class="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white mb-4 leading-tight">
+        <!-- Colonna Informazioni -->
+        <div class="mt-10 lg:mt-0 lg:col-span-7 xl:col-span-7 flex flex-col justify-center">
+          <!-- Header info -->
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/40 px-3 py-1 rounded-lg">
+              {{ product.category }}
+            </span>
+            <span class="text-xs font-mono text-gray-400 dark:text-gray-500">
+              ASIN: {{ product.asin }}
+            </span>
+          </div>
+
+          <h1 class="text-3xl font-black text-gray-900 lg:text-4xl dark:text-white mb-6 leading-[1.15] tracking-tight">
             {{ product.title }}
           </h1>
 
-          <div class="flex items-center gap-4 mb-6">
-             <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                {{ product.category }}
-             </span>
-             <span class="text-gray-500 text-sm dark:text-gray-400">ASIN: {{ product.asin }}</span>
-          </div>
+          <!-- Card Prezzo Dinamica -->
+          <div class="relative p-6 mb-8 bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-3xl overflow-hidden group">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Prezzo Attuale</p>
+                <div class="flex items-end gap-3 flex-wrap">
+                    <p v-if="product.availability !== 'Non disponibile'" class="text-5xl font-black text-gray-900 dark:text-white tracking-tighter">
+                        {{ product.price }}<span class="text-2xl ml-0.5">€</span>
+                    </p>
+                    <p v-else class="text-5xl font-black text-gray-900 dark:text-white tracking-tighter">
+                        N/A
+                    </p>
+                    
+                    <!-- Coupon High Visibility -->
+                    <div v-if="product.coupon_value" class="mb-1 pointer-events-none select-none">
+                      <div class="relative flex items-center bg-emerald-50 border border-emerald-200 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-700 dark:text-emerald-400 px-4 py-1.5 rounded-xl font-bold text-sm shadow-sm group-hover:scale-105 transition-transform duration-300">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clip-rule="evenodd"></path><path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z"></path></svg>
+                        COUPON -€{{ product.coupon_value }}
+                      </div>
+                    </div>
+                </div>
+                <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-4 uppercase tracking-[0.2em] font-medium">Aggiornato il {{ formatDate(product.insertion_date) }}</p>
+              </div>
 
-          <!-- Prezzo -->
-           <div class="lg:pr-6">
-          <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Prezzo Attuale</p>
-            <div class="flex items-end gap-3">
-                <p v-if="product.availability !== 'Non disponibile'" class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                    {{ product.price }}€
-                </p>
-                <p v-else class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                    N/A
-                </p>
-                
-                <!-- Coupon -->
-                <span v-if="product.coupon_value" class="mb-1 bg-green-100 text-green-800 text-sm font-bold px-3 py-1 rounded-full dark:bg-green-900 dark:text-green-300 flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clip-rule="evenodd"></path><path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z"></path></svg>
-                    -€{{ product.coupon_value }}
-                </span>
+              <!-- Rating / Altri info? (Placeholders for rich details) -->
+              <div v-if="product.rating" class="flex flex-col items-end">
+                <div class="flex items-center gap-1 text-amber-400">
+                  <svg v-for="i in 5" :key="i" class="w-4 h-4" :fill="i <= Math.round(product.rating) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.783.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                </div>
+                <span class="text-xs text-gray-400 mt-1">{{ product.review_count || 0 }} recensioni</span>
+              </div>
             </div>
-            <p class="text-xs text-gray-500 mt-2">Rilevato il: {{ formatDate(product.insertion_date) }}</p>
           </div>
 
-          <!-- Azioni -->
-          <div class="flex flex-col sm:flex-row gap-4">
+          <!-- Pulsanti d'Azione -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <a :href="product.affiliate" target="_blank"
-              class="flex-1 flex items-center justify-center text-white bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 focus:ring-4 focus:ring-yellow-300 font-bold rounded-xl text-lg px-6 py-4 transition-all transform hover:-translate-y-1 shadow-lg shadow-orange-500/30">
-              Vedi su Amazon
-              <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              class="relative overflow-hidden group flex items-center justify-center text-white bg-slate-900 dark:bg-blue-600 font-black rounded-2xl text-base px-8 py-5 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
+              <span class="flex items-center relative z-10 uppercase tracking-widest text-sm">
+                Acquista ora
+                <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+              </span>
+              <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </a>
             
             <button @click="showModal = true"
-              class="flex-1 flex items-center justify-center text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 focus:ring-4 focus:ring-blue-100 font-bold rounded-xl text-lg px-6 py-4 transition-all dark:bg-gray-800 dark:text-blue-400 dark:border-gray-700 dark:hover:bg-gray-700">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-              Avvisami quando scende
+              class="flex items-center justify-center text-gray-800 dark:text-white bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 font-bold rounded-2xl text-base px-8 py-5 transition-all hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 shadow-lg shadow-gray-200/20 dark:shadow-none hover:-translate-y-1">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+              <span class="uppercase tracking-widest text-sm">Pianifica avviso</span>
             </button>
           </div>
-</div>
         </div>
       </div>
     </div>
 
-    <!-- Modale -->
-    <div v-if="showModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl w-full max-w-md relative shadow-2xl border border-gray-100 dark:border-gray-700 transform transition-all scale-100">
-        <!-- Chiudi -->
-        <button @click="showModal = false"
-          class="absolute top-4 right-4 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
+    <!-- Modale Glassmorphism -->
+    <Teleport to="body">
+      <div v-if="showModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/40 backdrop-blur-xl px-4 p-6 overflow-y-auto">
+        <div class="bg-white/95 dark:bg-gray-900/95 p-8 md:p-12 rounded-[2.5rem] w-full max-w-lg relative shadow-[0_35px_100px_-15px_rgba(0,0,0,0.3)] border border-white/20 dark:border-gray-700 transform transition-all duration-500 ease-out scale-100"
+             @click.stop>
+          
+          <!-- Chiudi -->
+          <button @click="showModal = false"
+            class="absolute top-6 right-6 p-2 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
 
-        <div class="text-center mb-6">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 mb-4">
-                <svg class="h-6 w-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+          <div class="text-center mb-10">
+              <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-3xl bg-blue-600 text-white shadow-xl shadow-blue-500/30 mb-8 rotate-3 hover:rotate-0 transition-transform duration-500">
+                  <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+              </div>
+              <h3 class="text-3xl font-black text-gray-900 dark:text-white leading-tight">
+              Monitoraggio Prezzi
+              </h3>
+              <p class="text-gray-500 dark:text-gray-400 mt-4 text-base font-medium px-4">
+              Ricevi una notifica istantanea appena il prezzo scende sotto la tua soglia desiderata.
+              </p>
+          </div>
+
+          <div class="space-y-6">
+            <div class="relative group">
+              <input v-model="email" type="email" placeholder="Inserisci la tua email..."
+                class="w-full pl-6 pr-6 py-5 bg-gray-50 dark:bg-gray-800/50 border-2 border-gray-100 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none focus:border-blue-500 transition-all duration-300" />
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
-            Avvisi di Prezzo
-            </h3>
-            <p class="text-gray-500 dark:text-gray-400 mt-2">
-            Non perderti l'affare. Ti invieremo una mail appena il prezzo scende.
-            </p>
-        </div>
 
-        <input v-model="email" type="email" placeholder="latua@email.com"
-          class="w-full p-4 mb-4 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 transition-all" />
+            <div class="flex flex-col gap-4">
+              <button @click="subscribeToPriceDrop"
+                class="w-full py-5 text-sm font-black uppercase tracking-[0.2em] text-white bg-blue-600 hover:bg-blue-700 rounded-2xl shadow-xl shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center"
+                :disabled="isLoading">
+                <span v-if="!isLoading">Attiva Monitoraggio</span>
+                <span v-else class="flex items-center">
+                  <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24 text-white"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                  Elaborazione...
+                </span>
+              </button>
+              
+              <button @click="unsubscribeFromPriceDrop"
+                class="w-full py-4 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-rose-500 transition-colors"
+                :disabled="isLoading">
+                Rimuovi iscrizione precedente
+              </button>
+            </div>
 
-        <div class="flex flex-col gap-3">
-          <button @click="subscribeToPriceDrop"
-            class="w-full px-4 py-3.5 text-base font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5"
-            :disabled="isLoading">
-            {{ isLoading ? 'Attendi...' : 'Iscriviti agli Avvisi' }}
-          </button>
-          <button @click="unsubscribeFromPriceDrop"
-            class="w-full px-4 py-3.5 text-base font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
-            :disabled="isLoading">
-            Disiscriviti
-          </button>
-        </div>
-
-        <div class="mt-4 text-center">
-          <p v-if="successMessage" class="text-green-500 font-medium bg-green-50 dark:bg-green-900/30 p-2 rounded-lg">{{ successMessage }}</p>
-          <p v-if="errorMessage" class="text-red-500 font-medium bg-red-50 dark:bg-red-900/30 p-2 rounded-lg">{{ errorMessage }}</p>
+            <!-- Feedback Mesages -->
+            <transition name="fade">
+              <div class="mt-4">
+                <div v-if="successMessage" class="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/30 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-sm font-bold">
+                  <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                  {{ successMessage }}
+                </div>
+                <div v-if="errorMessage" class="flex items-center gap-3 bg-rose-50 dark:bg-rose-900/30 p-5 rounded-2xl border border-rose-100 dark:border-rose-800 text-rose-700 dark:text-rose-400 text-sm font-bold">
+                  <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                  {{ errorMessage }}
+                </div>
+              </div>
+            </transition>
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
   </section>
 </template>
 

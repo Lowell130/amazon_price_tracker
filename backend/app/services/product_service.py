@@ -1,4 +1,3 @@
-from app.db import users_collection
 from app.scraper import fetch_product_data
 from app.utils.email import send_email
 from datetime import datetime
@@ -8,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-def update_prices(user_filter=None, asin_filter=None):
+def update_prices(users_collection, user_filter=None, asin_filter=None):
     query = {"username": user_filter} if user_filter else {}
     users = users_collection.find(query)
     updated_products = []
@@ -38,7 +37,40 @@ def update_prices(user_filter=None, asin_filter=None):
                 if product.get("is_favorite", False) and old_price and new_price < old_price:
                     logger.info(f"Price drop detected for {product['title']}. Sending email.")
                     send_email(email, product["title"], old_price, new_price, product["asin"])
-
+                    
+                    # Notifica Telegram
+                    if user.get("telegram_chat_id"):
+                        try:
+                            from telegram import Bot
+                            from app.config import TEL_TOKEN
+                            if TEL_TOKEN:
+                                bot = Bot(token=TEL_TOKEN)
+                                message = (
+                                    f"📉 *{product.get('title', 'Prodotto')}*\n"
+                                    f"🔻 *Prezzo:* {new_price}€ (era {old_price}€)\n"
+                                    f"🔗 [Link Amazon]({product.get('affiliate', product['product_url'])})"
+                                )
+                                # Nota: in un contesto sincrono come questo loop, la chiamata async a send_message
+                                # richiede gestione. Tuttavia, python-telegram-bot v20+ è async.
+                                # Per semplicità qui, useremo requests se non siamo in un loop async,
+                                # oppure dobbiamo rendere update_prices async.
+                                # Dato che update_prices è chiamata dallo scheduler (thread) e dai router (async),
+                                # la soluzione più semplice e robusta qui, senza riscrivere tutto async,
+                                # è usare requests per la chiamata diretta alle API di Telegram.
+                                import requests
+                                requests.post(
+                                    f"https://api.telegram.org/bot{TEL_TOKEN}/sendMessage",
+                                    data={
+                                        "chat_id": user["telegram_chat_id"],
+                                        "text": message,
+                                        "parse_mode": "Markdown",
+                                        "disable_web_page_preview": True
+                                    },
+                                    timeout=10
+                                )
+                                logger.info(f"Telegram notification sent to {user['username']}")
+                        except Exception as e:
+                            logger.error(f"Error sending Telegram notification: {e}")
 
                 product["price_history"].append({"date": datetime.now().isoformat(), "price": new_price})
                 product["price"] = new_price

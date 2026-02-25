@@ -72,6 +72,15 @@
 
             <!-- General Actions -->
             <button
+              @click="connectTelegram"
+              class="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 mb-3"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              Connect Telegram
+            </button>
+            <button
               @click="logout"
               class="w-full flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
             >
@@ -157,6 +166,27 @@ export default {
     logout() {
       localStorage.removeItem("token");
       this.$router.push("/login");
+    },
+    async connectTelegram() {
+      try {
+        const response = await fetchWithToken(
+          `${process.env.VUE_APP_API_BASE_URL}/auth/connect-telegram`,
+          { method: "POST" }
+        );
+
+        if (!response.ok) {
+          throw new Error("Errore nel recupero del link Telegram");
+        }
+
+        const data = await response.json();
+        // Redirect utente al bot oppure mostra un alert con il link
+        if (confirm(`Clicca OK per aprire Telegram e collegare il tuo account.\n\nLink: ${data.telegram_link}`)) {
+             window.open(data.telegram_link, '_blank');
+        }
+      } catch (error) {
+        console.error("Errore collegamento Telegram:", error);
+        alert("Impossibile generare il link Telegram.");
+      }
     }
   },
 };

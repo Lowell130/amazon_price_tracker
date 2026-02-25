@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.config import SECRET_KEY
-from app.db import users_collection
+from app.db import get_users_collection
 import jwt
 import random
 import string
@@ -39,7 +39,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-def admin_required(current_user: str = Depends(get_current_user)):
+def admin_required(current_user: str = Depends(get_current_user), users_collection = Depends(get_users_collection)):
     user = users_collection.find_one({"username": current_user})
     if not user or not user.get("admin", False):
         raise HTTPException(

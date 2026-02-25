@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.dependencies import admin_required, password_reset_tokens, generate_reset_token
-from app.db import users_collection
+from app.db import get_users_collection, get_db
 from app.services.product_service import update_prices
 from app.utils.email import send_email
 from datetime import datetime, timedelta
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(ad
 logger = logging.getLogger(__name__)
 
 @router.get("/users")
-async def get_all_users():
+async def get_all_users(users_collection = Depends(get_users_collection)):
     users_cursor = users_collection.find({})
     users_list = []
     for user in users_cursor:
@@ -25,14 +25,14 @@ async def get_all_users():
     return users_list
 
 @router.delete("/users/{username}")
-async def delete_user(username: str):
+async def delete_user(username: str, users_collection = Depends(get_users_collection)):
     result = users_collection.delete_one({"username": username})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": f"User {username} deleted successfully"}
 
 @router.patch("/users/{username}/toggle-admin")
-async def toggle_admin(username: str):
+async def toggle_admin(username: str, users_collection = Depends(get_users_collection)):
     user = users_collection.find_one({"username": username})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -42,14 +42,14 @@ async def toggle_admin(username: str):
     return {"message": f"Admin status for {username} set to {new_status}", "admin": new_status}
 
 @router.get("/users/{username}/products")
-async def get_user_products(username: str):
+async def get_user_products(username: str, users_collection = Depends(get_users_collection)):
     user = users_collection.find_one({"username": username})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user.get("products", [])
 
 @router.post("/users/{username}/reset-password")
-async def admin_reset_password(username: str):
+async def admin_reset_password(username: str, users_collection = Depends(get_users_collection)):
     user = users_collection.find_one({"username": username})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -79,7 +79,7 @@ async def admin_reset_password(username: str):
     return {"message": f"Password reset email sent to {email}"}
 
 @router.post("/generate-price-drops-report")
-async def generate_price_drops_report():
+async def generate_price_drops_report(users_collection = Depends(get_users_collection)):
     try:
         price_drops_collection = users_collection.database["price_drops"]
         price_drops_collection.delete_many({})
@@ -131,10 +131,10 @@ async def generate_price_drops_report():
         raise HTTPException(status_code=500, detail=f"Error generating report: {str(e)}")
 
 @router.post("/update-all-prices")
-async def update_all_prices_manual():
+async def update_all_prices_manual(users_collection = Depends(get_users_collection)):
     """Aggiorna manualmente i prezzi di **tutti** i prodotti nel database."""
     try:
-        updated_products = update_prices(user_filter=None)  
+        updated_products = update_prices(users_collection, user_filter=None)  
         return {
             "message": "Manual price update for all products completed",
             "updated_products_count": len(updated_products),

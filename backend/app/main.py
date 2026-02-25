@@ -15,8 +15,20 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+from app.scheduler import start_scheduler, shutdown_scheduler
+from app.telegram_bot import start_bot, stop_bot
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    start_scheduler()
+    await start_bot()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    shutdown_scheduler()
+    await stop_bot()
 
 origins = [
     "http://localhost:8080",

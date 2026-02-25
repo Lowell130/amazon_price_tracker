@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.schemas import User, UserLogin, PasswordResetRequest, ResetPasswordRequest
 from app.dependencies import get_current_user, oauth2_scheme, password_reset_tokens, generate_reset_token
-from app.db import users_collection
+from app.db import get_users_collection, get_db
 from app.config import SECRET_KEY
 from app.utils.email import send_email
 import bcrypt
@@ -27,7 +27,7 @@ def validate_password(password: str) -> bool:
     return True
 
 @router.post("/register")
-async def register(user: User):
+async def register(user: User, users_collection = Depends(get_users_collection)):
     if users_collection.find_one({"username": user.username}):
         raise HTTPException(status_code=400, detail="Username already exists")
 
@@ -53,7 +53,7 @@ async def register(user: User):
     return {"message": "User registered successfully"}
 
 @router.post("/login")
-async def login(user: UserLogin):
+async def login(user: UserLogin, users_collection = Depends(get_users_collection)):
     db_user = users_collection.find_one(
         {"$or": [{"username": user.login}, {"email": user.login}]}
     )
@@ -87,7 +87,7 @@ async def refresh_token(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=401, detail="Token scaduto")
 
 @router.post("/request-password-reset")
-async def request_password_reset(request: PasswordResetRequest):
+async def request_password_reset(request: PasswordResetRequest, users_collection = Depends(get_users_collection)):
     user = users_collection.find_one({"email": request.email})
     if not user:
         raise HTTPException(status_code=404, detail="Email not found")
@@ -112,7 +112,7 @@ async def request_password_reset(request: PasswordResetRequest):
     return {"message": "Password reset email sent"}
 
 @router.post("/reset-password")
-async def reset_password(request: ResetPasswordRequest):
+async def reset_password(request: ResetPasswordRequest, users_collection = Depends(get_users_collection)):
     token = request.token
     new_password = request.new_password
 
@@ -136,7 +136,7 @@ async def reset_password(request: ResetPasswordRequest):
     return {"message": "Password reset successfully"}
 
 @router.get("/users/me")
-async def get_user_info(current_user: str = Depends(get_current_user)):
+async def get_user_info(current_user: str = Depends(get_current_user), users_collection = Depends(get_users_collection)):
     db_user = users_collection.find_one({"username": current_user})
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -148,3 +148,22 @@ async def get_user_info(current_user: str = Depends(get_current_user)):
         "products_count": len(db_user.get("products", []))
     }
 
+
+@router.post("/connect-telegram")
+async def connect_telegram(current_user: str = Depends(get_current_user), db = Depends(get_db)):
+    """Genera un codice univoco per collegare Telegram."""
+    import secrets
+    token = secrets.token_hex(4)  # Genera un token di 8 caratteri
+    
+    # Salva il token nel DB (collezione temporanea)
+    db.telegram_tokens.insert_one({
+        "token": token,
+        "username": current_user,
+        "created_at": datetime.utcnow()
+    })
+    
+    # Crea il link per il bot
+    from app.config import TELEGRAM_BOT_USERNAME
+    telegram_link = f"https://t.me/{TELEGRAM_BOT_USERNAME}?start={token}"
+    
+    return {"telegram_link": telegram_link, "token": token}

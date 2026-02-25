@@ -122,35 +122,72 @@ export default {
           type: "area",
           height: "100%",
           fontFamily: "Inter, sans-serif",
-          toolbar: { show: true },
-          zoom: { enabled: false }, // Disabilita lo zoom
+          toolbar: { show: false },
+          zoom: { enabled: false },
+          sparkline: { enabled: false }
         },
-        tooltip: { enabled: true, x: { show: false } },
+        tooltip: {
+          enabled: true,
+          theme: 'dark',
+          x: { show: true, format: 'dd MMM' },
+          style: { fontSize: '12px' },
+          custom: function({series, seriesIndex, dataPointIndex, w}) {
+            return '<div class="px-4 py-2 bg-slate-900 text-white border-blue-500 border-l-4 shadow-xl rounded-lg font-bold">' +
+              '<span class="text-[10px] text-gray-400 block uppercase tracking-widest mb-1">' + w.globals.categoryLabels[dataPointIndex] + '</span>' +
+              '<span class="text-lg">' + series[seriesIndex][dataPointIndex] + ' €</span>' +
+              '</div>'
+          }
+        },
         fill: {
           type: "gradient",
           gradient: {
-            opacityFrom: 0.55,
-            opacityTo: 0,
-            gradientToColors: ["#1C64F2"],
+            shadeIntensity: 1,
+            opacityFrom: 0.45,
+            opacityTo: 0.05,
+            stops: [20, 100],
+            gradientToColors: ["#3b82f6"],
           },
         },
+        markers: {
+          size: 0,
+          colors: ["#3b82f6"],
+          strokeColors: "#fff",
+          strokeWidth: 2,
+          hover: { size: 6 }
+        },
         dataLabels: { enabled: false },
-        stroke: { width: 6 },
-        grid: { show: false, strokeDashArray: 4, padding: { left: 10, right: 2, top: 0 } },
+        stroke: { curve: 'smooth', width: 4, lineCap: 'round' },
+        grid: {
+          show: true,
+          borderColor: 'rgba(156, 163, 175, 0.1)',
+          strokeDashArray: 4,
+          padding: { left: 10, right: 10, top: 0, bottom: 0 }
+        },
         series: [
           {
-            name: "Price",
+            name: "Prezzo",
             data: this.chartData.prices,
-            color: "#1A56DB",
+            color: "#3b82f6",
           },
         ],
         xaxis: {
           categories: this.chartData.dates,
-          labels: { show: false },
+          labels: {
+            show: true,
+            style: { colors: '#94a3b8', fontSize: '10px', fontWeight: 600 },
+            rotate: -45,
+            offsetY: 5
+          },
           axisBorder: { show: false },
           axisTicks: { show: false },
         },
-        yaxis: { show: true },
+        yaxis: {
+          labels: {
+            show: true,
+            style: { colors: '#94a3b8', fontSize: '10px', fontWeight: 600 },
+            formatter: (val) => val.toFixed(0) + '€'
+          }
+        },
       };
 
       this.chart = new ApexCharts(this.$refs.chartContainer, options);

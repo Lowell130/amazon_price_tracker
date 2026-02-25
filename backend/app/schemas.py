@@ -6,6 +6,7 @@ class User(BaseModel):
     username: str
     password: str
     email: Optional[str] = None
+    telegram_chat_id: Optional[str] = None
 
 class UserLogin(BaseModel):
     login: str
