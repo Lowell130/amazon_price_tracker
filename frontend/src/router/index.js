@@ -10,6 +10,7 @@ import SearchResults from "../views/SearchResults.vue"; // 🔥 Nuova pagina per
 import PasswordResetRequest from "../views/PasswordResetRequest.vue";
 import PasswordReset from "../views/PasswordReset.vue";
 import AdminUsersPage from "../views/AdminUsersPage.vue";
+import AnalysisPage from "../views/AnalysisPage.vue";
 
 const routes = [
   { path: "/", name: "Home", component: HomePage },
@@ -22,6 +23,7 @@ const routes = [
   { path: "/password-reset-request", name: "PasswordResetRequest", component: PasswordResetRequest },
   { path: "/reset-password", name: "ResetPassword", component: PasswordReset },
   { path: "/admin/users", name: "AdminUsers", component: AdminUsersPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: "/analysis", name: "Analysis", component: AnalysisPage, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({

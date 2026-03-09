@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-b-lg">
+  <div class="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden">
     <div class="flex justify-between">
       <div>
         <h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">
@@ -59,12 +59,7 @@
 
 
     </div>
-    <div ref="chartContainer" class="h-50 w-full"></div>
-    <div class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between">
-      <div class="flex justify-between items-center pt-5">
-        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Grafico storico prezzi</p>
-      </div>
-    </div>
+    <div ref="chartContainer" class="min-h-[280px] w-full"></div>
   </div>
 </template>
 
@@ -161,7 +156,7 @@ export default {
           show: true,
           borderColor: 'rgba(156, 163, 175, 0.1)',
           strokeDashArray: 4,
-          padding: { left: 10, right: 10, top: 0, bottom: 0 }
+          padding: { left: 10, right: 10, top: 0, bottom: 20 }
         },
         series: [
           {

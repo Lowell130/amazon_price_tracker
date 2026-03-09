@@ -1,128 +1,98 @@
 <template>
-  <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5 antialiased">
-    <div class="mx-auto max-w-screen-2xl px-4 lg:px-8">
-      <div
-        class="bg-white dark:bg-gray-800 relative shadow-md rounded-t-lg overflow-hidden"
-      >
-        <div class="flex-1 flex items-center space-x-2">
-          <span class="pl-5 pt-4 text-sm text-gray-900 dark:text-white"
-            >Hey: <span class="font-bold">{{ username }}</span></span
-          >
+  <section class="min-h-screen bg-gray-50 dark:bg-gray-900 pb-12 antialiased">
+    <div class="mx-auto max-w-screen-2xl px-4 lg:px-8 pt-4">
+      <!-- AI Insights Promo Banner -->
+      <div class="mb-8 p-6 rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-xl shadow-blue-500/20 relative overflow-hidden group animate-fadeIn">
+        <div class="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-1000"></div>
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+          <div class="flex items-center gap-6">
+            <div class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-3xl shadow-inner border border-white/20">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+              <h2 class="text-2xl font-black tracking-tighter mb-1">Analisi Prezzi AI</h2>
+              <p class="text-blue-100 font-medium text-sm">Scopri le previsioni di prezzo e ricevi consigli strategici personalizzati.</p>
+            </div>
+          </div>
+          <router-link to="/analysis" class="px-8 py-4 bg-white text-blue-600 font-black rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all uppercase tracking-widest text-xs">
+            Vedi Intuizioni AI
+          </router-link>
         </div>
+      </div>
 
-        <div
-          class="flex flex-col md:flex-row items-stretch md:items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4"
-        >
-         
-          <div class="">
-            <select
-              v-model="selectedCategory"
-              class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg p-2 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-              required
-            >
-              <option value="" disabled>Select a category</option>
-              <option
-                v-for="category in categories"
-                :key="category"
-                :value="category"
-              >
-                {{ category }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Campo di input fluido -->
-          <div class="flex-grow">
-            <input
-              v-model="productUrl"
-              type="text"
-              id="simple-search"
-              placeholder="Amazon product URL"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-              required
-            />
-          </div>
-
-          <!-- Pulsanti -->
-          <div
-            class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 w-full md:w-auto"
-          >
-            <button
-              @click="addProduct"
-              type="button"
-              class="flex items-center justify-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
-            >
-              <svg
-                class="h-5 w-5 mr-2 -ml-1"
-                fill="currentColor"
-                viewbox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                />
-              </svg>
-              Add product
-            </button>
-
+      <!-- Welcome & Action Bar -->
+      <div class="mb-8 p-6 rounded-3xl border border-white/20 bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl shadow-xl">
+        <div class="flex flex-col space-y-4">
+          <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+              <span class="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-xl mr-3">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </span>
+              Bentornato, <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 ml-2">{{ username }}</span>
+            </h1>
+            
             <button
               v-if="isAdmin"
               @click="openConfirmModal"
               :disabled="isLoading"
-              type="button"
-              class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white rounded-lg md:w-auto bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
+              class="hidden md:flex items-center px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50"
             >
-              <svg
-                class="w-5 h-5 mr-2 -ml-1 text-white dark:text-white"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"
-                />
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              Update all
+              Update all prices
             </button>
           </div>
-        </div>
 
-        <!-- <div>       
-          <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-          <div
-            v-if="isLoading"
-            role="status"
-            class="flex items-center justify-center mb-4"
-          >
-            <svg
-              aria-hidden="true"
-              class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-red-600"
-              viewBox="0 0 100 101"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                fill="currentColor"
-              />
-              <path
-                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                fill="currentFill"
-              />
-            </svg>
-            <span class="sr-only">Loading...</span>
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+            <!-- Category Select -->
+            <div class="lg:col-span-3">
+              <label class="block mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider dark:text-gray-400">Categoria</label>
+              <select
+                v-model="selectedCategory"
+                class="block w-full rounded-2xl border-gray-200 bg-white/50 dark:bg-gray-700/50 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
+              >
+                <option value="" disabled>Seleziona categoria</option>
+                <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+              </select>
+            </div>
+
+            <!-- URL Input -->
+            <div class="lg:col-span-7">
+              <label class="block mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider dark:text-gray-400">Link Prodotto Amazon</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                </div>
+                <input
+                  v-model="productUrl"
+                  type="text"
+                  placeholder="Incolla l'URL del prodotto qui..."
+                  class="block w-full pl-12 rounded-2xl border-gray-200 bg-white/50 dark:bg-gray-700/50 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Add Button -->
+            <div class="lg:col-span-2">
+              <button
+                @click="addProduct"
+                type="button"
+                class="w-full flex items-center justify-center h-[42px] px-6 py-2 text-sm font-bold text-white bg-blue-600 border border-transparent rounded-2xl shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-300 transform active:scale-95"
+              >
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Aggiungi
+              </button>
+            </div>
           </div>
-        </div> -->
+        </div>
       </div>
       <!-- Modale per lo stato di aggiornamento -->
       <UpdateProd :isVisible="isLoading" :message="modalMessage" />

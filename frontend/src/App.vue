@@ -4,8 +4,10 @@
 
 
 
-<HeaderTemplate />
-    <router-view />
+    <HeaderTemplate />
+    <main class="pt-28 md:pt-32 min-h-screen">
+      <router-view />
+    </main>
     <FooterTemplate />
   </div>
  
@@ -26,14 +28,8 @@ export default {
 </script>
 
 <style>
-nav {
-  padding: 1em;
-  background-color: #f3f3f3;
-}
-nav a,
-nav button {
-  margin-right: 10px;
-  text-decoration: none;
-  color: #333;
+#app {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 </style>

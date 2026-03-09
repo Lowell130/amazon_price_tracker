@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import os
 import subprocess
 import logging
+from app.telegram_bot import broadcast_price_drops
 
 router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(admin_required)])
 logger = logging.getLogger(__name__)
@@ -120,11 +121,16 @@ async def generate_price_drops_report(users_collection = Depends(get_users_colle
 
         price_drops_collection.insert_one(report)
 
-        # Start Telegram bot
-        subprocess.Popen(["python", "app/telegram_bot.py"])
+        # Invia i cali di prezzo al canale Telegram
+        try:
+            broadcast_price_drops()
+            telegram_status = "and broadcast to Telegram"
+        except Exception as te:
+            logger.error(f"Errore durante il broadcast Telegram: {te}")
+            telegram_status = "but Telegram broadcast failed"
 
         return {
-            "message": "Price drops report generated and Telegram bot started",
+            "message": f"Price drops report generated {telegram_status}",
             "total_price_drops": len(report["drops"]),
         }
     except Exception as e:

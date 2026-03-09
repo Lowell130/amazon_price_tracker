@@ -4,7 +4,8 @@ import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from app.db import get_db, get_users_collection
-from app.config import TEL_TOKEN
+from app.config import TEL_TOKEN, CHANNEL_ID
+import requests
 
 # Configurazione Logging
 logging.basicConfig(
@@ -90,3 +91,48 @@ async def stop_bot():
         await application.stop()
         await application.shutdown()
         logger.info("Telegram Bot fermato.")
+
+def broadcast_price_drops():
+    """Legge l'ultimo report e lo invia al canale Telegram."""
+    if not TEL_TOKEN or not CHANNEL_ID:
+        logger.error("Configurazione Telegram incompleta (Token o Channel ID mancanti).")
+        return
+
+    db = get_db()
+    price_drops_collection = db["price_drops"]
+    report = price_drops_collection.find_one(sort=[("generation_date", -1)])
+
+    if not report or not report.get("drops"):
+        logger.info("Nessun calo di prezzo da inviare.")
+        return
+
+    logger.info(f"Invio di {len(report['drops'])} cali di prezzo al canale {CHANNEL_ID}...")
+
+    for drop in report["drops"]:
+        message = (
+            f"📉 *{drop.get('title', 'Prodotto')}*\n"
+            f"🔻 *Prezzo:* {drop['new_price']}€ (era {drop['old_price']}€)\n"
+            f"💰 *Risparmio:* {drop['price_drop']}€\n"
+            f"🔗 [Vedi su Amazon]({drop.get('affiliate') or 'https://www.amazon.it/gp/product/' + drop['asin']})"
+        )
+        
+        try:
+            requests.post(
+                f"https://api.telegram.org/bot{TEL_TOKEN}/sendMessage",
+                data={
+                    "chat_id": CHANNEL_ID,
+                    "text": message,
+                    "parse_mode": "Markdown",
+                    "disable_web_page_preview": False
+                },
+                timeout=10
+            )
+            time.sleep(1) # Evita limiti di velocità
+        except Exception as e:
+            logger.error(f"Errore nell'invio del drop {drop['asin']}: {e}")
+
+    logger.info("Broadcast completato.")
+
+if __name__ == "__main__":
+    import time
+    broadcast_price_drops()

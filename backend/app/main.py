@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, products, admin, public
+from app.routers import auth, products, admin, public, analysis
 from app.db import users_collection
 from app.config import BASE_URL
 from xml.etree.ElementTree import Element, SubElement, tostring
@@ -54,6 +54,7 @@ app.include_router(auth.router)
 app.include_router(products.router)
 app.include_router(admin.router)
 app.include_router(public.router)
+app.include_router(analysis.router)
 
 @app.get("/sitemap.xml", response_class=Response)
 async def generate_sitemap():
