@@ -24,7 +24,7 @@
           <div class="hidden md:flex items-center space-x-1">
             <template v-for="link in navigationLinks" :key="link.to">
               <router-link
-                v-if="link.show"
+                v-if="link.show && !link.isExternal"
                 :to="link.to"
                 class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group relative"
                 :class="[$route.path === link.to ? 'text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30' : 'text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100/50 dark:hover:bg-gray-800/50']"
@@ -35,6 +35,13 @@
                   v-if="$route.path !== link.to"
                 ></span>
               </router-link>
+              <a
+                v-else-if="link.show && link.isExternal"
+                :href="externalLink(link.to)"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
+              >
+                {{ link.name }}
+              </a>
             </template>
             
             <button 
@@ -74,7 +81,7 @@
           <div class="px-4 pt-2 pb-6 space-y-2">
             <template v-for="link in navigationLinks" :key="link.to">
               <router-link
-                v-if="link.show"
+                v-if="link.show && !link.isExternal"
                 :to="link.to"
                 @click="isMobileMenuOpen = false"
                 class="block px-4 py-3 rounded-xl text-base font-medium transition-colors"
@@ -82,6 +89,14 @@
               >
                 {{ link.name }}
               </router-link>
+              <a
+                v-else-if="link.show && link.isExternal"
+                :href="externalLink(link.to)"
+                @click="isMobileMenuOpen = false"
+                class="block px-4 py-3 rounded-xl text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors"
+              >
+                {{ link.name }}
+              </a>
             </template>
             <button 
               v-if="isAuthenticated"
@@ -159,6 +174,7 @@ export default {
           { name: 'Dashboard', to: '/dashboard', show: this.isAuthenticated },
           { name: 'AI Insights', to: '/analysis', show: this.isAuthenticated },
           { name: 'Profile', to: '/profile', show: this.isAuthenticated },
+          { name: 'Scarica Estensione', to: '/extension-download', show: this.isAuthenticated, isExternal: true },
           { name: 'Admin', to: '/admin/users', show: this.isAuthenticated && this.isAdmin },
         ];
       }
@@ -207,6 +223,13 @@ export default {
         this.isAdmin = false;
         this.$router.push("/login");
       },
+      externalLink(to) {
+        if (to === '/extension-download') {
+          const apiBaseUrl = process.env.VUE_APP_API_URL || 'http://localhost:8000';
+          return `${apiBaseUrl}/extension/download`;
+        }
+        return to;
+      }
     },
 };
 </script>

@@ -23,7 +23,7 @@
         <img :src="item.image_url" :alt="item.title" class="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal">
       </div>
       <div class="flex-grow min-w-0">
-        <h3 class="text-xs font-black text-gray-900 dark:text-white line-clamp-2 leading-tight mb-1">{{ item.title }}</h3>
+        <h3 class="text-xs font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight mb-1">{{ item.title }}</h3>
         <p class="text-[10px] font-bold text-blue-500 uppercase tracking-tight">{{ item.category }}</p>
       </div>
     </div>

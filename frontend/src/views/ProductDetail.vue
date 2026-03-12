@@ -128,6 +128,7 @@ export default {
     };
 
     onMounted(() => {
+      window.scrollTo(0, 0);
       const asin = route.params.asin;
       fetchProductDetails(asin);
     });

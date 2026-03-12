@@ -9,6 +9,12 @@
     <!-- How It Works: Explain value prop immediately -->
     <HowItWorks />
 
+    <!-- Extension Promo: Highlight the tool -->
+    <ExtensionPromo />
+
+    <!-- AI Insights Promo: Showcase intelligence -->
+    <AIInsightsPromo />
+
     <!-- Live Deals: Show proof of value -->
     <HomePageSale />
 
@@ -37,6 +43,8 @@
 import FeatureSection from '@/components/Template/FeatureSection.vue';
 import HeroSection from '@/components/Template/HeroSection.vue';
 import HowItWorks from '@/components/Template/HowItWorks.vue';
+import ExtensionPromo from '@/components/Template/ExtensionPromo.vue';
+import AIInsightsPromo from '@/components/Template/AIInsightsPromo.vue';
 import HomePageSale from '@/components/HomePageSale.vue';
 // import TopMessage from "@/components/TopMessage.vue";
 
@@ -45,6 +53,8 @@ export default {
   components: {
     HeroSection,
     HowItWorks,
+    ExtensionPromo,
+    AIInsightsPromo,
     FeatureSection,
     HomePageSale,
     // TopMessage

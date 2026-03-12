@@ -168,7 +168,7 @@ export default {
         xaxis: {
           categories: this.chartData.dates,
           labels: {
-            show: true,
+            show: false,
             style: { colors: '#94a3b8', fontSize: '10px', fontWeight: 600 },
             rotate: -45,
             offsetY: 5
