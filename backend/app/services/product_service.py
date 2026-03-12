@@ -1,5 +1,6 @@
 from app.scraper import fetch_product_data
 from app.utils.email import send_email
+from app.db import get_products_collection, get_users_collection
 from datetime import datetime
 import logging
 
@@ -8,98 +9,128 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 def update_prices(users_collection, user_filter=None, asin_filter=None):
-    query = {"username": user_filter} if user_filter else {}
-    users = users_collection.find(query)
+    products_collection = get_products_collection()
+    
+    # 1. Determina gli ASIN da aggiornare
+    asins_to_update = set()
+    
+    if user_filter:
+        user = users_collection.find_one({"username": user_filter})
+        if user:
+            user_asins = {p["asin"] for p in user.get("products", [])}
+            if asin_filter:
+                asins_to_update.update(user_asins.intersection(set(asin_filter)))
+            else:
+                asins_to_update.update(user_asins)
+    elif asin_filter:
+        asins_to_update.update(set(asin_filter))
+    else:
+        # Nessun filtro: aggiorna tutti i prodotti nel database globale
+        all_products = products_collection.find({}, {"asin": 1})
+        asins_to_update.update({p["asin"] for p in all_products})
+
+    logger.info(f"Starting price update for {len(asins_to_update)} ASINs")
+
     updated_products = []
 
-    for user in users:
-        email = user.get("email")  # Assumiamo che l'email sia salvata nel profilo utente
-        products = user.get("products", [])
-        logger.info(f"Updating prices for user: {user['username']} ({len(products)} products)")
+    for asin in asins_to_update:
+        global_product = products_collection.find_one({"asin": asin})
+        if not global_product:
+            logger.warning(f"ASIN {asin} not found in global products database")
+            continue
+        
+        # Recuperiamo un URL base da cui fare scraping. 
+        # Troviamo il primo utente che ha l'URL originale oppure usiamo un link base.
+        # È più sicuro usare il link dal db utente che lo ha tracciato
+        product_url = None
+        user_tracking = users_collection.find_one({"products.asin": asin})
+        if user_tracking:
+            user_product = next((p for p in user_tracking.get("products", []) if p["asin"] == asin), None)
+            if user_product:
+                product_url = user_product.get("product_url")
+        
+        if not product_url:
+            product_url = f"https://www.amazon.it/dp/{asin}"
 
-        for product in products:
-            if asin_filter and product["asin"] not in asin_filter:
+        try:
+            logger.info(f"Fetching product data for ASIN: {asin}")
+            updated_data = fetch_product_data(product_url)
+
+            if not updated_data or updated_data["price"] is None:
+                products_collection.update_one(
+                    {"asin": asin},
+                    {"$set": {"availability": "Non disponibile", "condition": "Non disponibile"}}
+                )
+                logger.info(f"Product {asin} is unavailable.")
                 continue
 
-            try:
-                logger.info(f"Fetching product data for ASIN: {product['asin']}")
-                updated_data = fetch_product_data(product["product_url"])
+            old_price = float(global_product.get("price")) if global_product.get("price") else None
+            new_price = float(updated_data["price"])
+            price_dropped = old_price and new_price < old_price
 
-                if not updated_data or updated_data["price"] is None:
-                    product["availability"] = "Non disponibile"
-                    product["condition"] = "Non disponibile"
-                    logger.info(f"Product {product['asin']} is unavailable.")
+            # Check for interested users
+            interested_users = users_collection.find({"products.asin": asin})
+            for u in interested_users:
+                u_prod = next((p for p in u.get("products", []) if p["asin"] == asin), None)
+                if not u_prod:
                     continue
-
-                old_price = float(product["price"]) if product["price"] else None
-                new_price = float(updated_data["price"])
-
-                if product.get("is_favorite", False) and old_price and new_price < old_price:
-                    logger.info(f"Price drop detected for {product['title']}. Sending email.")
-                    send_email(email, product["title"], old_price, new_price, product["asin"])
+                
+                # Check favorite drop
+                if u_prod.get("is_favorite", False) and price_dropped:
+                    logger.info(f"Price drop detected for {global_product.get('title', asin)}. Sending email to {u.get('email')}.")
+                    send_email(u.get("email"), global_product.get("title", "Prodotto Amazon"), old_price, new_price, asin)
                     
-                    # Notifica Telegram
-                    if user.get("telegram_chat_id"):
+                    # Notifica Telegram se configurato
+                    if u.get("telegram_chat_id"):
                         try:
-                            from telegram import Bot
                             from app.config import TEL_TOKEN
                             if TEL_TOKEN:
-                                bot = Bot(token=TEL_TOKEN)
-                                message = (
-                                    f"📉 *{product.get('title', 'Prodotto')}*\n"
-                                    f"🔻 *Prezzo:* {new_price}€ (era {old_price}€)\n"
-                                    f"🔗 [Link Amazon]({product.get('affiliate', product['product_url'])})"
-                                )
-                                # Nota: in un contesto sincrono come questo loop, la chiamata async a send_message
-                                # richiede gestione. Tuttavia, python-telegram-bot v20+ è async.
-                                # Per semplicità qui, useremo requests se non siamo in un loop async,
-                                # oppure dobbiamo rendere update_prices async.
-                                # Dato che update_prices è chiamata dallo scheduler (thread) e dai router (async),
-                                # la soluzione più semplice e robusta qui, senza riscrivere tutto async,
-                                # è usare requests per la chiamata diretta alle API di Telegram.
                                 import requests
+                                message = (
+                                    f"📉 *{global_product.get('title', 'Prodotto')}*\n"
+                                    f"🔻 *Prezzo:* {new_price}€ (era {old_price}€)\n"
+                                    f"🔗 [Link Amazon]({u_prod.get('affiliate', product_url)})"
+                                )
                                 requests.post(
                                     f"https://api.telegram.org/bot{TEL_TOKEN}/sendMessage",
                                     data={
-                                        "chat_id": user["telegram_chat_id"],
+                                        "chat_id": u["telegram_chat_id"],
                                         "text": message,
                                         "parse_mode": "Markdown",
                                         "disable_web_page_preview": True
                                     },
                                     timeout=10
                                 )
-                                logger.info(f"Telegram notification sent to {user['username']}")
+                                logger.info(f"Telegram notification sent to {u['username']}")
                         except Exception as e:
                             logger.error(f"Error sending Telegram notification: {e}")
 
-                product["price_history"].append({"date": datetime.now().isoformat(), "price": new_price})
-                product["price"] = new_price
-                product["availability"] = "Disponibile"
-                product["condition"] = updated_data["condition"]
+            # Aggiornamento dello storico e dei campi del prodotto globale
+            price_history = global_product.get("price_history", [])
+            price_history.append({"date": datetime.now().isoformat(), "price": new_price})
+            
+            max_price_entry = max(price_history, key=lambda x: float(x["price"]))
+            min_price_entry = min(price_history, key=lambda x: float(x["price"]))
+            
+            update_fields = {
+                "price": new_price,
+                "price_history": price_history,
+                "availability": "Disponibile",
+                "condition": updated_data.get("condition"),
+                "coupon": updated_data.get("coupon", False),
+                "coupon_value": updated_data.get("coupon_value"),
+                "max_price": float(max_price_entry["price"]),
+                "min_price": float(min_price_entry["price"]),
+                "average_price": round(sum(float(entry["price"]) for entry in price_history) / len(price_history), 2)
+            }
+            
+            products_collection.update_one({"asin": asin}, {"$set": update_fields})
+            updated_products.append(asin)
+            logger.info(f"Updated product {asin} globally - New Price: {new_price} €")
 
-                # ✅ AGGIUNTA QUI: salva le info del coupon
-                product["coupon"] = updated_data.get("coupon", False)
-                product["coupon_value"] = updated_data.get("coupon_value")
+        except Exception as e:
+            logger.error(f"Error updating product {asin}: {e}")
+            continue
 
-                # Calcola max, min, e average price
-                price_history = product["price_history"]
-                max_price_entry = max(price_history, key=lambda x: float(x["price"]))
-                min_price_entry = min(price_history, key=lambda x: float(x["price"]))
-
-                product["max_price"] = float(max_price_entry["price"])
-                product["min_price"] = float(min_price_entry["price"])
-                product["average_price"] = round(
-                    sum(float(entry["price"]) for entry in price_history) / len(price_history), 2
-                )
-
-                updated_products.append(product["asin"])
-                logger.info(f"Updated product {product['asin']} - New Price: {new_price} €")
-
-            except Exception as e:
-                logger.error(f"Error updating product {product['asin']}: {e}")
-                continue
-
-        users_collection.update_one({"_id": user["_id"]}, {"$set": {"products": products}})
-        logger.info(f"Finished updating products for user: {user['username']}")
-
+    logger.info("Finished updating products.")
     return updated_products

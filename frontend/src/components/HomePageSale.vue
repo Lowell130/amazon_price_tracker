@@ -16,16 +16,28 @@
           </p>
       </div>
 
-      <div v-if="isLoading" class="flex justify-center items-center h-96">
-        <SpinnerComp />
+      <div v-if="isLoading" class="mb-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-fadeIn">
+        <div v-for="i in 4" :key="i" class="rounded-2xl border border-gray-100 bg-white p-4 animate-pulse dark:border-gray-800 dark:bg-gray-800">
+          <div class="h-44 w-full bg-gray-100 dark:bg-gray-700 rounded-xl mb-4"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+          <div class="h-8 bg-gray-100 dark:bg-gray-700 rounded w-1/4 mt-4"></div>
+        </div>
       </div>
 
       <div v-else-if="error" class="flex justify-center items-center h-96">
         <p class="text-lg text-red-500">{{ error }}</p>
       </div>
 
-      <div v-else-if="products && products.length === 0" class="flex justify-center items-center h-96">
-        <p class="text-lg text-gray-500 dark:text-gray-400">Nessun ribasso recente trovato.</p>
+      <div v-else-if="products && products.length === 0" class="flex flex-col items-center justify-center p-12 text-center bg-white/50 dark:bg-gray-800/50 rounded-3xl border border-dashed border-gray-300 dark:border-gray-700 min-h-[300px] mb-8">
+        <div class="mb-4 p-4 rounded-full bg-red-50 dark:bg-red-900/30">
+          <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Nessun ribasso registrato</h3>
+        <p class="text-gray-500 dark:text-gray-400 max-w-md">
+          Al momento non ci sono offerte speciali o cali di prezzo. L'elenco verrà aggiornato al prossimo ricalcolo. Torna a trovarci!
+        </p>
       </div>
 
       <div v-else class="mb-4 grid gap-6 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
@@ -45,6 +57,7 @@
                 class="mx-auto h-full object-contain mix-blend-multiply dark:mix-blend-normal transform group-hover:scale-110 transition-transform duration-500"
                 :src="product.image_url"
                 :alt="product.title"
+                @error="handleImageError"
               />
             </a>
           </div>
@@ -103,12 +116,10 @@
 
 <script>
 import ProductSearch from "@/components/ProductSearch.vue";
-import SpinnerComp from "@/components/SpinnerComp.vue";
 
 export default {
   components: {
-    ProductSearch,
-    SpinnerComp
+    ProductSearch
   },
   data() {
     return {
@@ -121,6 +132,10 @@ export default {
     try {
       const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/public/price-drops`);
       if (!response.ok) {
+        if (response.status === 404) {
+            this.products = [];
+            return;
+        }
         throw new Error(`Error fetching price drops: ${response.statusText}`);
       }
       const data = await response.json();
@@ -131,5 +146,10 @@ export default {
       this.isLoading = false;
     }
   },
+  methods: {
+    handleImageError(e) {
+      e.target.src = 'https://via.placeholder.com/400x400?text=Immagine+non+disponibile';
+    }
+  }
 };
 </script>

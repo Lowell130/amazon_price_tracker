@@ -30,9 +30,12 @@
             <p class="mb-8 font-light text-gray-500 lg:mb-16 sm:text-xl dark:text-gray-400">
                 Unisciti a migliaia di utenti che stanno già comprando al prezzo migliore.
             </p>
-            <a href="/register" class="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900">
+            <router-link v-if="!isLoggedIn" to="/register" class="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
                 Crea il tuo account gratuito
-            </a>
+            </router-link>
+            <router-link v-else to="/dashboard" class="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
+                Vai alla tua Dashboard
+            </router-link>
         </div>
     </section>
 
@@ -60,5 +63,10 @@ export default {
     // TopMessage
   },
 
+  computed: {
+    isLoggedIn() {
+      return !!localStorage.getItem('token');
+    }
+  }
 };
 </script>

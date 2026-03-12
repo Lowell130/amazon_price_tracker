@@ -2,17 +2,23 @@ from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from typing import List
 from app.schemas import ProductRequest
 from app.dependencies import get_current_user
-from app.db import get_users_collection
+from app.db import get_users_collection, get_products_collection
 from app.scraper import fetch_product_data
 from app.services.product_service import update_prices
 from app.config import AFFILIATE_TAG
+from datetime import datetime
 import logging
 
 router = APIRouter(prefix="/api", tags=["products"])
 logger = logging.getLogger(__name__)
 
 @router.post("/add-product/")
-async def add_product(request: ProductRequest, current_user: str = Depends(get_current_user), users_collection = Depends(get_users_collection)):
+async def add_product(
+    request: ProductRequest, 
+    current_user: str = Depends(get_current_user), 
+    users_collection = Depends(get_users_collection),
+    products_collection = Depends(get_products_collection)
+):
     db_user = users_collection.find_one({"username": current_user})
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -28,30 +34,59 @@ async def add_product(request: ProductRequest, current_user: str = Depends(get_c
 
     affiliate_link = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
 
-    product_data.update({
+    # Upsert global product
+    global_product = products_collection.find_one({"asin": asin})
+    if not global_product:
+        initial_price = float(product_data["price"])
+        product_data["max_price"] = initial_price
+        product_data["min_price"] = initial_price
+        product_data["average_price"] = initial_price
+        product_data["price_history"] = [{"date": datetime.now().isoformat(), "price": initial_price}]
+        products_collection.insert_one(product_data)
+
+    # Add reference to user
+    user_product_ref = {
+        "asin": asin,
         "product_url": request.product_url,
         "category": request.category,
-        "affiliate": affiliate_link,
-    })
+        "is_favorite": False,
+        "added_at": datetime.now().isoformat()
+    }
 
     users_collection.update_one(
         {"_id": db_user["_id"]},
-        {"$push": {"products": product_data}}
+        {"$push": {"products": user_product_ref}}
     )
+    
     return {"message": "Product added successfully", "affiliate": affiliate_link}
 
 @router.get("/product-details/{asin}")
-async def product_details(asin: str, current_user: str = Depends(get_current_user), users_collection = Depends(get_users_collection)):
+async def product_details(
+    asin: str, 
+    current_user: str = Depends(get_current_user), 
+    users_collection = Depends(get_users_collection),
+    products_collection = Depends(get_products_collection)
+):
      db_user = users_collection.find_one({"username": current_user})
      if not db_user:
          raise HTTPException(status_code=404, detail="User not found")
-     product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
-     if not product:
-         raise HTTPException(status_code=404, detail="Product not found")
+         
+     user_product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
+     if not user_product:
+         raise HTTPException(status_code=404, detail="Product not found in user tracking")
 
-     # Dynamic affiliate link
-     product["affiliate"] = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
-     return product
+     global_product = products_collection.find_one({"asin": asin})
+     if not global_product:
+         raise HTTPException(status_code=404, detail="Product global data not found")
+
+     # Merge the data
+     merged_product = {**global_product, **user_product}
+     merged_product["affiliate"] = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
+     # Rimuovi i campi _id per JSON serialization
+     if "_id" in merged_product:
+         del merged_product["_id"]
+         
+     return merged_product
 
 @router.patch("/update-product-info/{asin}")
 async def update_product_info(
@@ -70,8 +105,9 @@ async def update_product_info(
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
 
+        # Update user-specific fields
         for key, value in updated_data.items():
-            if key in product:
+            if key in ["category"]: # Solo i campi permessi per l'utente
                 product[key] = value
 
         users_collection.update_one(
@@ -80,7 +116,6 @@ async def update_product_info(
         )
 
         return {"message": "Product updated successfully", "updated_product": product}
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating product info: {str(e)}")
 
@@ -105,7 +140,6 @@ async def toggle_favorite(asin: str, current_user: str = Depends(get_current_use
 
 @router.post("/update-prices-manual/")
 async def update_prices_manual(current_user: str = Depends(get_current_user), users_collection = Depends(get_users_collection)):
-    """Aggiorna manualmente i prezzi dei prodotti per l'utente corrente."""
     try:
         update_prices(users_collection, user_filter=current_user)
         return {"message": "Price update triggered manually"}
@@ -115,7 +149,8 @@ async def update_prices_manual(current_user: str = Depends(get_current_user), us
 @router.post("/update-selected-prices/")
 async def update_selected_prices(
     asin_list: List[str],
-    current_user: str = Depends(get_current_user)
+    current_user: str = Depends(get_current_user),
+    users_collection = Depends(get_users_collection)
 ):
     if not asin_list:
         raise HTTPException(status_code=400, detail="ASIN list cannot be empty")
@@ -127,30 +162,39 @@ async def update_selected_prices(
         raise HTTPException(status_code=500, detail=f"Error updating selected products: {str(e)}")
 
 @router.post("/update-product/{asin}")
-async def update_product_price(asin: str, current_user: str = Depends(get_current_user), users_collection = Depends(get_users_collection)):
+async def update_product_price(
+    asin: str, 
+    current_user: str = Depends(get_current_user), 
+    users_collection = Depends(get_users_collection),
+    products_collection = Depends(get_products_collection)
+):
     try:
         updated_products = update_prices(users_collection, user_filter=current_user, asin_filter=[asin])
 
         if not updated_products:
             raise HTTPException(status_code=404, detail="Product not found or not updated")
 
+        # Ritorna i dati aggiornati per questo utente
         db_user = users_collection.find_one({"username": current_user})
-        product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
+        user_product = next((p for p in db_user.get("products", []) if p["asin"] == asin), None)
+        global_product = products_collection.find_one({"asin": asin})
 
-        if not product:
+        if not user_product or not global_product:
             raise HTTPException(status_code=404, detail="Product not found after update")
+
+        merged = {**global_product, **user_product}
 
         return {
             "message": f"Product {asin} updated successfully",
             "product": {
-                "asin": product["asin"],
-                "price": product["price"],
-                "price_history": product["price_history"],
-                "max_price": product["max_price"],
-                "min_price": product["min_price"],
-                "average_price": product["average_price"],
-                "availability": product.get("availability", "Unknown"),
-                "condition": product.get("condition", "Unknown"),
+                "asin": merged["asin"],
+                "price": merged["price"],
+                "price_history": merged.get("price_history", []),
+                "max_price": merged.get("max_price"),
+                "min_price": merged.get("min_price"),
+                "average_price": merged.get("average_price"),
+                "availability": merged.get("availability", "Unknown"),
+                "condition": merged.get("condition", "Unknown"),
             },
         }
     except Exception as e:
@@ -189,15 +233,27 @@ async def remove_product(asin: str, current_user: str = Depends(get_current_user
     return {"message": "Product removed successfully"}
 
 @router.get("/dashboard")
-async def dashboard(current_user: str = Depends(get_current_user), users_collection = Depends(get_users_collection)):
+async def dashboard(
+    current_user: str = Depends(get_current_user), 
+    users_collection = Depends(get_users_collection),
+    products_collection = Depends(get_products_collection)
+):
     db_user = users_collection.find_one({"username": current_user})
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    products = db_user.get("products", [])
-    for product in products:
-        asin = product.get("asin")
+    user_products = db_user.get("products", [])
+    merged_products = []
+    
+    for user_product in user_products:
+        asin = user_product.get("asin")
         if asin:
-            product["affiliate"] = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
+            global_product = products_collection.find_one({"asin": asin})
+            if global_product:
+                merged = {**global_product, **user_product}
+                merged["affiliate"] = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
+                if "_id" in merged:
+                    del merged["_id"]
+                merged_products.append(merged)
 
-    return {"products": products}
+    return {"products": merged_products}

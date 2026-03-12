@@ -119,7 +119,22 @@ export default {
 
     const fetchProductDetails = async (asin) => {
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/public/product-details/${asin}`);
+        const token = localStorage.getItem("token");
+        const publicUrl = `${process.env.VUE_APP_API_BASE_URL}/public/product-details/${asin}`;
+        let response;
+        
+        if (token) {
+          const { fetchWithToken } = await import('@/api');
+          response = await fetchWithToken(`${process.env.VUE_APP_API_BASE_URL}/product-details/${asin}`);
+          
+          if (!response.ok) {
+            // Fallback to public endpoint if the private fetch fails (e.g., user is not tracking this item)
+            response = await fetch(publicUrl);
+          }
+        } else {
+          response = await fetch(publicUrl);
+        }
+
         if (!response.ok) throw new Error("Product not found");
         product.value = await response.json();
       } catch (error) {

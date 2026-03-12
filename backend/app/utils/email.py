@@ -8,14 +8,24 @@ import os
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def send_email(to_email, subject, body):
     sender_email = os.getenv("SENDER_EMAIL")
     sender_password = os.getenv("SENDER_PASSWORD")
     smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-    smtp_port = int(os.getenv("SMTP_PORT", 587))
+    
+    try:
+        val = os.getenv("SMTP_PORT", "587")
+        smtp_port = int(val)
+    except (ValueError, TypeError):
+        smtp_port = 587
 
     if not sender_email or not sender_password:
-        raise HTTPException(status_code=500, detail="Email configuration is missing.")
+        logger.error("Email configuration is missing (SENDER_EMAIL or SENDER_PASSWORD)")
+        raise HTTPException(status_code=500, detail="Configurazione email mancante nel server.")
 
     # SMTP setup
     try:
@@ -33,5 +43,5 @@ def send_email(to_email, subject, body):
         server.sendmail(sender_email, to_email, msg.as_string())
         server.quit()
     except Exception as e:
-        print(f"Error sending email: {e}")
-        raise HTTPException(status_code=500, detail="Failed to send email.")
+        logger.error(f"Error sending email: {e}")
+        raise HTTPException(status_code=500, detail=f"Errore tecnico durante l'invio dell'email: {str(e)}")

@@ -28,11 +28,16 @@ def get_public_alerts_collection():
     """Dependency provider for public alerts collection."""
     return db["public_alerts"]
 
+def get_products_collection():
+    """Dependency provider for products collection."""
+    return db["products"]
+
 # Export global variables for backward compatibility if needed, 
 # but mostly we should use dependencies.
 # Keeping these for now to avoid breaking imports I haven't changed yet, 
 # but the goal is to replace their usage.
 users_collection = db["users"]
 public_alerts_collection = db["public_alerts"]
+products_collection = db["products"]
 
 print("Connesso con successo al database remoto!")

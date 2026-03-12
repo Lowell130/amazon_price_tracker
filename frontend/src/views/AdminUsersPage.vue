@@ -4,14 +4,40 @@
       <div class="bg-white dark:bg-gray-800 relative shadow-md rounded-lg overflow-hidden">
         
         <!-- Header -->
-        <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4 border-b dark:border-gray-700">
+        <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-6 border-b dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
           <div class="w-full md:w-1/2">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Admin Users Management</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage users, roles, and view tracked products.</p>
+            <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">User Management</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Gestione utenti, ruoli e monitoraggio attività globale.</p>
           </div>
           <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-             <!-- Placeholder for future search/filter controls -->
+             <div class="relative w-full md:w-64">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </div>
+                <input 
+                  v-model="searchQuery"
+                  type="text" 
+                  placeholder="Cerca utente..."
+                  class="block w-full pl-10 pr-4 py-2 rounded-xl border-transparent bg-gray-100 dark:bg-gray-700 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
+                >
+              </div>
           </div>
+        </div>
+
+        <!-- Summary Cards Placeholder (Optional but nice) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-6 bg-white dark:bg-gray-800">
+           <div class="p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
+             <p class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Totale Utenti</p>
+             <p class="text-2xl font-black text-gray-900 dark:text-white">{{ users.length }}</p>
+           </div>
+           <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800">
+             <p class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Admins</p>
+             <p class="text-2xl font-black text-gray-900 dark:text-white">{{ users.filter(u => u.admin).length }}</p>
+           </div>
+           <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800">
+             <p class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-1">Prodotti Totali</p>
+             <p class="text-2xl font-black text-gray-900 dark:text-white">{{ totalProductsCount }}</p>
+           </div>
         </div>
 
         <!-- Loading/Error States -->
@@ -41,7 +67,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="user in users" :key="user.username" class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <tr v-for="user in filteredUsers" :key="user.username" class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white flex items-center">
                   <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center mr-3 font-bold text-xs">
                     {{ user.username.charAt(0).toUpperCase() }}
@@ -72,7 +98,9 @@
 
                   <!-- Reset Password -->
                   <button @click="resetPassword(user)" class="p-2 text-yellow-600 rounded-lg hover:bg-yellow-100 dark:text-yellow-500 dark:hover:bg-gray-600 transition-colors" title="Reset Password">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11.536 19.464a6 6 0 01-1.414 0l-1.828-1.828a2 2 0 010-2.828l.828-.828a2 2 0 011.414 0L15.344 15H18a2 2 0 002-2V9a2 2 0 00-2-2h-1m-4 0a6 6 0 100 12 6 6 0 000-12z"></path></svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
                   </button>
 
                   <!-- Delete User -->
@@ -105,15 +133,15 @@
           
           <ul v-else class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1">
             <li v-for="product in userProducts" :key="product.asin" class="flex items-center space-x-4 p-3 bg-gray-50 dark:bg-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors border border-gray-100 dark:border-gray-500">
-              <img :src="product.image_url" class="w-16 h-16 rounded object-contain bg-white p-1 border dark:border-gray-500" alt="Product Image">
+              <img :src="product.image_url || 'https://via.placeholder.com/150?text=No+Image'" @error="$event.target.src = 'https://via.placeholder.com/150?text=Error'" class="w-16 h-16 rounded object-contain bg-white p-1 border dark:border-gray-500" alt="Product Image">
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-gray-900 truncate dark:text-white">{{ product.title }}</p>
                 <div class="flex items-center mt-1 space-x-2">
-                   <span class="text-lg font-bold text-gray-900 dark:text-white">{{ product.price }} €</span>
-                   <span v-if="product.condition !== 'Nuovo'" class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">{{ product.condition }}</span>
+                   <span class="text-lg font-bold text-gray-900 dark:text-white">{{ product.new_price || product.price || '--' }} €</span>
+                   <span v-if="product.condition && product.condition !== 'Nuovo'" class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">{{ product.condition }}</span>
                 </div>
               </div>
-              <a :href="product.product_url" target="_blank" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-600 transition-colors" title="View on Amazon">
+              <a v-if="product.product_url || product.affiliate" :href="product.affiliate || product.product_url" target="_blank" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-600 transition-colors" title="View on Amazon">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
               </a>
             </li>
@@ -133,9 +161,14 @@
 
 <script>
 import { fetchWithToken } from "@/api";
+import { useToast } from "@/store/toast";
 
 export default {
   name: "AdminUsersPage",
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
   data() {
     return {
       users: [],
@@ -144,6 +177,7 @@ export default {
       showProductsModal: false,
       selectedUser: null,
       userProducts: [],
+      searchQuery: ''
     };
   },
   async mounted() {
@@ -175,12 +209,13 @@ export default {
         if (response.ok) {
           const data = await response.json();
           user.admin = data.admin;
+          this.toast.success(`Stato Admin aggiornato per ${user.username}`);
         } else {
-          alert("Errore durante l'aggiornamento.");
+          this.toast.error("Errore durante l'aggiornamento.");
         }
       } catch (e) {
         console.error(e);
-        alert("Errore di connessione.");
+        this.toast.error("Errore di connessione.");
       }
     },
     async deleteUser(user) {
@@ -191,12 +226,13 @@ export default {
         });
         if (response.ok) {
           this.users = this.users.filter(u => u.username !== user.username);
+          this.toast.success("Utente eliminato.");
         } else {
-          alert("Errore durante l'eliminazione.");
+          this.toast.error("Errore durante l'eliminazione.");
         }
       } catch (e) {
         console.error(e);
-        alert("Errore di connessione.");
+        this.toast.error("Errore di connessione.");
       }
     },
     async resetPassword(user) {
@@ -206,13 +242,14 @@ export default {
           method: "POST"
         });
         if (response.ok) {
-          alert("Email di reset inviata.");
+          this.toast.success("Email di reset inviata.");
         } else {
-          alert("Errore durante l'invio della richiesta.");
+          const errorData = await response.json();
+          this.toast.error(errorData.detail || "Errore durante l'invio della richiesta.");
         }
       } catch (e) {
         console.error(e);
-        alert("Errore di connessione.");
+        this.toast.error("Errore di connessione.");
       }
     },
     async viewProducts(user) {
@@ -223,11 +260,11 @@ export default {
           this.userProducts = await response.json();
           this.showProductsModal = true;
         } else {
-          alert("Impossibile caricare i prodotti.");
+          this.toast.error("Impossibile caricare i prodotti.");
         }
       } catch (e) {
         console.error(e);
-        alert("Errore di connessione.");
+        this.toast.error("Errore di connessione.");
       }
     },
     closeModal() {
@@ -236,10 +273,27 @@ export default {
       this.userProducts = [];
     }
   },
+  computed: {
+    totalProductsCount() {
+      return this.users.reduce((acc, u) => acc + (u.products_count || 0), 0);
+    },
+    filteredUsers() {
+      if (!this.searchQuery) return this.users;
+      const q = this.searchQuery.toLowerCase();
+      return this.users.filter(u => u.username.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+    }
+  }
 };
 </script>
 
 <style scoped>
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }

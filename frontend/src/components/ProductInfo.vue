@@ -14,6 +14,7 @@
               class="w-full h-full max-h-[350px] object-contain transform group-hover:scale-110 transition-transform duration-700 ease-out"
               :src="product.image_url"
               :alt="product.title"
+              @error="handleImageError"
             />
             
             <!-- Badge Condizione Premium -->
@@ -154,19 +155,7 @@
               </button>
             </div>
 
-            <!-- Feedback Mesages -->
-            <transition name="fade">
-              <div class="mt-4">
-                <div v-if="successMessage" class="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/30 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-sm font-bold">
-                  <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                  {{ successMessage }}
-                </div>
-                <div v-if="errorMessage" class="flex items-center gap-3 bg-rose-50 dark:bg-rose-900/30 p-5 rounded-2xl border border-rose-100 dark:border-rose-800 text-rose-700 dark:text-rose-400 text-sm font-bold">
-                  <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                  {{ errorMessage }}
-                </div>
-              </div>
-            </transition>
+            <!-- Feedback Mesages Removed - Handled by Toasts -->
           </div>
         </div>
       </div>
@@ -175,6 +164,8 @@
 </template>
 
 <script>
+import { useToast } from '@/store/toast';
+
 export default {
   name: "ProductInfo",
   props: {
@@ -183,12 +174,14 @@ export default {
       required: true,
     },
   },
+  setup() {
+    const { success, error, warning } = useToast();
+    return { success, error, warning };
+  },
   data() {
     return {
       showModal: false,
       email: "",
-      successMessage: "",
-      errorMessage: "",
       isLoading: false,
     };
   },
@@ -203,14 +196,15 @@ export default {
       };
       return new Date(date).toLocaleDateString("it-IT", options);
     },
+    handleImageError(e) {
+      e.target.src = 'https://via.placeholder.com/400x400?text=Immagine+non+disponibile';
+    },
 
     async subscribeToPriceDrop() {
-      this.successMessage = "";
-      this.errorMessage = "";
       this.isLoading = true;
 
       if (!this.email.includes("@")) {
-        this.errorMessage = "Inserisci un'email valida.";
+        this.error("Inserisci un'email valida.");
         this.isLoading = false;
         return;
       }
@@ -224,24 +218,23 @@ export default {
 
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.detail || "Errore durante la registrazione e indirizzo presente.");
+        if (!res.ok) throw new Error(data.detail || "Errore durante la registrazione.");
 
-        this.successMessage = data.message || "Iscrizione avvenuta con successo!";
+        this.success(data.message || "Iscrizione avvenuta con successo!");
         this.email = "";
+        this.showModal = false;
       } catch (err) {
-        this.errorMessage = err.message || "Errore generico. Riprova.";
+        this.error(err.message || "Errore generico. Riprova.");
       } finally {
         this.isLoading = false;
       }
     },
 
     async unsubscribeFromPriceDrop() {
-      this.successMessage = "";
-      this.errorMessage = "";
       this.isLoading = true;
 
       if (!this.email.includes("@")) {
-        this.errorMessage = "Inserisci un'email valida.";
+        this.error("Inserisci un'email valida.");
         this.isLoading = false;
         return;
       }
@@ -258,10 +251,11 @@ export default {
 
         if (!res.ok) throw new Error(data.detail || "Errore durante la disiscrizione.");
 
-        this.successMessage = data.message || "Disiscrizione completata!";
+        this.success(data.message || "Disiscrizione completata!");
         this.email = "";
+        this.showModal = false;
       } catch (err) {
-        this.errorMessage = err.message || "Errore generico durante la disiscrizione.";
+        this.error(err.message || "Errore generico durante la disiscrizione.");
       } finally {
         this.isLoading = false;
       }

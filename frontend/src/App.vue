@@ -9,6 +9,7 @@
       <router-view />
     </main>
     <FooterTemplate />
+    <ToastNotification />
   </div>
  
 </template>
@@ -18,10 +19,13 @@
 
 import FooterTemplate from './components/Template/FooterTemplate.vue';
 import HeaderTemplate from './components/Template/HeaderTemplate.vue';
+import ToastNotification from './components/ToastNotification.vue';
 
 export default {
   components: {
-    FooterTemplate, HeaderTemplate
+    FooterTemplate, 
+    HeaderTemplate,
+    ToastNotification
   },
 }
 

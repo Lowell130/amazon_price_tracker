@@ -91,7 +91,27 @@
 
     <!-- Table Container -->
     <div class="rounded-3xl border border-white/20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl shadow-2xl overflow-hidden mb-12 transition-all duration-500">
-      <SpinnerComp v-if="isLoading" />
+      <div v-if="isLoading" class="p-8 space-y-6">
+        <div v-for="i in 5" :key="i" class="flex items-center gap-4 animate-pulse">
+          <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl"></div>
+          <div class="flex-1 space-y-2">
+            <div class="h-4 bg-gray-100 dark:bg-gray-700 rounded w-3/4"></div>
+            <div class="h-3 bg-gray-50 dark:bg-gray-800 rounded w-1/2"></div>
+          </div>
+          <div class="w-20 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg"></div>
+        </div>
+      </div>
+      <div v-else-if="filteredProducts.length === 0" class="flex flex-col items-center justify-center p-12 text-center bg-white/50 dark:bg-gray-800/50 rounded-3xl">
+        <div class="mb-4 p-4 rounded-full bg-blue-50 dark:bg-blue-900/30">
+          <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Nessun prodotto trovato</h3>
+        <p class="text-gray-500 dark:text-gray-400 max-w-sm mb-6">
+          Il tuo carrello dei tracciamenti è vuoto. Copia un link Amazon e incollalo nella barra in alto per iniziare a monitorare il tuo primo prodotto!
+        </p>
+      </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
           <thead class="text-[11px] font-black uppercase text-gray-400 bg-gray-50/50 dark:bg-gray-900/50 dark:text-gray-500 border-b border-gray-100 dark:border-gray-700">
@@ -164,7 +184,7 @@
               <td class="px-6 py-5">
                 <div class="flex items-center">
                   <div class="h-14 w-14 flex-shrink-0 bg-white dark:bg-gray-700 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-600 p-1.5 group-hover:scale-110 transition-transform duration-500">
-                    <img v-if="product.image_url" :src="product.image_url" :alt="product.title" class="h-full w-full object-contain" />
+                    <img v-if="product.image_url" :src="product.image_url" :alt="product.title" class="h-full w-full object-contain" @error="handleImageError" />
                   </div>
                   <div class="ml-4">
                     <div class="text-[13px] font-bold text-gray-900 dark:text-white truncate max-w-[200px] group-hover:text-blue-600 transition-colors" :title="product.title">
@@ -270,7 +290,7 @@
                 <!-- Product Header Info -->
                 <div class="mb-8 flex flex-col md:flex-row items-start md:items-center gap-6 bg-white dark:bg-gray-800/80 p-6 rounded-3xl border border-white/20 shadow-xl backdrop-blur-md">
                   <div class="h-20 w-20 flex-shrink-0 bg-white dark:bg-gray-700 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-600 p-2 group-hover:scale-105 transition-transform duration-500">
-                    <img v-if="product.image_url" :src="product.image_url" :alt="product.title" class="h-full w-full object-contain" />
+                    <img v-if="product.image_url" :src="product.image_url" :alt="product.title" class="h-full w-full object-contain" @error="handleImageError" />
                   </div>
                   <div class="flex-grow">
                     <h2 class="text-2xl font-black text-gray-900 dark:text-white leading-tight mb-2">{{ product.title }}</h2>
@@ -419,13 +439,16 @@
 <script>
 // import PriceHistory from "./PriceHistory.vue";
 import { fetchWithToken } from "@/api";
-import SpinnerComp from "./SpinnerComp.vue";
 import ChartPage from "../components/ChartPage.vue";
-
+import { useToast } from '@/store/toast';
 
 export default {
-  components: { SpinnerComp, ChartPage },
+  components: { ChartPage },
   props: ["products", "categories"],
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
 
   data() {
     return {
@@ -459,15 +482,19 @@ export default {
 
 
   watch: {
-  products: {
-    immediate: true,
-    handler(newProducts) {
-      this.localProducts = [...newProducts]; // Crea una copia dei prodotti
-      this.filteredProducts = [...newProducts];
-      this.isLoading = newProducts.length === 0;
+    products: {
+      immediate: true,
+      handler(newProducts) {
+        this.localProducts = [...newProducts]; // Crea una copia dei prodotti
+        this.filteredProducts = [...newProducts];
+        // Only set isLoading to true if we don't have products AND we haven't fetched yet.
+        // Assuming the parent component passes empty array while fetching, 
+        // we shouldn't infinitely spin if it really is empty.
+        // Easiest is to handle this state without a spinner blocking the view forever.
+        // Se non ci sono prodotti, non settare loading=true se è già caricato il componente
+      },
     },
   },
-},
 
 
 computed: {
@@ -521,6 +548,9 @@ computed: {
 
 
   methods: {
+    handleImageError(e) {
+      e.target.src = 'https://via.placeholder.com/400x400?text=Immagine+non+disponibile';
+    },
     async updateProductCategory(product) {
     try {
       const response = await fetchWithToken(
@@ -538,9 +568,10 @@ computed: {
       }
 
       const data = await response.json();
-      alert(`Category updated: ${data.updated_product.category}`);
+      this.toast.success(`Categoria aggiornata: ${data.updated_product.category}`);
     } catch (error) {
       console.error("Error updating product category:", error);
+      this.toast.error("Errore durante l'aggiornamento della categoria.");
     }
   },
     extractPriceDiffPercentage(priceHistory) {
@@ -562,7 +593,7 @@ computed: {
 
   async deleteSelectedProducts() {
   if (this.selectedAsins.length === 0) {
-    alert("Select at least one product to delete.");
+    this.toast.info("Seleziona almeno un prodotto da eliminare.");
     return;
   }
 
@@ -587,8 +618,8 @@ computed: {
       throw new Error(errorData.detail);
     }
 
-    const data = await response.json();
-    alert(`Deleted products: ${data.removed_asins.join(", ")}`);
+    await response.json();
+    this.toast.success(`Prodotti eliminati correttamente.`);
 
     // Rimuovi i prodotti localmente mantenendo i filtri
     this.localProducts = this.localProducts.filter(
@@ -640,8 +671,10 @@ computed: {
       const data = await response.json();
       // Aggiorna lo stato del prodotto nel frontend
       product.is_favorite = data.is_favorite;
+      this.toast.info(product.is_favorite ? "Aggiunto ai preferiti" : "Rimosso dai preferiti");
     } catch (error) {
       console.error("Errore durante l'aggiornamento del preferito:", error);
+      this.toast.error("Errore nei preferiti.");
     }
   },
   filterFavorites() {

@@ -1,11 +1,11 @@
 # app/crud.py
 from datetime import datetime
-from app.db import users_collection
+from app.db import users_collection, products_collection
 from app.scraper import fetch_product_data
 
 
 def add_product_to_user(username, product_url):
-    """Aggiunge un nuovo prodotto al database dell'utente con gestione completa dei prezzi e dettagli."""
+    """Aggiunge un nuovo prodotto al database globale e il riferimento all'utente."""
     # Esegui scraping del prodotto
     product_data = fetch_product_data(product_url)
 
@@ -13,48 +13,57 @@ def add_product_to_user(username, product_url):
     if not product_data or not product_data.get("price"):
         raise ValueError("Dati del prodotto non validi o prezzo non disponibile")
 
+    asin = product_data["asin"]
+
     # Trova l'utente nel database
     user = users_collection.find_one({"username": username})
     if not user:
         raise ValueError("Utente non trovato")
 
-    # Verifica se il prodotto esiste già
-    if any(p["asin"] == product_data["asin"] for p in user.get("products", [])):
-        raise ValueError("Il prodotto è già monitorato")
+    # Verifica se l'utente ha già questo prodotto
+    if any(p["asin"] == asin for p in user.get("products", [])):
+        raise ValueError("Il prodotto è già monitorato da questo utente")
 
-    # Inizializza i dati del prodotto
-    initial_price = float(product_data["price"])
-    product_data["max_price"] = initial_price
-    product_data["min_price"] = initial_price
-    product_data["average_price"] = initial_price
-    product_data["price_history"] = [{"date": datetime.now().isoformat(), "price": initial_price}]
+    # Controlla se il prodotto esiste già a livello globale
+    global_product = products_collection.find_one({"asin": asin})
 
-    # Aggiungi il prodotto con i dettagli alla lista dell'utente
+    if not global_product:
+        # Inizializza i dati del prodotto globale
+        initial_price = float(product_data["price"])
+        product_data["max_price"] = initial_price
+        product_data["min_price"] = initial_price
+        product_data["average_price"] = initial_price
+        product_data["price_history"] = [{"date": datetime.now().isoformat(), "price": initial_price}]
+        
+        # Inserisci il prodotto globale
+        products_collection.insert_one(product_data)
+    else:
+        # Potremmo voler aggiornare il prezzo qui, ma per ora ci affidiamo al global_product esistente
+        pass
+
+    # Prepara il riferimento base da salvare per l'utente
+    user_product_ref = {
+        "asin": asin,
+        "product_url": product_url,
+        "is_favorite": False,
+        "added_at": datetime.now().isoformat()
+    }
+
+    # Aggiungi il riferimento alla lista dell'utente
     users_collection.update_one(
         {"username": username},
-        {"$push": {"products": product_data}}
+        {"$push": {"products": user_product_ref}}
     )
 
-    return {"message": "Prodotto aggiunto con successo"}
+    return {"message": "Prodotto aggiunto con successo globale e aggiunto all'utente"}
 
 def get_price_history(username, asin):
-    user = users_collection.find_one({"username": username})
-    if not user:
-        raise ValueError("Utente non trovato")
-
-    # Cerca il prodotto con l'ASIN specificato
-    product = next((p for p in user.get("products", []) if p["asin"] == asin), None)
+    # Cerca il prodotto globalmente
+    product = products_collection.find_one({"asin": asin})
     if not product:
         raise ValueError("Prodotto non trovato")
 
-    return product["price_history"]
-
-def get_user_products(username):
-    user = users_collection.find_one({"username": username})
-    if not user:
-        raise ValueError("Utente non trovato")
-
-    return user.get("products", [])
+    return product.get("price_history", [])
 
 def remove_product_from_user(username, asin):
     user = users_collection.find_one({"username": username})

@@ -37,7 +37,7 @@
                 required
               />
             </div>
-            <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
+            <p v-if="errorMessage" class="text-red-500 text-sm font-medium">{{ errorMessage }}</p>
 
             <div class="flex items-center justify-between">
               <div class="flex items-start">
@@ -74,46 +74,53 @@
 </template>
 
 <script>
+import { useToast } from '@/store/toast';
+
 export default {
   name: 'LoginPage',
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
   data() {
     return {
-      login: '', // Campo per username o email
+      login: '',
       password: '',
       isLoading: false,
-      errorMessage: "", // Per gli errori di login
+      errorMessage: "",
     };
   },
   methods: {
     async handleLogin() {
-  this.isLoading = true;
-  this.errorMessage = ""; // Resetta il messaggio di errore
-  try {
-    const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ login: this.login, password: this.password }),
-    });
+      this.isLoading = true;
+      this.errorMessage = "";
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ login: this.login, password: this.password }),
+        });
 
-    if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem("token", data.access_token);
-      this.$router.push("/dashboard");
-    } else {
-      const data = await response.json();
-      this.errorMessage = data.detail || "Login failed. Please check your credentials.";
-    }
-  } catch (error) {
-    console.error("Error during login:", error);
-    this.errorMessage = "An unexpected error occurred. Please try again.";
-  } finally {
-    this.isLoading = false;
-  }
-},
-
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem("token", data.access_token);
+          this.toast.success("Login effettuato con successo! Bentornato.");
+          this.$router.push("/dashboard");
+        } else {
+          const data = await response.json();
+          this.errorMessage = data.detail || "Accesso negato. Controlla le tue credenziali.";
+          this.toast.error(this.errorMessage);
+        }
+      } catch (error) {
+        console.error("Error during login:", error);
+        this.errorMessage = "Errore di connessione. Riprova più tardi.";
+        this.toast.error(this.errorMessage);
+      } finally {
+        this.isLoading = false;
+      }
+    },
   },
 };
-
 </script>
 
 

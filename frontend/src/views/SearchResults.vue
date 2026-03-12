@@ -27,8 +27,16 @@
 
     <!-- Contenuto -->
     <div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
-      <div v-if="loading" class="flex justify-center items-center h-96">
-        <p class="text-lg text-gray-500 dark:text-gray-400">Caricamento...</p>
+      <div v-if="loading" class="mb-4 grid gap-4 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4 animate-fadeIn">
+        <div v-for="i in 8" :key="i" class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm animate-pulse dark:border-gray-700 dark:bg-gray-800">
+          <div class="h-48 w-full bg-gray-100 dark:bg-gray-700 rounded-lg mb-4"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+          <div class="h-4 bg-gray-100 dark:bg-gray-700 rounded w-1/2 mb-6"></div>
+          <div class="flex justify-between items-center">
+            <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+            <div class="h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-lg"></div>
+          </div>
+        </div>
       </div>
 
       <div v-else-if="error" class="flex justify-center items-center h-96">
@@ -57,6 +65,7 @@
                 class="mx-auto h-full object-contain mix-blend-multiply dark:mix-blend-normal transform group-hover:scale-110 transition-transform duration-500"
                 :src="product.image_url"
                 :alt="product.title"
+                @error="handleImageError"
               />
             </a>
           </div>
@@ -180,6 +189,10 @@ export default {
       }
     };
 
+    const handleImageError = (e) => {
+      e.target.src = 'https://via.placeholder.com/400x400?text=Immagine+non+disponibile';
+    };
+
     onMounted(fetchResults);
 
     watch(
@@ -196,6 +209,7 @@ export default {
       loading,
       error,
       redirectToSearch,
+      handleImageError,
     };
   },
 };

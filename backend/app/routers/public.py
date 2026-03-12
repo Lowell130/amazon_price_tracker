@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query, Depends
-from app.db import get_public_alerts_collection, get_users_collection
+from app.db import get_public_alerts_collection, get_users_collection, get_products_collection
 from app.schemas import GuestAlertSubscription
 from datetime import datetime
 import re
@@ -36,32 +36,22 @@ async def check_subscription(email: str = Query(...), asin: str = Query(...), pu
     return {"subscribed": bool(exists)}
 
 @router.get("/search-products")
-async def search_products(title: str = Query(..., min_length=2), users_collection = Depends(get_users_collection)):
+async def search_products(title: str = Query(..., min_length=2), products_collection = Depends(get_products_collection)):
     try:
         words = title.lower().split()
-        regex_conditions = [{"$regexMatch": {"input": "$$product.title", "regex": rf"\b{word}\b", "options": "i"}} for word in words]
+        regex_conditions = [{"title": {"$regex": rf"\b{word}\b", "$options": "i"}} for word in words]
 
-        products_cursor = users_collection.aggregate([
-            {
-                "$project": {
-                    "filtered_products": {
-                        "$filter": {
-                            "input": "$products",
-                            "as": "product",
-                            "cond": { "$and": regex_conditions }
-                        }
-                    }
-                }
-            },
-            {"$unwind": "$filtered_products"}
-        ])
+        # Cerca i prodotti corrispondenti nella collezione globale (limita i risultati)
+        products_cursor = products_collection.find({"$and": regex_conditions}).limit(50)
 
-        all_products = [doc["filtered_products"] for doc in products_cursor]
+        all_products = list(products_cursor)
 
         if not all_products:
             raise HTTPException(status_code=404, detail="Nessun prodotto trovato.")
 
         for product in all_products:
+            if "_id" in product:
+                del product["_id"]
             old_price = product.get("old_price")
             new_price = product.get("new_price") or product.get("price")
             if old_price and new_price:
@@ -78,14 +68,15 @@ async def search_products(title: str = Query(..., min_length=2), users_collectio
         raise HTTPException(status_code=500, detail=f"Errore nella ricerca: {str(e)}")
 
 @router.get("/product-details/{asin}")
-async def public_product_details(asin: str, users_collection = Depends(get_users_collection)):
-    product_doc = users_collection.find_one({"products.asin": asin}, {"products.$": 1})
+async def public_product_details(asin: str, products_collection = Depends(get_products_collection)):
+    product = products_collection.find_one({"asin": asin})
     
-    if not product_doc or "products" not in product_doc:
+    if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    product = product_doc["products"][0]
-    
+    if "_id" in product:
+        del product["_id"]
+        
     # Override affiliate link with current tag
     from app.config import AFFILIATE_TAG
     product["affiliate"] = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
@@ -129,5 +120,7 @@ async def get_price_drops(
             "displayed_drops": len(drops),
             "data": drops
         }
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving price drops: {str(e)}")

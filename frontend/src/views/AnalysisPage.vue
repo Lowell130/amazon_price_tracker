@@ -23,154 +23,176 @@
         </p>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="loading" class="flex flex-col items-center justify-center py-40">
-        <div class="relative w-16 h-16">
-          <div class="absolute inset-0 border-4 border-blue-500/10 rounded-full"></div>
-          <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+      <div v-if="loading" class="animate-fadeIn">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div v-for="i in 4" :key="i" class="h-44 bg-white/60 dark:bg-gray-800/60 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 animate-pulse flex flex-col p-8 space-y-4">
+            <div class="h-3 w-1/3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="h-8 w-1/2 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="h-10 w-full bg-gray-100 dark:bg-gray-700 rounded-xl mt-auto"></div>
+          </div>
         </div>
-        <p class="mt-8 text-gray-400 font-black uppercase tracking-[0.4em] text-[10px] animate-pulse">Analisi in corso...</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div v-for="i in 6" :key="i" class="h-96 bg-white/60 dark:bg-gray-800/60 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 animate-pulse p-8">
+             <div class="h-40 bg-gray-100 dark:bg-gray-700 rounded-2xl mb-6"></div>
+             <div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+             <div class="h-4 w-1/2 bg-gray-100 dark:bg-gray-700 rounded mb-10"></div>
+             <div class="h-10 w-full bg-blue-100 dark:bg-blue-900/20 rounded-xl"></div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="error" class="py-20 px-6 text-center animate-fadeIn">
+        <div class="w-24 h-24 bg-red-50 dark:bg-red-900/30 rounded-3xl flex items-center justify-center mx-auto mb-6">
+          <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Ops! Si è verificato un errore</h3>
+        <p class="text-gray-500 dark:text-gray-400">{{ error }}</p>
       </div>
 
       <div v-else-if="analysisData && analysisData.summary" class="animate-fadeIn">
         
-        <!-- Analysis Guide Section -->
-        <div class="mb-12 p-8 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-sm">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-4">
-            <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
-              </svg>
-            </span>
-            Analisi AI: Guida alle Metriche
-          </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div class="flex flex-col gap-2">
-              <span class="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Suggerimento</span>
-              <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                Determina se è il momento di comprare (<b>BUY</b>), aspettare (<b>WAIT</b>) o monitorare (<b>HOLD</b>) in base ai minimi storici e alla media.
-              </p>
-            </div>
-            <div class="flex flex-col gap-2">
-              <span class="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Volatilità</span>
-              <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                Indica quanto varia il prezzo. Più è alta, più è probabile che si presentino forti sconti improvvisi.
-              </p>
-            </div>
-            <div class="flex flex-col gap-2">
-              <span class="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">Rischio</span>
-              <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                Basato sulla stabilità dei prezzi. Un rischio alto indica variazioni repentine e imprevedibili.
-              </p>
-            </div>
-            <div class="flex flex-col gap-2">
-              <span class="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Probab. Calo</span>
-              <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                La probabilità statistica che il prezzo scenda ulteriormente rispetto al valore attuale.
-              </p>
+        <!-- Wrap the dashboard panels to hide them if no tracked products -->
+        <template v-if="analysisData.summary.total_tracked > 0">
+          <!-- Analysis Guide Section -->
+          <div class="mb-12 p-8 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-sm">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-4">
+              <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
+                </svg>
+              </span>
+              Analisi AI: Guida alle Metriche
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div class="flex flex-col gap-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Suggerimento</span>
+                <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Determina se è il momento di comprare (<b>BUY</b>), aspettare (<b>WAIT</b>) o monitorare (<b>HOLD</b>) in base ai minimi storici e alla media.
+                </p>
+              </div>
+              <div class="flex flex-col gap-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Volatilità</span>
+                <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Indica quanto varia il prezzo. Più è alta, più è probabile che si presentino forti sconti improvvisi.
+                </p>
+              </div>
+              <div class="flex flex-col gap-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">Rischio</span>
+                <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Basato sulla stabilità dei prezzi. Un rischio alto indica variazioni repentine e imprevedibili.
+                </p>
+              </div>
+              <div class="flex flex-col gap-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Probab. Calo</span>
+                <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                  La probabilità statistica che il prezzo scenda ulteriormente rispetto al valore attuale.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Summary Stats Grid (Bento Style) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          <!-- Market Sentiment Card -->
-           <div class="lg:col-span-2 p-8 bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-xl flex flex-col justify-between overflow-hidden relative group">
-             <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-700">
-               <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-             </div>
-             <div>
-                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em] mb-6">Sentiment Mercato</p>
-                <h2 class="text-4xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">{{ analysisData.summary.market_sentiment }}</h2>
-                <p class="text-gray-500 dark:text-gray-400 font-medium text-sm">Analisi statistica su {{ analysisData.summary.total_tracked }} prodotti monitorati.</p>
-             </div>
-             <div class="mt-10 flex gap-3 flex-wrap">
-               <div class="px-4 py-2 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-2xl border border-emerald-500/20">
-                 <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">{{ analysisData.summary.buy_opportunities }} Occasioni</span>
-               </div>
-               <div class="px-4 py-2 bg-blue-500/10 dark:bg-blue-500/20 rounded-2xl border border-blue-500/20">
-                 <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider">{{ analysisData.summary.at_all_time_low }} Minimi Storici</span>
-               </div>
-             </div>
-           </div>
+          <!-- Summary Stats Grid (Bento Style) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <!-- Market Sentiment Card -->
+            <div class="lg:col-span-2 p-8 bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-xl flex flex-col justify-between overflow-hidden relative group">
+              <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-700">
+                <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </div>
+              <div>
+                  <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em] mb-6">Sentiment Mercato</p>
+                  <h2 class="text-4xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">{{ analysisData.summary.market_sentiment }}</h2>
+                  <p class="text-gray-500 dark:text-gray-400 font-medium text-sm">Analisi statistica su {{ analysisData.summary.total_tracked }} prodotti monitorati.</p>
+              </div>
+              <div class="mt-10 flex gap-3 flex-wrap">
+                <div class="px-4 py-2 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-2xl border border-emerald-500/20">
+                  <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">{{ analysisData.summary.buy_opportunities }} Occasioni</span>
+                </div>
+                <div class="px-4 py-2 bg-blue-500/10 dark:bg-blue-500/20 rounded-2xl border border-blue-500/20">
+                  <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider">{{ analysisData.summary.at_all_time_low }} Minimi Storici</span>
+                </div>
+              </div>
+            </div>
 
-           <!-- Volatility Card -->
-           <div class="p-8 bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-xl relative overflow-hidden group flex flex-col justify-between">
-             <div>
-                <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em] mb-4">Volatilità Media</p>
-                <div class="text-5xl font-bold text-blue-600 dark:text-blue-400 tracking-tight group-hover:rotate-3 transition-transform">{{ analysisData.summary.avg_volatility }}%</div>
-             </div>
-             <p class="text-[10px] text-gray-400 mt-6 font-bold uppercase tracking-[0.1em] leading-relaxed">Indice di variazione dei prezzi nell'ultimo periodo.</p>
-           </div>
+            <!-- Volatility Card -->
+            <div class="p-8 bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-xl relative overflow-hidden group flex flex-col justify-between">
+              <div>
+                  <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em] mb-4">Volatilità Media</p>
+                  <div class="text-5xl font-bold text-blue-600 dark:text-blue-400 tracking-tight group-hover:rotate-3 transition-transform">{{ analysisData.summary.avg_volatility }}%</div>
+              </div>
+              <p class="text-[10px] text-gray-400 mt-6 font-bold uppercase tracking-[0.1em] leading-relaxed">Indice di variazione dei prezzi nell'ultimo periodo.</p>
+            </div>
 
-           <!-- Stability Card -->
-           <div class="p-8 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden shadow-blue-500/30 flex flex-col justify-between">
-             <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-             <div>
-                <p class="text-[10px] font-black text-white/50 uppercase tracking-[0.3em] mb-4">Prezzi Stabili</p>
-                <div class="text-5xl font-black tracking-tighter">{{ analysisData.summary.stable_items }}</div>
-             </div>
-             <div class="mt-6 flex items-center gap-2">
-               <span class="p-1.5 bg-white/20 rounded-xl backdrop-blur-md">
-                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-               </span>
-               <span class="text-[10px] font-black uppercase tracking-widest">Hold suggerito</span>
-             </div>
-           </div>
-        </div>
+            <!-- Stability Card -->
+            <div class="p-8 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden shadow-blue-500/30 flex flex-col justify-between">
+              <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+              <div>
+                  <p class="text-[10px] font-black text-white/50 uppercase tracking-[0.3em] mb-4">Prezzi Stabili</p>
+                  <div class="text-5xl font-black tracking-tighter">{{ analysisData.summary.stable_items }}</div>
+              </div>
+              <div class="mt-6 flex items-center gap-2">
+                <span class="p-1.5 bg-white/20 rounded-xl backdrop-blur-md">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </span>
+                <span class="text-[10px] font-black uppercase tracking-widest">Hold suggerito</span>
+              </div>
+            </div>
+          </div>
+        </template>
 
         <!-- Recommendations Section -->
-        <div class="flex flex-col lg:flex-row items-center justify-between mb-10 gap-6">
-          <h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-4 shrink-0">
-            <span class="w-10 h-10 rounded-2xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 flex items-center justify-center text-lg">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-            </span>
-            Analisi per Prodotto
-          </h3>
-          
-          <!-- Advanced Controls -->
-          <div class="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
-            <!-- Search Bar -->
-            <div class="relative w-full md:w-64">
-              <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        <template v-if="analysisData.summary.total_tracked > 0">
+          <div class="flex flex-col lg:flex-row items-center justify-between mb-10 gap-6">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-4 shrink-0">
+              <span class="w-10 h-10 rounded-2xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 flex items-center justify-center text-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+              </span>
+              Analisi per Prodotto
+            </h3>
+            
+            <!-- Advanced Controls -->
+            <div class="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
+              <!-- Search Bar -->
+              <div class="relative w-full md:w-64">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </div>
+                <input 
+                  v-model="searchQuery"
+                  type="text" 
+                  placeholder="Cerca prodotto..."
+                  class="block w-full pl-10 pr-4 py-2.5 rounded-2xl border-transparent bg-white/60 dark:bg-gray-800/60 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
+                >
               </div>
-              <input 
-                v-model="searchQuery"
-                type="text" 
-                placeholder="Cerca prodotto..."
-                class="block w-full pl-10 pr-4 py-2.5 rounded-2xl border-transparent bg-white/60 dark:bg-gray-800/60 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
-              >
-            </div>
 
-            <!-- Filter Groups -->
-            <div class="flex items-center gap-2 bg-white/50 dark:bg-gray-800/50 p-1.5 rounded-2xl border border-gray-100 dark:border-gray-700 backdrop-blur-md">
-              <button 
-                v-for="f in ['TUTTI', 'BUY', 'HOLD', 'WAIT']" 
-                :key="f"
-                @click="selectedFilter = f"
-                class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300"
-                :class="selectedFilter === f 
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
-                  : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'"
-              >
-                {{ f }}
-              </button>
-            </div>
+              <!-- Filter Groups -->
+              <div class="flex items-center gap-2 bg-white/50 dark:bg-gray-800/50 p-1.5 rounded-2xl border border-gray-100 dark:border-gray-700 backdrop-blur-md">
+                <button 
+                  v-for="f in ['TUTTI', 'BUY', 'HOLD', 'WAIT']" 
+                  :key="f"
+                  @click="selectedFilter = f"
+                  class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300"
+                  :class="selectedFilter === f 
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
+                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'"
+                >
+                  {{ f }}
+                </button>
+              </div>
 
-            <!-- Sort Select -->
-            <select 
-              v-model="sortBy"
-              class="px-4 py-2.5 rounded-2xl border-transparent bg-white/60 dark:bg-gray-800/60 dark:text-white text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-blue-500 transition-all shadow-sm cursor-pointer"
-            >
-              <option value="recent">Recenti</option>
-              <option value="price-asc">Prezzo: Crescente</option>
-              <option value="price-desc">Prezzo: Decrescente</option>
-              <option value="drop-chance">Probab. Calo</option>
-              <option value="volatility">Volatilità</option>
-            </select>
+              <!-- Sort Select -->
+              <select 
+                v-model="sortBy"
+                class="px-4 py-2.5 rounded-2xl border-transparent bg-white/60 dark:bg-gray-800/60 dark:text-white text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-blue-500 transition-all shadow-sm cursor-pointer"
+              >
+                <option value="recent">Recenti</option>
+                <option value="price-asc">Prezzo: Crescente</option>
+                <option value="price-desc">Prezzo: Decrescente</option>
+                <option value="drop-chance">Probab. Calo</option>
+                <option value="volatility">Volatilità</option>
+              </select>
+            </div>
           </div>
-        </div>
+        </template>
 
         <div v-if="filteredItems.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
            <InsightCard v-for="item in filteredItems" :key="item.asin" :item="item" class="animate-fadeIn" />

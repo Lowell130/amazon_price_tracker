@@ -2,17 +2,22 @@ import logging
 import asyncio
 import os
 from telegram import Update
+from telegram.error import Conflict, NetworkError
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from app.db import get_db, get_users_collection
 from app.config import TEL_TOKEN, CHANNEL_ID
 import requests
 
-# Configurazione Logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
+# Silenzia i log interni di telegram per evitare il rumore durante il reload
+logging.getLogger("telegram.ext.Updater").setLevel(logging.CRITICAL)
+logging.getLogger("telegram.ext._updater").setLevel(logging.CRITICAL)
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 # Global application instance
 application = None
@@ -75,22 +80,44 @@ async def start_bot():
         return
 
     application = ApplicationBuilder().token(TEL_TOKEN).build()
+    
+    # Gestore errori globale per silenziare i conflitti attesi
+    async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if isinstance(context.error, Conflict):
+            logger.debug("Telegram Conflict ignorato nel gestore errori.")
+            return
+        logger.error("Eccezione non gestita nel bot Telegram:", exc_info=context.error)
+
+    application.add_error_handler(error_handler)
+    
     start_handler = CommandHandler('start', start)
     application.add_handler(start_handler)
 
     await application.initialize()
     await application.start()
-    await application.updater.start_polling()
-    logger.info("Telegram Bot avviato (async).")
+    
+    try:
+        await application.updater.start_polling(drop_pending_updates=True)
+        logger.info("Telegram Bot avviato (polling attivo).")
+    except Conflict:
+        logger.warning("Conflitto Telegram Bot rilevato (probabile reload in corso). La nuova istanza prenderà il controllo a breve.")
+    except Exception as e:
+        logger.error(f"Errore durante l'avvio del polling Telegram: {e}")
 
 async def stop_bot():
     """Ferma il bot Telegram."""
     global application
     if application:
-        await application.updater.stop()
-        await application.stop()
-        await application.shutdown()
-        logger.info("Telegram Bot fermato.")
+        try:
+            if application.updater and application.updater.running:
+                await application.updater.stop()
+            await application.stop()
+            await application.shutdown()
+            logger.info("Telegram Bot fermato correttamente.")
+        except Exception as e:
+            logger.error(f"Errore durante lo stop del bot Telegram: {e}")
+        finally:
+            application = None
 
 def broadcast_price_drops():
     """Legge l'ultimo report e lo invia al canale Telegram."""

@@ -221,10 +221,15 @@ import UpdateProd from "../components/UpdateProd.vue";
 // import CombinedPriceChart from '../components/CombinedPriceChart.vue';
 // import { jwtDecode } from "jwt-decode"; // Importazione specifica
 import { fetchWithToken } from "@/api";
+import { useToast } from '@/store/toast';
 
 export default {
   name: "DashboardPage",
   components: { ProductList, UpdateProd },
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
   data() {
     return {
       showConfirmModal: false, // Stato della visibilità della modale di conferma
@@ -291,7 +296,7 @@ export default {
     async addProduct() {
       try {
         if (!this.selectedCategory) {
-          this.showModal = true;
+          this.toast.warning("Seleziona una categoria prima di aggiungere un prodotto.");
           return;
         }
 
@@ -314,12 +319,15 @@ export default {
         if (!response.ok) {
           const errorData = await response.json();
           if (errorData.detail === "Product already being tracked") {
-            alert("This product is already being tracked!");
+            this.toast.warning("Questo prodotto è già tracciato!");
+          } else {
+            this.toast.error(errorData.detail || "Errore durante l'aggiunta del prodotto.");
           }
           throw new Error(errorData.detail);
         }
 
         const data = await response.json();
+        this.toast.success("Prodotto aggiunto con successo!");
         console.log("Affiliate link generated:", data.affiliate); // Verifica il link affiliato
 
         this.productUrl = "";

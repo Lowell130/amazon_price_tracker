@@ -1,21 +1,26 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { jwtDecode } from "jwt-decode"; // Importazione specifica
 import HomePage from "../views/HomePage.vue";
-import RegisterPage from "../views/RegisterPage.vue";
-import LoginPage from "../views/LoginPage.vue";
-import DashboardPage from "../views/DashboardPage.vue";
-import ProfilePage from "../views/ProfilePage.vue";
-import ProductDetail from "../views/ProductDetail.vue";
-import SearchResults from "../views/SearchResults.vue"; // 🔥 Nuova pagina per la ricerca
-import PasswordResetRequest from "../views/PasswordResetRequest.vue";
-import PasswordReset from "../views/PasswordReset.vue";
-import AdminUsersPage from "../views/AdminUsersPage.vue";
-import AnalysisPage from "../views/AnalysisPage.vue";
+
+// Lazy Loading delle views per ottimizzare le prestazioni
+const RegisterPage = () => import(/* webpackChunkName: "auth" */ "../views/RegisterPage.vue");
+const LoginPage = () => import(/* webpackChunkName: "auth" */ "../views/LoginPage.vue");
+const PasswordResetRequest = () => import(/* webpackChunkName: "auth" */ "../views/PasswordResetRequest.vue");
+const PasswordReset = () => import(/* webpackChunkName: "auth" */ "../views/PasswordReset.vue");
+
+const DashboardPage = () => import(/* webpackChunkName: "user" */ "../views/DashboardPage.vue");
+const ProfilePage = () => import(/* webpackChunkName: "user" */ "../views/ProfilePage.vue");
+const AnalysisPage = () => import(/* webpackChunkName: "user" */ "../views/AnalysisPage.vue");
+
+const ProductDetail = () => import(/* webpackChunkName: "products" */ "../views/ProductDetail.vue");
+const SearchResults = () => import(/* webpackChunkName: "products" */ "../views/SearchResults.vue");
+
+const AdminUsersPage = () => import(/* webpackChunkName: "admin" */ "../views/AdminUsersPage.vue");
 
 const routes = [
   { path: "/", name: "Home", component: HomePage },
-  { path: "/register", name: "Register", component: RegisterPage },
-  { path: "/login", name: "Login", component: LoginPage },
+  { path: "/register", name: "Register", component: RegisterPage, meta: { forbidsAuth: true } },
+  { path: "/login", name: "Login", component: LoginPage, meta: { forbidsAuth: true } },
   { path: "/dashboard", name: "Dashboard", component: DashboardPage, meta: { requiresAuth: true } },
   { path: "/profile", name: "Profile", component: ProfilePage, meta: { requiresAuth: true } },
   { path: "/products/:asin", name: "ProductDetail", component: ProductDetail },
@@ -71,6 +76,12 @@ router.beforeEach((to, from, next) => {
         localStorage.removeItem("token");
         next("/login");
       }
+    }
+  } else if (to.matched.some((record) => record.meta.forbidsAuth)) {
+    if (token) {
+      next("/dashboard");
+    } else {
+      next();
     }
   } else {
     next();

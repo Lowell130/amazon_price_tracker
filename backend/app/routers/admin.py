@@ -47,7 +47,22 @@ async def get_user_products(username: str, users_collection = Depends(get_users_
     user = users_collection.find_one({"username": username})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return user.get("products", [])
+    
+    user_products = user.get("products", [])
+    products_collection = users_collection.database["products"]
+    
+    merged_products = []
+    for user_prod in user_products:
+        asin = user_prod.get("asin")
+        global_prod = products_collection.find_one({"asin": asin})
+        if global_prod:
+            # Merge: global data + user specific data (category, favorite status etc)
+            merged = {**global_prod, **user_prod}
+            if "_id" in merged:
+                del merged["_id"]
+            merged_products.append(merged)
+            
+    return merged_products
 
 @router.post("/users/{username}/reset-password")
 async def admin_reset_password(username: str, users_collection = Depends(get_users_collection)):
