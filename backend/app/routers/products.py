@@ -3,7 +3,7 @@ from typing import List
 from app.schemas import ProductRequest
 from app.dependencies import get_current_user
 from app.db import get_users_collection, get_products_collection
-from app.scraper import fetch_product_data
+from app.scraper import fetch_product_data, get_asin_from_url
 from app.services.product_service import update_prices
 from app.config import AFFILIATE_TAG
 from datetime import datetime
@@ -23,28 +23,39 @@ async def add_product(
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    product_data = fetch_product_data(request.product_url)
-    if not product_data or not product_data.get("price"):
-        raise HTTPException(status_code=400, detail="Error fetching product data")
-
-    asin = product_data["asin"]
+    # 1. Estrai ASIN dall'URL per controllare se esiste già nel DB globale
+    asin = get_asin_from_url(request.product_url)
+    
+    if not asin:
+        raise HTTPException(status_code=400, detail="Invalid Amazon URL (ASIN not found)")
 
     if any(product["asin"] == asin for product in db_user.get("products", [])):
         raise HTTPException(status_code=400, detail="Product already being tracked")
 
-    affiliate_link = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
-
-    # Upsert global product
+    # 2. Upsert global product
     global_product = products_collection.find_one({"asin": asin})
-    if not global_product:
+    
+    if global_product:
+        logger.info(f"Product {asin} already exists in global DB. Skipping initial scraping.")
+        # Se il prodotto esiste già, lo usiamo senza fare scraping immediato
+        # (Verrà aggiornato dallo scheduler o manualmente)
+    else:
+        logger.info(f"Product {asin} not found in global DB. Fetching data...")
+        product_data = fetch_product_data(request.product_url)
+        if not product_data or not product_data.get("price"):
+            raise HTTPException(status_code=400, detail="Error fetching product data")
+        
         initial_price = float(product_data["price"])
         product_data["max_price"] = initial_price
         product_data["min_price"] = initial_price
         product_data["average_price"] = initial_price
         product_data["price_history"] = [{"date": datetime.now().isoformat(), "price": initial_price}]
         products_collection.insert_one(product_data)
+        global_product = product_data
 
-    # Add reference to user
+    # 3. Add reference to user
+    affiliate_link = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
+    
     user_product_ref = {
         "asin": asin,
         "product_url": request.product_url,

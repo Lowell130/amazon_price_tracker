@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Amazon Price Tracker Helper",
+  "version": "1.0.0",
+  "description": "Aggiunge i prodotti Amazon al tuo Amazon Price Tracker in locale.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.amazon.it/*",
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*"
+  ],
+  "action": {
+    "default_title": "Amazon Price Tracker",
+    "default_popup": "popup.html"
+  }
+}

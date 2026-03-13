@@ -10,7 +10,9 @@ router = APIRouter(
     tags=["extension"]
 )
 
-EXTENSION_PATH = r"c:\Users\stefa\Desktop\amazon-extension"
+# Dynamically find the project root and the extension path
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+EXTENSION_PATH = os.path.join(BASE_DIR, "amazon-extension")
 
 @router.get("/download")
 async def download_extension():
