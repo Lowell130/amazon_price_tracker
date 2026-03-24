@@ -101,7 +101,7 @@ def analyze_product_price(product):
     # Price close to max and trend is up
     elif current_price >= max_price * 0.98 or (current_price > avg_price * 1.05 and trend == "up"):
         recommendation = "WAIT"
-        reason = "⚠️ Prezzo in forte rialzo o vicino ai massimi. Consigliamo di attendere un rintracciamento."
+        reason = "⚠️ Prezzo in forte rialzo o vicino ai massimi. Consigliamo di attendere un calo di prezzo."
         chance_of_drop = 75
     # Price significantly above average
     elif current_price > avg_price * 1.08:

@@ -94,8 +94,18 @@
           </div>
         </div>
       </div>
-      <!-- Modale per lo stato di aggiornamento -->
-      <UpdateProd :isVisible="isLoading" :message="modalMessage" />
+      <!-- Action Confirm Modal (Premium) -->
+      <ActionConfirmModal 
+        :show="showConfirmModal || isLoading"
+        :loading="isLoading"
+        title="Aggiorna Prezzi"
+        message="Sei sicuro di voler aggiornare tutti i prezzi ora? Questa operazione potrebbe richiedere alcuni secondi."
+        loadingTitle="Aggiornamento in corso"
+        loadingMessage="Stiamo recuperando i prezzi più recenti da Amazon..."
+        confirmText="Sì, aggiorna tutto"
+        @close="closeConfirmModal"
+        @confirm="confirmUpdateAll"
+      />
     </div>
     <!-- <CombinedPriceChart :products="products" /> -->
 
@@ -107,119 +117,12 @@
       @refresh-products="fetchProducts"
     />
 
-    <!-- Modale -->
-    <div
-      v-if="showModal"
-      id="popup-modal"
-      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-    >
-      <div
-        class="relative bg-white rounded-lg shadow dark:bg-gray-700 w-11/12 max-w-md p-6"
-      >
-        <button
-          @click="closeModal"
-          class="absolute top-3 right-3 text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8"
-        >
-          <svg
-            class="w-4 h-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-        <div class="text-center">
-          <svg
-            class="mx-auto mb-4 text-gray-400 w-12 h-12"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 16h-1v-4h-1m-1-4h4m1 5a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z"
-            />
-          </svg>
-          <h3 class="mb-5 text-lg font-medium text-gray-700">
-            Seleziona una categoria prima di aggiungere un prodotto.
-          </h3>
-          <button
-            @click="closeModal"
-            class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-800"
-          >
-            Ok
-          </button>
-        </div>
-      </div>
-    </div>
-    <!-- EndModale -->
-    <!-- Modale update all -->
-    <!-- Modale di conferma per Update All -->
-    <div
-      v-if="showConfirmModal"
-      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-    >
-      <div
-        class="relative bg-white rounded-lg shadow dark:bg-gray-700 w-11/12 max-w-md p-6"
-      >
-        <button
-          @click="closeConfirmModal"
-          class="absolute top-3 right-3 text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-4 h-4"
-        >
-          <svg
-            class="w-4 h-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-        <div class="text-center">
-          <h3 class="mb-5 text-lg font-medium text-gray-700">
-            Are you sure you want to update all prices?
-          </h3>
-          <div class="flex justify-center space-x-4">
-            <button
-              @click="confirmUpdateAll"
-              class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-800"
-            >
-              Yes
-            </button>
-            <button
-              @click="closeConfirmModal"
-              class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- end modale update all -->
   </section>
 </template>
 
 <script>
 import ProductList from "../components/ProductList.vue";
-import UpdateProd from "../components/UpdateProd.vue";
+import ActionConfirmModal from "../components/ActionConfirmModal.vue";
 // import CombinedPriceChart from '../components/CombinedPriceChart.vue';
 // import { jwtDecode } from "jwt-decode"; // Importazione specifica
 import { fetchWithToken } from "@/api";
@@ -227,7 +130,7 @@ import { useToast } from '@/store/toast';
 
 export default {
   name: "DashboardPage",
-  components: { ProductList, UpdateProd },
+  components: { ProductList, ActionConfirmModal },
   setup() {
     const toast = useToast();
     return { toast };

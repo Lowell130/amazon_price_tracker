@@ -137,7 +137,7 @@
         leave-from-class="transform translate-y-0 opacity-100 scale-100"
         leave-to-class="transform -translate-y-4 opacity-0 scale-95"
       >
-        <div v-if="isMobileMenuOpen" class="md:hidden border-t border-gray-100 dark:border-gray-800 overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-3xl rounded-b-2xl shadow-2xl">
+        <div v-if="isMobileMenuOpen" class="md:hidden border-t border-gray-100 dark:border-gray-800 overflow-y-auto max-h-[80vh] bg-white/95 dark:bg-gray-900/95 backdrop-blur-3xl rounded-b-2xl shadow-2xl">
           <div class="px-6 py-8 space-y-6">
             <!-- Core Navigation -->
             <div class="space-y-4">

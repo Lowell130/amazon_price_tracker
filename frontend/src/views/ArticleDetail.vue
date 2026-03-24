@@ -10,135 +10,149 @@
       <router-link to="/blog" class="text-blue-500 hover:underline mt-4 inline-block">Torna al Blog</router-link>
     </div>
 
-    <div v-else class="mx-auto max-w-screen-lg px-4 pt-12">
+    <div v-else class="mx-auto max-w-screen-xl px-4 pt-12 pb-24">
       <!-- Article Header -->
-      <nav class="mb-8 flex items-center text-xs font-bold text-gray-400 uppercase tracking-widest gap-2">
+      <nav class="mb-14 flex items-center justify-center text-[10px] font-black text-gray-400 uppercase tracking-[0.4em] gap-4">
         <router-link to="/blog" class="hover:text-blue-500 transition-colors">Blog</router-link>
-        <span>/</span>
-        <span class="text-gray-900 dark:text-white truncate max-w-[200px] sm:max-w-[400px]">{{ article.title }}</span>
+        <span class="opacity-20">/</span>
+        <span class="text-gray-900 dark:text-white truncate max-w-[400px]">{{ article.title }}</span>
       </nav>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        <!-- Main Content Area (Left/Center) -->
-        <div class="lg:col-span-8">
-          <h1 class="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
-            {{ article.title }}
-          </h1>
+      <div class="max-w-6xl mx-auto">
+        <!-- Main Title -->
+        <h1 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-12 leading-[1.1] tracking-tighter text-center">
+          {{ article.title }}
+        </h1>
 
-          <!-- Meta Info -->
-          <div class="flex items-center gap-4 mb-10 py-6 border-y border-gray-100 dark:border-gray-800">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-lg">
-              AI
-            </div>
-            <div>
-              <div class="text-sm font-bold text-gray-900 dark:text-white">Autore: AI Insights</div>
-              <div class="text-xs text-gray-500">{{ formatDate(article.published_at) }}</div>
-            </div>
-          </div>
-
-          <!-- AI INSIGHT BOX (Analisi Convenienza) -->
-          <div v-if="article.product?.analysis" class="mb-12 p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-xl relative overflow-hidden group">
-            <div class="flex items-start justify-between mb-6">
-              <div 
-                class="px-6 py-2 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg"
-                :class="recommendationClasses"
-              >
-                {{ article.product.analysis.recommendation }}
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="w-2.5 h-2.5 rounded-full animate-pulse" :class="trendColor"></div>
-                <span class="text-[10px] uppercase font-black text-gray-400 tracking-widest">{{ trendLabel }}</span>
-              </div>
-            </div>
-            
-            <div class="bg-blue-50/30 dark:bg-blue-900/10 rounded-2xl p-6 mb-8 relative">
-              <p class="text-lg leading-relaxed text-gray-800 dark:text-gray-200 font-bold italic tracking-tight italic">
-                "{{ article.product.analysis.reason }}"
-              </p>
-            </div>
-
-            <div class="grid grid-cols-2 gap-6">
-              <div>
-                <span class="text-[10px] uppercase font-black text-gray-400 tracking-widest block mb-2">Rischio</span>
-                <span class="text-sm font-black" :class="riskColor">{{ article.product.analysis.risk_level }}</span>
-              </div>
-              <div class="text-right">
-                <span class="text-[10px] uppercase font-black text-gray-400 tracking-widest block mb-2">Probab. Calo</span>
-                <div class="flex items-center justify-end gap-3">
-                  <div class="w-24 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-blue-500 to-indigo-600" :style="{ width: article.product.analysis.chance_of_drop + '%' }"></div>
+        <!-- PREMIUM PRODUCT HERO SECTION -->
+        <div class="mb-20">
+          <div class="relative p-1 rounded-[4rem] bg-gray-100 dark:bg-gray-800 shadow-2xl overflow-hidden group">
+            <div class="relative bg-white dark:bg-gray-950 rounded-[3.8rem] p-8 md:p-14 border border-gray-100 dark:border-gray-800">
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Product Image + Floating Recommendation -->
+                <div class="lg:col-span-5 relative">
+                  <div class="aspect-square bg-white dark:bg-gray-950 rounded-[3rem] p-10 flex items-center justify-center relative border border-gray-100 dark:border-gray-800 group-hover:scale-105 transition-transform duration-700">
+                    <img :src="article.product?.image_url || article.amazon_product_image_url" class="w-full h-full object-contain" :alt="article.title" />
+                    
+                    <!-- Floating Recommendation Badge -->
+                    <div v-if="article.product?.analysis" class="absolute -top-4 -right-4">
+                       <div class="px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-white shadow-2xl scale-110" :class="recommendationClasses">
+                         AI: {{ article.product.analysis.recommendation }}
+                       </div>
+                    </div>
                   </div>
-                  <span class="text-sm font-black dark:text-white">{{ article.product.analysis.chance_of_drop }}%</span>
                 </div>
-              </div>
-            </div>
-          </div>
 
-          <!-- Main Article Content (AI Generated) -->
-          <div class="prose prose-lg dark:prose-invert max-w-none 
-                      prose-headings:font-black prose-headings:tracking-tight
-                      prose-h1:text-4xl prose-h2:text-3xl
-                      prose-p:text-gray-600 dark:prose-p:text-gray-300
-                      prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:font-bold
-                      prose-strong:text-gray-900 dark:prose-strong:text-white">
-            <div v-html="renderedContent"></div>
-          </div>
+                <!-- Product Content -->
+                <div class="lg:col-span-7 space-y-8">
+                  <div class="text-center lg:text-left">
+                    <div class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.3em] mb-3">
+                       Prezzo Attuale Amazon
+                    </div>
+                    <div class="text-6xl font-black dark:text-white tracking-tighter inline-flex items-start">
+                      <span class="text-2xl mt-2 mr-1">€</span>
+                      {{ article.product?.price || article.amazon_product_price }}
+                    </div>
+                  </div>
 
-          <!-- Price History Chart -->
-          <div v-if="article.product?.price_history" class="mt-16 bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-xl">
-            <div class="p-8 border-b border-gray-50 dark:border-gray-800">
-              <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Storico <span class="text-blue-600">Prezzi</span></h3>
-            </div>
-            <div class="p-6">
-              <ChartPage :priceHistory="article.product.price_history" />
-            </div>
-          </div>
+                  <!-- Integrated AI Advice (Intuitive explanation) -->
+                  <div v-if="article.product?.analysis" class="p-6 bg-gray-50 dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 space-y-4">
+                     <p class="text-gray-900 dark:text-white font-bold leading-relaxed text-lg italic">
+                        "{{ article.product.analysis.reason }}"
+                     </p>
+                     <div class="flex items-center gap-6">
+                        <div class="flex-1 space-y-1.5">
+                           <div class="flex justify-between text-[10px] uppercase font-black tracking-widest text-gray-400">
+                             <span>Prezzo Minimo</span>
+                             <span>Prezzo Massimo</span>
+                           </div>
+                           <!-- Price Range Bar -->
+                           <div class="relative h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                              <div 
+                                class="absolute h-full bg-gradient-to-r from-emerald-500 via-blue-500 to-rose-500"
+                                :style="{ 
+                                  left: 0,
+                                  right: 0
+                                }"
+                              ></div>
+                              <!-- Current Price Marker -->
+                              <div 
+                                class="absolute top-0 w-2 h-full bg-white shadow-md border border-gray-300 pointer-events-none"
+                                :style="{ 
+                                  left: calculatePricePosition(article.product) + '%' 
+                                }"
+                              ></div>
+                           </div>
+                           <div class="flex justify-between text-[11px] font-black dark:text-white">
+                              <span>{{ article.product.min_price }}€</span>
+                              <span class="text-blue-500">Oggi: {{ article.product.price }}€</span>
+                              <span>{{ article.product.max_price }}€</span>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
 
-          <!-- Tech Specs Grid -->
-          <div v-if="article.product?.details?.length" class="mt-16">
-            <h3 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-8">Scheda <span class="text-emerald-500">Tecnica</span></h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div v-for="(detail, index) in article.product.details" :key="index" class="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{{ Object.keys(detail)[0] }}</p>
-                <p class="text-sm font-bold dark:text-white leading-relaxed">{{ Object.values(detail)[0] }}</p>
+                  <!-- CTA Section -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                    <a :href="affiliateUrl" target="_blank" rel="nofollow" class="flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-black rounded-2xl shadow-xl shadow-orange-500/30 hover:-translate-y-1 transition-all uppercase tracking-[0.2em] text-[11px] group">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                      Vedi su Amazon
+                    </a>
+                    <router-link :to="`/products/${article.asin}`" class="flex items-center justify-center px-8 py-5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl shadow-xl shadow-blue-500/20 hover:-translate-y-1 transition-all uppercase tracking-[0.2em] text-[11px]">
+                      Grafici & Alert
+                    </router-link>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Sidebar / Floating Data -->
-        <div class="lg:col-span-4 space-y-8">
-          <!-- Buy Now Product Card -->
-          <div class="sticky top-24 p-8 rounded-[2.5rem] bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-2xl">
-            <div class="aspect-square bg-white dark:bg-gray-800 rounded-2xl p-6 mb-8 shadow-inner border border-gray-50 dark:border-gray-700">
-              <img :src="article.product?.image_url || article.amazon_product_image_url || 'https://placehold.co/400x400?text=Amazon+Product'" class="w-full h-full object-contain" :alt="article.title" />
+        <!-- Meta info -->
+        <div class="flex items-center gap-4 mb-20 px-8">
+           <div class="w-12 h-12 rounded-2xl bg-gray-900 flex items-center justify-center text-white font-black text-sm shadow-xl">AI</div>
+           <div>
+             <div class="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">Data Analysis Insights</div>
+             <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{{ formatDate(article.published_at) }}</div>
+           </div>
+        </div>
+
+        <!-- Main Content (PROSE) -->
+        <div class="prose prose-2xl prose-blue dark:prose-invert max-w-none 
+                    prose-headings:text-gray-900 dark:prose-headings:text-white 
+                    prose-headings:font-black prose-headings:tracking-tighter
+                    prose-p:text-gray-600/90 dark:prose-p:text-gray-400 
+                    prose-p:leading-[1.9] prose-p:mb-10
+                    prose-strong:text-gray-900 dark:prose-strong:text-white
+                    prose-img:rounded-[3rem] prose-img:shadow-2xl">
+          <div v-html="renderedContent"></div>
+        </div>
+
+        <!-- Technical Specs & Chart Section -->
+        <div class="mt-32 space-y-24">
+          <!-- Specs -->
+          <div v-if="article.product?.details?.length">
+             <div class="text-center mb-12">
+               <h3 class="text-4xl font-black text-gray-900 dark:text-white tracking-widest uppercase">SCHEDA <span class="text-emerald-500">TECNICA</span></h3>
+               <div class="w-16 h-1 bg-emerald-500 mx-auto mt-4 rounded-full"></div>
+             </div>
+             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div v-for="(detail, index) in article.product.details" :key="index" class="p-6 bg-white dark:bg-gray-950 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+                  <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ Object.keys(detail)[0] }}</span>
+                  <span class="text-sm font-bold dark:text-white text-right max-w-[60%]">{{ Object.values(detail)[0] }}</span>
+                </div>
+             </div>
+          </div>
+
+          <!-- Chart -->
+          <div v-if="article.product?.price_history">
+            <div class="text-center mb-12">
+              <h3 class="text-4xl font-black text-gray-900 dark:text-white tracking-widest uppercase">ANALISI <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">PREZZI</span></h3>
+              <div class="w-16 h-1 bg-blue-600 mx-auto mt-4 rounded-full"></div>
             </div>
-            
-            <div class="space-y-6">
-              <div class="text-center">
-                <span class="text-[10px] uppercase font-black text-gray-400 tracking-widest block mb-2">Prezzo Attuale su Amazon</span>
-                <div class="text-4xl font-black dark:text-white tracking-tighter">€{{ article.product?.price || article.amazon_product_price }}</div>
-              </div>
-
-              <!-- Metriche Chiave -->
-              <div v-if="article.product" class="space-y-3 pt-6 border-t border-gray-100 dark:border-gray-800">
-                <div class="flex items-center justify-between">
-                  <span class="text-[10px] font-bold text-gray-400 uppercase">Minimo</span>
-                  <span class="text-sm font-black text-emerald-500">{{ article.product.min_price }}€</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-[10px] font-bold text-gray-400 uppercase">Massimo</span>
-                  <span class="text-sm font-black text-rose-500">{{ article.product.max_price }}€</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-[10px] font-bold text-gray-400 uppercase">Media</span>
-                  <span class="text-sm font-black text-blue-500">{{ article.product.average_price }}€</span>
-                </div>
-              </div>
-
-              <a :href="affiliateUrl" target="_blank" rel="nofollow" class="block w-full py-5 bg-orange-500 hover:bg-orange-600 text-white text-center font-black rounded-2xl shadow-lg shadow-orange-500/30 transition-all uppercase tracking-widest text-sm active:scale-95">
-                Vedi su Amazon
-              </a>
+            <div class="bg-white dark:bg-gray-950 p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+              <ChartPage :priceHistory="article.product.price_history" />
             </div>
           </div>
         </div>
@@ -237,6 +251,13 @@ export default {
         month: "long",
         year: "numeric"
       });
+    },
+    calculatePricePosition(product) {
+      if (!product || !product.min_price || !product.max_price || !product.price) return 0;
+      const range = product.max_price - product.min_price;
+      if (range === 0) return 50;
+      const position = ((product.price - product.min_price) / range) * 100;
+      return Math.min(Math.max(position, 0), 100);
     }
   }
 };
@@ -252,4 +273,3 @@ export default {
   color: #f9fafb; /* text-gray-50 */
 }
 </style>
-
