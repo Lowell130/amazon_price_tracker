@@ -1,8 +1,13 @@
 <template>
   <footer class="relative p-4 bg-white md:p-8 lg:p-10 dark:bg-gray-800">
     <div class="mx-auto max-w-screen-xl text-center">
-      <div href="#" class="flex justify-center items-center text-2xl font-semibold text-gray-900 dark:text-white">
-           PriceHub.it
+      <div class="flex justify-center items-center text-2xl font-black text-gray-900 dark:text-white mb-6">
+        <div class="p-1.5 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 shadow-md mr-3">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+        </div>
+        PriceHub.it
       </div>
       <p class="my-6 text-sm text-gray-500 dark:text-white">
         PriceHub.it è un'applicazione web intuitiva progettata per aiutare gli utenti a monitorare le variazioni di prezzo dei loro prodotti preferiti su Amazon. Aggiungi prodotti, traccia lo storico dei prezzi, imposta i preferiti e ricevi avvisi sui ribassi. Semplifica la tua esperienza di shopping con un monitoraggio intelligente e approfondimenti utili.

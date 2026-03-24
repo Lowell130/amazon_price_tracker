@@ -34,7 +34,7 @@
             </h1>
             
             <button
-              v-if="isAdmin"
+              v-if="userIsAdmin"
               @click="openConfirmModal"
               :disabled="isLoading"
               class="hidden md:flex items-center px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50"
@@ -102,6 +102,8 @@
     <ProductList
       :products="products"
       :categories="categories"
+      :is-admin="userIsAdmin"
+      :loading="isProductsLoading"
       @refresh-products="fetchProducts"
     />
 
@@ -245,7 +247,8 @@ export default {
       username: "",
       errorMessage: "",
       isLoading: false,
-      isAdmin: false, // Stato per controllare se l'utente è admin
+      isProductsLoading: false,
+      userIsAdmin: false, // Stato per controllare se l'utente è admin
     };
   },
   async created() {
@@ -268,8 +271,8 @@ export default {
         console.log("User data:", userData); // Debug
 
         this.username = userData.username;
-        this.isAdmin = userData.admin;
-        console.log("Is Admin in Dashboard:", this.isAdmin); // Debug
+        this.userIsAdmin = userData.admin === true || userData.admin === 'true';
+        console.log("Is Admin in Dashboard:", this.userIsAdmin); // Debug
 
         this.$forceUpdate(); // Forza l'aggiornamento della UI
       } catch (error) {
@@ -343,6 +346,7 @@ export default {
 
     async fetchProducts() {
       try {
+        this.isProductsLoading = true;
         const response = await fetchWithToken(
           `${process.env.VUE_APP_API_BASE_URL}/dashboard`
         );
@@ -354,6 +358,8 @@ export default {
         this.products = data.products;
       } catch (error) {
         console.error("Errore nel caricamento dei prodotti:", error);
+      } finally {
+        this.isProductsLoading = false;
       }
     },
     async updatePricesManual() {

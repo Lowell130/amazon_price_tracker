@@ -91,7 +91,7 @@
 
     <!-- Table Container -->
     <div class="rounded-3xl border border-white/20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl shadow-2xl overflow-hidden mb-12 transition-all duration-500">
-      <div v-if="isLoading" class="p-8 space-y-6">
+      <div v-if="loading" class="p-8 space-y-6">
         <div v-for="i in 5" :key="i" class="flex items-center gap-4 animate-pulse">
           <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl"></div>
           <div class="flex-1 space-y-2">
@@ -101,7 +101,7 @@
           <div class="w-20 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg"></div>
         </div>
       </div>
-      <div v-else-if="filteredProducts.length === 0" class="flex flex-col items-center justify-center p-12 text-center bg-white/50 dark:bg-gray-800/50 rounded-3xl">
+      <div v-else-if="filteredProducts.length === 0 && !loading" class="flex flex-col items-center justify-center p-12 text-center bg-white/50 dark:bg-gray-800/50 rounded-3xl">
         <div class="mb-4 p-4 rounded-full bg-blue-50 dark:bg-blue-900/30">
           <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -170,7 +170,32 @@
               <th scope="col" class="px-6 py-5 text-right">Azioni</th>
             </tr>
           </thead>
-          <tbody v-for="product in paginatedProducts" :key="product.asin">
+          <!-- Skeletons (Loading State) -->
+          <tbody v-if="loading">
+            <tr v-for="i in 5" :key="i" class="border-b border-gray-100 dark:border-gray-800 animate-pulse">
+              <td class="px-6 py-5"><div class="w-9 h-5 bg-gray-200 dark:bg-gray-700 rounded-full"></div></td>
+              <td class="px-6 py-5">
+                <div class="flex items-center">
+                  <div class="h-14 w-14 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+                  <div class="ml-4 space-y-2">
+                    <div class="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div class="h-3 w-20 bg-gray-100 dark:bg-gray-800 rounded"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5"><div class="h-6 w-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div></td>
+              <td class="px-6 py-5"><div class="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-full"></div></td>
+              <td class="px-6 py-5"><div class="h-6 w-10 bg-gray-200 dark:bg-gray-700 rounded"></div></td>
+              <td class="px-6 py-5"><div class="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto"></div></td>
+              <td class="px-6 py-5"><div class="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded-xl"></div></td>
+              <td class="px-6 py-5"><div class="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded-xl ml-auto"></div></td>
+              <td class="px-6 py-5"><div class="h-8 w-16 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto"></div></td>
+              <td class="px-6 py-5"><div class="h-10 w-24 bg-gray-200 dark:bg-gray-700 rounded-2xl ml-auto"></div></td>
+            </tr>
+          </tbody>
+
+          <!-- Real Data -->
+          <tbody v-else v-for="product in paginatedProducts" :key="product.asin">
             <tr class="group border-b border-gray-100/50 dark:border-gray-800 hover:bg-blue-50/20 dark:hover:bg-blue-900/5 transition-all duration-300">
               <!-- Checkbox -->
               <td class="px-6 py-5">
@@ -183,8 +208,12 @@
               <!-- Product -->
               <td class="px-6 py-5">
                 <div class="flex items-center">
-                  <div class="h-14 w-14 flex-shrink-0 bg-white dark:bg-gray-700 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-600 p-1.5 group-hover:scale-110 transition-transform duration-500">
+                  <div class="h-14 w-14 flex-shrink-0 bg-white dark:bg-gray-700 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-600 p-1.5 group-hover:scale-110 transition-transform duration-500 relative">
                     <img v-if="product.image_url" :src="product.image_url" :alt="product.title" class="h-full w-full object-contain" @error="handleImageError" />
+                    <!-- AI Badge -->
+                    <div v-if="product.article_status === 'published'" class="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center shadow-lg" title="Recensione AI Disponibile">
+                      <span class="text-[8px] font-black text-white">AI</span>
+                    </div>
                   </div>
                   <div class="ml-4">
                     <div class="text-[13px] font-bold text-gray-900 dark:text-white truncate max-w-[200px] group-hover:text-blue-600 transition-colors" :title="product.title">
@@ -268,6 +297,28 @@
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </button>
+                  <template v-if="isAdmin">
+                    <!-- Articolo Già Pubblicato -->
+                    <router-link v-if="product.article_status === 'published'" :to="'/blog/' + product.article_slug" class="p-2 rounded-xl bg-blue-50 text-blue-500 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-100 dark:border-blue-900/50 hover:bg-blue-500 hover:text-white transition-all duration-300" title="Vedi Recensione">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </router-link>
+
+                    <!-- In Generazione -->
+                    <button v-else-if="product.article_status === 'queued' || product.article_status === 'generating'" disabled class="p-2 rounded-xl bg-gray-50 text-gray-400 dark:bg-gray-900/30 dark:text-gray-500 border border-gray-100 dark:border-gray-800 opacity-50 cursor-not-allowed" title="Generazione in corso...">
+                      <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                      </svg>
+                    </button>
+
+                    <!-- Genera Nuova -->
+                    <button v-else @click="generateAIArticle(product)" class="p-2 rounded-xl bg-purple-50 text-purple-500 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-100 dark:border-purple-900/50 hover:bg-purple-500 hover:text-white transition-all duration-300" title="Genera Recensione AI">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                      </svg>
+                    </button>
+                  </template>
                   <button @click.prevent="updateProductPrice(product)" class="p-2 rounded-xl bg-emerald-50 text-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50 hover:bg-emerald-500 hover:text-white transition-all duration-300" title="Aggiorna">
                     <svg :class="{ 'animate-spin': loadingProducts[product.asin] }" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                   </button>
@@ -444,7 +495,18 @@ import { useToast } from '@/store/toast';
 
 export default {
   components: { ChartPage },
-  props: ["products", "categories"],
+  props: {
+    products: Array,
+    categories: Array,
+    isAdmin: {
+      type: Boolean,
+      default: false
+    },
+    loading: {
+      type: Boolean,
+      default: false
+    }
+  },
   setup() {
     const toast = useToast();
     return { toast };
@@ -456,8 +518,8 @@ export default {
       filteredProducts: [], // Prodotti filtrati
       selectedAsins: [],
       loadingProducts: {}, // Stato di caricamento per i singoli prodotti
+      loadingAI: {}, // Stato di caricamento per la generazione AI
       currentOpenAccordion: null, // Tracks the currently open accordion
-      isLoading: false,
       currentPage: 1,
       itemsPerPage: 50,
       sortBy: null,
@@ -919,6 +981,45 @@ applyFilters() {
 
     viewPriceHistory(asin) {
       this.$router.push(`/products/${asin}`);
+    },
+    async generateAIArticle(product) {
+      if (this.loadingAI[product.asin]) return;
+      
+      const keyword = prompt("Inserisci la keyword SEO per questo articolo:", product.title);
+      if (!keyword) return;
+
+      this.loadingAI = { ...this.loadingAI, [product.asin]: true };
+      
+      try {
+        const response = await fetchWithToken(
+          `${process.env.VUE_APP_API_BASE_URL}/admin/articles/trigger`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              asin: product.asin,
+              keyword: keyword
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail);
+        }
+
+        const data = await response.json();
+        if (data.status === "already_running") {
+          this.toast.info("Generazione già in corso per questo prodotto.");
+        } else {
+          this.toast.success("Generazione avviata! Controlla la sezione Gestione Articoli.");
+        }
+      } catch (error) {
+        console.error("Error triggering AI generation:", error);
+        this.toast.error("Errore durante l'avvio della generazione.");
+      } finally {
+        this.loadingAI = { ...this.loadingAI, [product.asin]: false };
+      }
     },
     // removeProduct(asin) {
     //   this.$emit("remove-product", asin);

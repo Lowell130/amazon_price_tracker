@@ -21,4 +21,9 @@ TEL_TOKEN = os.getenv("TEL_TOKEN")
 TELEGRAM_BOT_USERNAME = os.getenv("TELEGRAM_BOT_USERNAME", "PriceTrackerBot")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
 
+# AI Content Generator
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+MONGO_DB = os.getenv("MONGO_DB", "price_tracker")
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
 

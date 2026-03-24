@@ -52,14 +52,36 @@
           </div>
 
           <!-- Price Recommendation Tile -->
-          <div class="p-8 rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-xl shadow-blue-500/20">
-            <h4 class="text-lg font-black uppercase tracking-widest mb-4">Analisi Convenienza</h4>
-            <p v-if="product.price <= product.average_price" class="text-blue-50 font-medium leading-relaxed">
-              Il prezzo attuale è <span class="font-black underline decoration-2 underline-offset-4 tracking-tight">OTTIMO</span>. È inferiore alla media storica, rendendo questo un momento favorevole per l'acquisto.
+          <div v-if="product && product.analysis" class="p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden group transition-all duration-500"
+               :class="recommendationBg">
+            <div class="flex items-center justify-between mb-6">
+              <h4 class="text-xs font-black uppercase tracking-[0.2em] opacity-80">Analisi Convenienza</h4>
+              <div class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-lg text-[10px] font-black uppercase tracking-widest">AI Engine</div>
+            </div>
+            
+            <p class="text-lg font-black leading-tight mb-4 tracking-tight">
+              {{ product.analysis.recommendation }}
             </p>
-            <p v-else class="text-blue-50 font-medium leading-relaxed">
-              Il prezzo è leggermente sopra la media. Ti consigliamo di attivare un avviso per monitorare un possibile ribasso a breve.
+            
+            <p class="text-blue-50 font-medium leading-relaxed mb-6 italic opacity-90">
+              "{{ product.analysis.reason }}"
             </p>
+
+            <div class="grid grid-cols-2 gap-4 pt-6 border-t border-white/10">
+              <div>
+                <p class="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">Previsione</p>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-bold">{{ product.analysis.chance_of_drop }}%</span>
+                  <div class="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden">
+                    <div class="h-full bg-white" :style="{ width: product.analysis.chance_of_drop + '%' }"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">Rischio</p>
+                <p class="text-sm font-bold">{{ product.analysis.risk_level }}</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -162,6 +184,15 @@ export default {
 
     return { product };
   },
+  computed: {
+    recommendationBg() {
+      const rec = this.product?.analysis?.recommendation;
+      if (rec === 'BUY') return 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-emerald-500/20';
+      if (rec === 'WAIT') return 'bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-rose-500/20';
+      if (rec === 'HOLD') return 'bg-gradient-to-br from-slate-600 to-gray-700 text-white shadow-slate-500/20';
+      return 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-blue-500/20';
+    }
+  }
 };
 
 // ✅ Funzione per aggiornare i meta tag in italiano

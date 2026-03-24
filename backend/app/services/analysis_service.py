@@ -35,6 +35,37 @@ def analyze_product_price(product):
     max_price = max(prices)
     avg_price = sum(prices) / len(prices)
     
+    # If no variation yet (all prices same), we can't truly analyze
+    if min_price == max_price:
+        # Check how long we've been tracking
+        try:
+            first_date = datetime.fromisoformat(history[0]["date"].replace("Z", "+00:00"))
+            tracking_duration = datetime.now() - first_date
+            is_new = tracking_duration < timedelta(days=2)
+        except:
+            is_new = True
+
+        reason = "Monitoraggio appena avviato. Non sono state ancora rilevate variazioni di prezzo per un'analisi accurata." if is_new else \
+                 "Il prezzo è rimasto invariato negli ultimi giorni di monitoraggio. Ti consigliamo di attendere ancora o impostare un avviso."
+        
+        return {
+            "asin": product["asin"],
+            "title": product["title"],
+            "current_price": current_price,
+            "min_price": min_price,
+            "max_price": max_price,
+            "avg_price": avg_price,
+            "recommendation": "HOLD",
+            "reason": reason,
+            "trend": "stable",
+            "risk_level": "Basso",
+            "volatility": 0.0,
+            "is_favorite": product.get("is_favorite", False),
+            "image_url": product.get("image_url"),
+            "category": product.get("category", "N/A"),
+            "chance_of_drop": 50 if is_new else 40
+        }
+
     # Trend calculation
     recent_prices = prices[-5:] if len(prices) >= 5 else prices
     trend = "stable"
@@ -50,24 +81,42 @@ def analyze_product_price(product):
     reason = "Il prezzo è stabile e oscilla intorno alla media storica."
     
     # Probability of further drop (mock AI logic)
-    chance_of_drop = 50 # Default 50%
+    chance_of_drop = 45 # Default lower risk if stable
     
-    if current_price <= min_price * 1.02: # Within 2% of min
+    # Check if exact minimum
+    if current_price <= min_price:
         recommendation = "BUY"
-        reason = "🔥 Prezzo ai minimi storici! È il momento ideale per procedere all'acquisto."
-        chance_of_drop = 15
-    elif current_price >= max_price * 0.98 and trend == "up":
+        reason = "🔥 Prezzo al minimo storico assoluto! È il momento perfetto per l'acquisto."
+        chance_of_drop = 10
+    # Check if very close to minimum (2% range)
+    elif current_price <= min_price * 1.02:
+        recommendation = "BUY"
+        reason = "✅ Il prezzo è vicinissimo ai minimi storici. Ottima opportunità di risparmio."
+        chance_of_drop = 20
+    # Price is between min and average but trend is down
+    elif current_price < avg_price and trend == "down":
+        recommendation = "BUY"
+        reason = "📉 Il prezzo sta calando ed è sotto la media. Un buon momento per approfittarne."
+        chance_of_drop = 35
+    # Price close to max and trend is up
+    elif current_price >= max_price * 0.98 or (current_price > avg_price * 1.05 and trend == "up"):
         recommendation = "WAIT"
-        reason = "⚠️ Prezzo vicino ai massimi storici e in crescita. Ti consigliamo di attendere un calo."
-        chance_of_drop = 80
-    elif current_price < avg_price * 0.92:
-        recommendation = "BUY"
-        reason = "✅ Il prezzo attuale è significativamente inferiore alla media del periodo."
-        chance_of_drop = 30
+        reason = "⚠️ Prezzo in forte rialzo o vicino ai massimi. Consigliamo di attendere un rintracciamento."
+        chance_of_drop = 75
+    # Price significantly above average
     elif current_price > avg_price * 1.08:
         recommendation = "WAIT"
-        reason = "⏳ Il prezzo attuale è superiore alla media storica. Potrebbe scendere a breve."
-        chance_of_drop = 70
+        reason = "⏳ Il prezzo attuale è superiore alla media storica. Meglio monitorare e attendere."
+        chance_of_drop = 65
+    # Price slightly below average (HOLD/Neutral)
+    elif current_price < avg_price:
+        recommendation = "HOLD"
+        reason = "Prezzo leggermente sotto la media, ma non ancora ai livelli minimi. Puoi monitorare o acquistare se hai urgenza."
+        chance_of_drop = 40
+    else:
+        recommendation = "HOLD"
+        reason = "Il prezzo è leggermente sopra la media. Consigliamo di attendere un'offerta migliore."
+        chance_of_drop = 55
         
     # Volatility / Risk
     volatility = (max_price - min_price) / avg_price if avg_price > 0 else 0

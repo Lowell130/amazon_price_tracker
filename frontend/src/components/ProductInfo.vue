@@ -40,7 +40,7 @@
         <div class="mt-10 lg:mt-0 lg:col-span-7 xl:col-span-7 flex flex-col justify-center">
           <!-- Header info -->
           <div class="flex items-center gap-2 mb-4">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/40 px-3 py-1 rounded-lg">
+            <span v-if="product.category" class="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/40 px-3 py-1 rounded-lg">
               {{ product.category }}
             </span>
             <span class="text-xs font-mono text-gray-400 dark:text-gray-500">
@@ -87,7 +87,7 @@
 
           <!-- Pulsanti d'Azione -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <a :href="product.affiliate" target="_blank"
+            <a :href="affiliateUrl" target="_blank"
               class="relative overflow-hidden group flex items-center justify-center text-white bg-slate-900 dark:bg-blue-600 font-black rounded-2xl text-base px-8 py-5 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
               <span class="flex items-center relative z-10 uppercase tracking-widest text-sm">
                 Acquista ora
@@ -184,6 +184,14 @@ export default {
       email: "",
       isLoading: false,
     };
+  },
+  computed: {
+    affiliateUrl() {
+      if (!this.product || !this.product.affiliate) return '#';
+      if (this.product.affiliate.startsWith('http')) return this.product.affiliate;
+      // Prepend API base URL if it's a relative path starting with /api
+      return `${process.env.VUE_APP_API_BASE_URL}${this.product.affiliate.replace('/api', '')}`;
+    }
   },
   methods: {
     formatDate(date) {

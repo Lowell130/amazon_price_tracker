@@ -299,6 +299,20 @@ def parse_details(soup):
             if details: break # Esci se abbiamo trovato qualcosa
             
     return details
+    
+def parse_category(soup):
+    """Estrae la categoria del prodotto dai breadcrumbs."""
+    breadcrumb_tag = soup.find("div", id="wayfinding-breadcrumbs_container")
+    if breadcrumb_tag:
+        items = breadcrumb_tag.find_all("li")
+        if items:
+            # Di solito l'ultima o la penultima voce è la categoria più specifica
+            # Ma prendiamo la prima o la seconda per una categoria più generale e pulita
+            for item in items:
+                cat = item.get_text(strip=True)
+                if cat and cat != "›":
+                    return cat
+    return None
 
 def parse_coupon(soup):
     """Estrae informazioni coupon."""
@@ -360,6 +374,7 @@ def fetch_product_data(url, max_retries=7, initial_delay=3):
     image_url = parse_image(main_container)
     rating = parse_rating(main_container)
     details = parse_details(main_container)
+    category = parse_category(soup) # Usa soup globale per i breadcrumbs
     coupon, coupon_value = parse_coupon(main_container)
 
     extraction_date = datetime.now().isoformat()
@@ -383,6 +398,7 @@ def fetch_product_data(url, max_retries=7, initial_delay=3):
         "rating": rating,
         "availability": "Disponibile" if condition != "Non disponibile" else "Non disponibile",
         "details": details,
+        "category": category,
         "extraction_date": extraction_date,
         "insertion_date": extraction_date,
         "price_history": [{"date": extraction_date, "price": price}] if price else [],

@@ -16,6 +16,10 @@ const ProductDetail = () => import(/* webpackChunkName: "products" */ "../views/
 const SearchResults = () => import(/* webpackChunkName: "products" */ "../views/SearchResults.vue");
 
 const AdminUsersPage = () => import(/* webpackChunkName: "admin" */ "../views/AdminUsersPage.vue");
+const AdminArticlesPage = () => import(/* webpackChunkName: "admin" */ "../views/AdminArticlesPage.vue");
+const BlogPage = () => import(/* webpackChunkName: "public" */ "../views/BlogPage.vue");
+const ArticleDetail = () => import(/* webpackChunkName: "public" */ "../views/ArticleDetail.vue");
+const AdminAnalytics = () => import(/* webpackChunkName: "admin" */ "../views/AdminAnalytics.vue");
 
 const routes = [
   { path: "/", name: "Home", component: HomePage },
@@ -29,6 +33,10 @@ const routes = [
   { path: "/reset-password", name: "ResetPassword", component: PasswordReset },
   { path: "/admin/users", name: "AdminUsers", component: AdminUsersPage, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: "/analysis", name: "Analysis", component: AnalysisPage, meta: { requiresAuth: true } },
+  { path: "/admin/articles", name: "AdminArticles", component: AdminArticlesPage, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: "/blog", name: "Blog", component: BlogPage },
+  { path: "/blog/:slug", name: "ArticleDetail", component: ArticleDetail },
+  { path: "/admin/analytics", name: "AdminAnalytics", component: AdminAnalytics, meta: { requiresAuth: true, requiresAdmin: true } },
 ];
 
 const router = createRouter({

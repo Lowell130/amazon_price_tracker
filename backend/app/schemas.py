@@ -31,3 +31,26 @@ class PasswordResetRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
+
+# AI Article Models
+class ArticleModel(BaseModel):
+    id: Optional[str] = None
+    asin: Optional[str] = None  # Original ASIN from tracker
+    keyword: Optional[str] = None
+    title: Optional[str] = None
+    content_html: Optional[str] = None
+    amazon_product_asin: Optional[str] = None
+    amazon_product_url: Optional[str] = None
+    amazon_product_title: Optional[str] = None
+    amazon_product_image_url: Optional[str] = None
+    amazon_product_price: Optional[str] = None
+    slug: Optional[str] = None
+    summary: Optional[str] = None
+    status: Optional[str] = "queued"
+    created_at: Optional[str] = None
+    product: Optional[dict] = None
+    product_image_url: Optional[str] = None
+
+class ArticleTrigger(BaseModel):
+    keyword: str
+    asin: str

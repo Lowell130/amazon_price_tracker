@@ -144,7 +144,7 @@ async def get_user_info(current_user: str = Depends(get_current_user), users_col
     return {
         "username": db_user["username"],
         "email": db_user.get("email"),
-        "admin": db_user.get("admin", False),
+        "admin": db_user.get("admin") is True or db_user.get("admin") == "true",
         "products_count": len(db_user.get("products", []))
     }
 

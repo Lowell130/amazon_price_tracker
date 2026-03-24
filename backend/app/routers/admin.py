@@ -8,6 +8,7 @@ import os
 import subprocess
 import logging
 from app.telegram_bot import broadcast_price_drops
+from app.services.report_service import update_price_drops_report
 
 router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(admin_required)])
 logger = logging.getLogger(__name__)
@@ -95,60 +96,16 @@ async def admin_reset_password(username: str, users_collection = Depends(get_use
     return {"message": f"Password reset email sent to {email}"}
 
 @router.post("/generate-price-drops-report")
-async def generate_price_drops_report(users_collection = Depends(get_users_collection)):
+async def generate_price_drops_report():
+    """Genera manualmente il report dei cali di prezzo (per admin)."""
     try:
-        price_drops_collection = users_collection.database["price_drops"]
-        price_drops_collection.delete_many({})
-
-        users = users_collection.find({})
-        report = {
-            "generation_date": datetime.now().isoformat(),
-            "drops": []
-        }
-
-        for user in users:
-            for product in user.get("products", []):
-                price_history = product.get("price_history", [])
-                if len(price_history) < 2:
-                    continue
-
-                price_history = sorted(price_history, key=lambda x: x["date"])
-                old_price = price_history[-2]["price"]
-                new_price = price_history[-1]["price"]
-
-                if new_price < old_price:
-                    report["drops"].append({
-                        "asin": product["asin"],
-                        "title": product["title"],
-                        "old_price": old_price,
-                        "new_price": new_price,
-                        "price_drop": round(old_price - new_price, 2),
-                        "user": user["username"],
-                        "category": product.get("category"),
-                        "date": price_history[-1]["date"],
-                        "affiliate": product.get("affiliate"),
-                        "condition": product.get("condition", "Unknown"),
-                        "image_url": product.get("image_url", ""),
-                        "rating": product.get("rating", None),
-                        "availability": product.get("availability", "Unknown"),
-                        "insertion_date": product.get("insertion_date", None),
-                    })
-
-        price_drops_collection.insert_one(report)
-
-        # Invia i cali di prezzo al canale Telegram
-        try:
-            broadcast_price_drops()
-            telegram_status = "and broadcast to Telegram"
-        except Exception as te:
-            logger.error(f"Errore durante il broadcast Telegram: {te}")
-            telegram_status = "but Telegram broadcast failed"
-
+        total_drops = update_price_drops_report()
         return {
-            "message": f"Price drops report generated {telegram_status}",
-            "total_price_drops": len(report["drops"]),
+            "message": f"Price drops report generated and broadcast to Telegram",
+            "total_price_drops": total_drops,
         }
     except Exception as e:
+        logger.error(f"Error generating report manually: {e}")
         raise HTTPException(status_code=500, detail=f"Error generating report: {str(e)}")
 
 @router.post("/update-all-prices")
@@ -156,8 +113,10 @@ async def update_all_prices_manual(users_collection = Depends(get_users_collecti
     """Aggiorna manualmente i prezzi di **tutti** i prodotti nel database."""
     try:
         updated_products = update_prices(users_collection, user_filter=None)  
+        # Update price drops report and send Telegram notifications
+        update_price_drops_report()
         return {
-            "message": "Manual price update for all products completed",
+            "message": "Manual price update for all products completed and report updated",
             "updated_products_count": len(updated_products),
         }
     except Exception as e:

@@ -2,12 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from typing import List
 from app.schemas import ProductRequest
 from app.dependencies import get_current_user
-from app.db import get_users_collection, get_products_collection
+from app.db import get_users_collection, get_products_collection, get_db
 from app.scraper import fetch_product_data, get_asin_from_url
 from app.services.product_service import update_prices
 from app.config import AFFILIATE_TAG
 from datetime import datetime
 import logging
+from app.services.analysis_service import analyze_product_price
+from app.services.report_service import update_price_drops_report
 
 router = APIRouter(prefix="/api", tags=["products"])
 logger = logging.getLogger(__name__)
@@ -68,6 +70,13 @@ async def add_product(
         {"_id": db_user["_id"]},
         {"$push": {"products": user_product_ref}}
     )
+
+    # Sync category to global product if missing
+    if request.category:
+        products_collection.update_one(
+            {"asin": asin, "$or": [{"category": None}, {"category": ""}]},
+            {"$set": {"category": request.category}}
+        )
     
     return {"message": "Product added successfully", "affiliate": affiliate_link}
 
@@ -92,7 +101,11 @@ async def product_details(
 
      # Merge the data
      merged_product = {**global_product, **user_product}
-     merged_product["affiliate"] = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
+     merged_product["affiliate"] = f"/api/analytics/r/{asin}"
+     
+     # Add AI Analysis
+     merged_product["analysis"] = analyze_product_price(merged_product)
+
      # Rimuovi i campi _id per JSON serialization
      if "_id" in merged_product:
          del merged_product["_id"]
@@ -126,6 +139,13 @@ async def update_product_info(
             {"$set": {f"products.$.{key}": value for key, value in updated_data.items()}}
         )
 
+        # Sync category to global too
+        if "category" in updated_data:
+            get_products_collection(users_collection.database).update_one(
+                {"asin": asin},
+                {"$set": {"category": updated_data["category"]}}
+            )
+
         return {"message": "Product updated successfully", "updated_product": product}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating product info: {str(e)}")
@@ -153,7 +173,9 @@ async def toggle_favorite(asin: str, current_user: str = Depends(get_current_use
 async def update_prices_manual(current_user: str = Depends(get_current_user), users_collection = Depends(get_users_collection)):
     try:
         update_prices(users_collection, user_filter=current_user)
-        return {"message": "Price update triggered manually"}
+        # Update price drops report and send Telegram notifications
+        update_price_drops_report()
+        return {"message": "Price update triggered manually and report updated"}
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error during manual price update")
 
@@ -256,13 +278,31 @@ async def dashboard(
     user_products = db_user.get("products", [])
     merged_products = []
     
+    # Get all published articles to avoid N queries (optional but better)
+    db = get_db()
+    articles_cursor = db.articles.find({"asin": {"$in": [p.get("asin") for p in user_products if p.get("asin")]}})
+    articles_map = {a["asin"]: a for a in articles_cursor}
+    
     for user_product in user_products:
         asin = user_product.get("asin")
         if asin:
             global_product = products_collection.find_one({"asin": asin})
             if global_product:
                 merged = {**global_product, **user_product}
-                merged["affiliate"] = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
+                merged["affiliate"] = f"/api/analytics/r/{asin}"
+                
+                # Check for article
+                article = articles_map.get(asin)
+                if article:
+                    merged["article_status"] = article.get("status")
+                    merged["article_slug"] = article.get("slug")
+                else:
+                    merged["article_status"] = None
+                    merged["article_slug"] = None
+
+                # Add AI Analysis
+                merged["analysis"] = analyze_product_price(merged)
+
                 if "_id" in merged:
                     del merged["_id"]
                 merged_products.append(merged)

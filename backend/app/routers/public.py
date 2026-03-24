@@ -3,6 +3,7 @@ from app.db import get_public_alerts_collection, get_users_collection, get_produ
 from app.schemas import GuestAlertSubscription
 from datetime import datetime
 import re
+from app.services.analysis_service import analyze_product_price
 
 router = APIRouter(prefix="/api/public", tags=["public"])
 
@@ -77,9 +78,16 @@ async def public_product_details(asin: str, products_collection = Depends(get_pr
     if "_id" in product:
         del product["_id"]
         
+    # Ensure category is present
+    if not product.get("category"):
+        product["category"] = "Generale"
+        
+    # Add AI Analysis
+    product["analysis"] = analyze_product_price(product)
+    
     # Override affiliate link with current tag
-    from app.config import AFFILIATE_TAG
-    product["affiliate"] = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
+    # Use internal redirect for analytics tracking
+    product["affiliate"] = f"/api/analytics/r/{asin}"
     
     return product
 
@@ -113,11 +121,13 @@ async def get_price_drops(
         for drop in drops:
             asin = drop.get("asin")
             if asin:
-                drop["affiliate"] = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
+                # Use internal redirect for analytics tracking
+                drop["affiliate"] = f"/api/analytics/r/{asin}"
 
         return {
             "total_drops": total_drops,
             "displayed_drops": len(drops),
+            "generation_date": price_drops_data.get("generation_date"),
             "data": drops
         }
     except HTTPException as e:

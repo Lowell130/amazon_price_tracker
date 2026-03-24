@@ -13,3 +13,7 @@ python-amazon-paapi
 python-dotenv
 python-telegram-bot
 pillow
+google-genai
+celery
+redis
+httpx
