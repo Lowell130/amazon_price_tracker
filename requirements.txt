@@ -1,17 +1,18 @@
-fastapi         # Framework per costruire API web
-uvicorn         # Server ASGI per eseguire FastAPI
-bcrypt          # Per hashing delle password
-pyjwt           # Per la gestione dei token JWT
-requests        # Per fare richieste HTTP ai link Amazon
-beautifulsoup4  # Per il parsing HTML e scraping dei dati Amazon
-pydantic        # Per la gestione dei modelli dati (incluso in FastAPI)
-apscheduler
-pymongo
-fake-useragent
-pydantic[email]
-python-amazon-paapi
-python-dotenv
-python-telegram-bot
-pillow
-pytest
-websockets
+fastapi             # Web framework
+uvicorn             # ASGI server
+bcrypt              # Password hashing
+pyjwt               # Authentication JWT
+requests            # HTTP requests for scraping
+beautifulsoup4      # HTML parsing for scraping
+pydantic[email]     # Email validation
+apscheduler         # Background tasks
+pymongo             # MongoDB driver
+fake-useragent      # Scraping user-agent rotation
+python-dotenv       # Environment variables
+python-telegram-bot # Telegram notifications
+pillow              # Image processing
+google-genai        # AI SEO Article generation (Gemini)
+httpx               # Async HTTP requests
+redis               # Task queuing / Caching
+pytest              # Testing framework
+websockets          # Real-time updates
