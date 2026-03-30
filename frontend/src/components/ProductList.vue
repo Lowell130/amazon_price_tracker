@@ -611,7 +611,7 @@ computed: {
 
   methods: {
     handleImageError(e) {
-      e.target.src = 'https://via.placeholder.com/400x400?text=Immagine+non+disponibile';
+      e.target.src = 'https://placehold.co/400x400?text=Immagine+non+disponibile';
     },
     async updateProductCategory(product) {
     try {

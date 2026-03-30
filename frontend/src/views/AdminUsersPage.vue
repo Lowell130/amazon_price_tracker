@@ -133,7 +133,7 @@
           
           <ul v-else class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1">
             <li v-for="product in userProducts" :key="product.asin" class="flex items-center space-x-4 p-3 bg-gray-50 dark:bg-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors border border-gray-100 dark:border-gray-500">
-              <img :src="product.image_url || 'https://via.placeholder.com/150?text=No+Image'" @error="$event.target.src = 'https://via.placeholder.com/150?text=Error'" class="w-16 h-16 rounded object-contain bg-white p-1 border dark:border-gray-500" alt="Product Image">
+              <img :src="product.image_url || 'https://placehold.co/150?text=No+Image'" @error="$event.target.src = 'https://placehold.co/150?text=Error'" class="w-16 h-16 rounded object-contain bg-white p-1 border dark:border-gray-500" alt="Product Image">
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-gray-900 truncate dark:text-white">{{ product.title }}</p>
                 <div class="flex items-center mt-1 space-x-2">
