@@ -45,6 +45,7 @@ class ArticleModel(BaseModel):
     amazon_product_image_url: Optional[str] = None
     amazon_product_price: Optional[str] = None
     slug: Optional[str] = None
+    meta_description: Optional[str] = None
     summary: Optional[str] = None
     status: Optional[str] = "queued"
     created_at: Optional[str] = None

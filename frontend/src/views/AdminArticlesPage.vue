@@ -2,13 +2,13 @@
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pb-12 antialiased">
     <div class="mx-auto max-w-screen-2xl px-4 lg:px-8 pt-8">
       <!-- Header -->
-      <div class="mb-8 flex items-center justify-between">
+      <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Gestione Articoli AI</h1>
-          <p class="text-gray-500 dark:text-gray-400 mt-1">Monitora lo stato della coda di generazione e gestisci i contenuti pubblicati.</p>
+          <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Gestione Articoli AI</h1>
+          <p class="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">Monitora lo stato della coda di generazione e gestisci i contenuti pubblicati.</p>
         </div>
-        <router-link to="/dashboard" class="px-5 py-2.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-bold rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 transition-all">
-          &larr; Torna alla Dashboard
+        <router-link to="/dashboard" class="inline-flex items-center justify-center px-5 py-2.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-bold rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 transition-all whitespace-nowrap text-sm sm:text-base">
+          <span class="mr-2">&larr;</span> Torna alla Dashboard
         </router-link>
       </div>
 

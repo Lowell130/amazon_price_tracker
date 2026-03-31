@@ -236,6 +236,8 @@ export default {
       const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/articles/${slug}`);
       if (response.ok) {
         this.article = await response.json();
+        this.updateMetaTags();
+        this.injectJsonLd();
       }
     } catch (e) {
       console.error("Error loading article:", e);
@@ -243,7 +245,90 @@ export default {
       this.loading = false;
     }
   },
+  beforeUnmount() {
+    this.removeJsonLd();
+  },
   methods: {
+    updateMetaTags() {
+      if (!this.article) return;
+      
+      // Document Title
+      document.title = `${this.article.title} | PriceHub.it`;
+      
+      // Meta Description
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.setAttribute('name', 'description');
+        document.head.appendChild(metaDesc);
+      }
+      metaDesc.setAttribute('content', this.article.meta_description || this.article.title);
+
+      // Open Graph Tags
+      this.setMetaTag('property', 'og:title', this.article.title);
+      this.setMetaTag('property', 'og:description', this.article.meta_description);
+      this.setMetaTag('property', 'og:image', this.article.product?.image_url || this.article.amazon_product_image_url);
+      this.setMetaTag('property', 'og:type', 'article');
+      this.setMetaTag('property', 'og:url', window.location.href);
+    },
+    setMetaTag(attr, value, content) {
+      let element = document.querySelector(`meta[${attr}="${value}"]`);
+      if (!element) {
+        element = document.createElement('meta');
+        element.setAttribute(attr, value);
+        document.head.appendChild(element);
+      }
+      element.setAttribute('content', content);
+    },
+    injectJsonLd() {
+      this.removeJsonLd(); // Clean up if any
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.id = 'json-ld-article';
+      
+      const product = this.article.product;
+      const jsonLd = {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": product?.title || this.article.amazon_product_title,
+        "image": [product?.image_url || this.article.amazon_product_image_url],
+        "description": this.article.meta_description,
+        "sku": this.article.asin,
+        "mpn": this.article.asin,
+        "brand": {
+          "@type": "Brand",
+          "name": "Amazon"
+        },
+        "review": {
+          "@type": "Review",
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": product?.analysis?.recommendation === 'BUY' ? "5" : "4",
+            "bestRating": "5"
+          },
+          "author": {
+            "@type": "Organization",
+            "name": "PriceHub Editorial Team"
+          }
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": window.location.href,
+          "priceCurrency": "EUR",
+          "price": product?.price || this.article.amazon_product_price,
+          "priceValidUntil": new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          "itemCondition": "https://schema.org/NewCondition",
+          "availability": "https://schema.org/InStock"
+        }
+      };
+      
+      script.text = JSON.stringify(jsonLd);
+      document.head.appendChild(script);
+    },
+    removeJsonLd() {
+      const script = document.getElementById('json-ld-article');
+      if (script) script.remove();
+    },
     formatDate(dateStr) {
       if (!dateStr) return "";
       return new Date(dateStr).toLocaleDateString("it-IT", {

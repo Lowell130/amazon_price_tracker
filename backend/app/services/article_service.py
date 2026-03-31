@@ -32,35 +32,32 @@ async def generate_seo_article(keyword: str, product_data: dict) -> dict:
 
     prompt = f"""
     Sei un copywriter SEO esperto specializzato in recensioni tech e prodotti Amazon. 
-    Scrivi un articolo di recensione professionale e accattivante in formato HTML.
+    Scrivi il contenuto di un articolo di recensione professionale, approfondito e accattivante in formato HTML.
     
-    Keyword di riferimento (per focus SEO): "{keyword}"
+    Keyword principale: "{keyword}"
     
-    Dati Reali del Prodotto (USA QUESTI DATI):
-    - Nome Completo: {product_data.get('title')}
-    - Prezzo Attuale: {product_data.get('price')}€
-    - Caratteristiche Tecniche: {features_str}
+    Dati Prodotto:
+    - Nome: {product_data.get('title')}
+    - Prezzo attuale: {product_data.get('price')}€
+    - Specifiche: {features_str}
     
-    ISTRUZIONI CRITICHE:
-    1. TITOLO ARTICOLO: Non limitarti alla keyword. Crea un titolo editoriale forte che includa il Nome Completo del prodotto. 
-       Esempio: "Recensione [Nome Prodotto]: [Slogan o Beneficio Principale]".
-    2. CONTENUTO: Usa tag HTML semantici (<h1>, <h2>, <p>, <ul>, <strong>).
-    3. CALL TO ACTION: Inserisci il placeholder {{AMAZON_BUTTON}} dove opportuno.
-    4. LINK: Se inserisci link nel testo, usa href="{{AMAZON_LINK}}".
-    5. PREZZO DINAMICO: Non scrivere mai il prezzo reale come cifra statica nel testo (es. "Costa 49€"). 
-       Usa SEMPRE il placeholder {{CURRENT_PRICE}} seguìto dal simbolo € (es. "Ora disponibile a {{CURRENT_PRICE}}€").
-    6. COERENZA LOGICA: Focalizzati sulle caratteristiche tecniche, la qualità e l'utilità del prodotto. Evita di basare l'intera recensione esclusivamente sul fatto che il prezzo sia "un affare incredibile", perché il prezzo potrebbe variare. Lascia che sia il box di analisi dinamica a gestire i consigli sull'opportunità di acquisto.
-    7. NESSUN Altro PLACEHOLDER: Non scrivere mai "N/A", "Non disponibile" o simili. Se un dato manca, omettilo.
-    8. FORMATO: Ritorna SOLO JSON.
+    MISSIONE SEO & STRUTTURA:
+    1. GERARCHIA TITOLI (CRITICO): Non usare mai il tag <h1> (è già presente nella pagina). Inizia direttamente con <h2> per le sezioni principali e <h3> per i sottotitoli.
+    2. INTRODUZIONE: Scrivi un'intro che catturi l'attenzione includendo la keyword principale nei primi due paragrafi.
+    3. ANALISI TECNICA: Approfondisci le caratteristiche fornite, spiegando i benefici per l'utente, non solo l'elenco tecnico.
+    4. PRO & CONTRO: Includi una sezione dedicata ai punti di forza e di debolezza del prodotto usando <ul>.
+    5. USER EXPERIENCE: Immagina come viene utilizzato il prodotto nella vita reale (es. "Perfetto per chi lavora in mobilità" o "Ideale per sessioni di gaming prolungate").
+    6. PREZZO DINAMICO: Usa {{CURRENT_PRICE}}€ per riferirti al prezzo attuale.
+    7. CALL TO ACTION: Inserisci il placeholder {{AMAZON_BUTTON}} vicino alla fine o dopo i "Pro & Contro".
+    8. FORMATO RISPOSTA: Ritorna esclusivamente un oggetto JSON.
     
-    Ritorna SOLO un JSON con questa struttura:
+    Struttura JSON richiesta:
     {{
-        "title": "Titolo Editoriale Accattivante",
-        "slug": "url-amichevole-basato-sul-prodotto",
-        "meta_description": "Descrizione 150-160 char ottimizzata",
-        "content_html": "Corpo articolo HTML ricco e formattato"
+        "title": "Titolo editoriale che include il prodotto e un beneficio",
+        "slug": "url-amichevole-basato-sul-prodotto-e-keyword",
+        "meta_description": "Descrizione 150-160 caratteri ottimizzata per il click-through rate",
+        "content_html": "Il corpo dell'articolo in HTML (solo <h2>, <h3>, <p>, <ul>, <li>, <strong>)"
     }}
-    Ritorna solo l'oggetto JSON, senza markdown blocks.
     """
     
     try:
