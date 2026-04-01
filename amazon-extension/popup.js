@@ -8,6 +8,7 @@ function showToast(message, type = "success") {
     if (!container) return;
 
     const toast = document.createElement("div");
+    toast.className = "toast";
     toast.style.padding = "10px 14px";
     toast.style.borderRadius = "8px";
     toast.style.fontSize = "13px";
@@ -116,6 +117,16 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("last_category", categorySelect.value);
     });
 
+    // Variabile per salvare l'URL corrente
+    let currentProductUrl = "";
+
+    // Listener del pulsante aggiunto una volta sola
+    addProductBtn.addEventListener("click", () => {
+        if (currentProductUrl) {
+            addProduct(currentProductUrl);
+        }
+    });
+
     // --------- FUNZIONI UI ---------
 
     function showLoginSection() {
@@ -152,7 +163,9 @@ document.addEventListener("DOMContentLoaded", () => {
                             console.log("Risposta ricevuta da content.js:", response);
 
                             if (response && response.product_url) {
+                                currentProductUrl = response.product_url;
                                 productUrlEl.innerText = response.product_url;
+                                addProductBtn.disabled = false; // ABILITA IL BOTTONE
 
                                 const asin = response.asin;
                                 if (asin) {
@@ -167,19 +180,13 @@ document.addEventListener("DOMContentLoaded", () => {
                                         "info"
                                     );
                                 }
-
-                                // Evita listener multipli
-                                addProductBtn.replaceWith(addProductBtn.cloneNode(true));
-                                addProductBtn = document.getElementById("add-product");
-                                addProductBtn.addEventListener("click", () =>
-                                    addProduct(response.product_url)
-                                );
                             } else {
                                 console.error("Errore: Nessun URL ricevuto!");
                                 productUrlEl.innerText =
                                     "Errore nel caricamento del prodotto (sei su una pagina Amazon?)";
                                 asinEl.textContent = "-";
                                 productStatusEl.textContent = "";
+                                addProductBtn.disabled = true; // DISABILITA SE ERRORE
                                 showToast(
                                     "Impossibile leggere l'URL del prodotto.",
                                     "error"
@@ -337,10 +344,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // --------- AGGIUNTA PRODOTTO ---------
 
     async function addProduct(productUrl) {
+        setButtonLoading(addProductBtn, true, "Aggiungo al tracker...");
+
         const category = categorySelect.value || null;
 
         let token = await getTokenOrRefresh();
         if (!token) {
+            setButtonLoading(addProductBtn, false);
             return;
         }
 
@@ -352,7 +362,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         console.log("Invio richiesta a /api/add-product con:", requestData);
-        setButtonLoading(addProductBtn, true, "Aggiungo al tracker...");
 
         try {
             const response = await fetch(`${API_BASE}/api/add-product/`, {

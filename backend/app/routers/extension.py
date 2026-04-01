@@ -1,12 +1,12 @@
 import os
 import zipfile
 import io
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Request
 from fastapi.responses import StreamingResponse
 from datetime import datetime
 
 router = APIRouter(
-    prefix="/extension",
+    prefix="/api/extension",
     tags=["extension"]
 )
 
@@ -15,10 +15,20 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.pa
 EXTENSION_PATH = os.path.join(BASE_DIR, "amazon-extension")
 
 @router.get("/download")
-async def download_extension():
+async def download_extension(request: Request):
     """
     Bundles the chrome extension into a ZIP file and returns it.
+    It dynamically patches the API URL based on where the extension is being downloaded from.
     """
+    # Detect the current base URL (e.g., http://localhost:8000 or https://pricehub.it)
+    # We remove the trailing slash if present to match the hardcoded version
+    scheme = request.url.scheme
+    netloc = request.url.netloc
+    current_base_url = f"{scheme}://{netloc}"
+    
+    # The hardcoded URL to replace
+    LOCALHOST_URL = "http://127.0.0.1:8000"
+
     # Create an in-memory ZIP file
     zip_buffer = io.BytesIO()
     
@@ -26,14 +36,32 @@ async def download_extension():
         for root, dirs, files in os.walk(EXTENSION_PATH):
             for file in files:
                 file_path = os.path.join(root, file)
-                # Create a relative path for the file in the ZIP
                 rel_path = os.path.relpath(file_path, EXTENSION_PATH)
+                
+                # Check if this is a file we want to patch
+                if file in ["manifest.json", "popup.js", "popup.html"]:
+                    try:
+                        with open(file_path, "r", encoding="utf-8") as f:
+                            content = f.read()
+                        
+                        # Perform the replacement
+                        patched_content = content.replace(LOCALHOST_URL, current_base_url)
+                        
+                        # Add to ZIP
+                        zip_file.writestr(rel_path, patched_content)
+                        continue
+                    except Exception as e:
+                        # Fallback to original file if something goes wrong
+                        print(f"Error patching {file}: {e}")
+                
+                # Default: write the original file
                 zip_file.write(file_path, rel_path)
         
         # Add a README.md with installation instructions
-        readme_content = """# Amazon Price Tracker Extension - Guida all'installazione
+        readme_content = f"""# Amazon Price Tracker Extension - Guida all'installazione
 
 Questa estensione ti permette di monitorare i prezzi direttamente su Amazon.
+Questa versione è stata configurata per connettersi a: {current_base_url}
 
 ## Come installare:
 
@@ -45,7 +73,7 @@ Questa estensione ti permette di monitorare i prezzi direttamente su Amazon.
 6. L'estensione apparirà nella tua lista e sarà pronta all'uso!
 
 ---
-© PriceHub.it
+© PriceHub.it (Generato il {datetime.now().strftime('%Y-%m-%d %H:%M:%S')})
 """
         zip_file.writestr("README_INSTALLAZIONE.md", readme_content)
 

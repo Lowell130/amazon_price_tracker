@@ -73,36 +73,40 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 async def start_bot():
-    """Avvia il bot Telegram come task di background."""
+    """Avvia il bot Telegram come task di background in modo resiliente."""
     global application
     if not TEL_TOKEN:
         logger.error("TEL_TOKEN non trovato. Il bot non verrà avviato.")
         return
 
-    application = ApplicationBuilder().token(TEL_TOKEN).build()
-    
-    # Gestore errori globale per silenziare i conflitti attesi
-    async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-        if isinstance(context.error, Conflict):
-            logger.debug("Telegram Conflict ignorato nel gestore errori.")
-            return
-        logger.error("Eccezione non gestita nel bot Telegram:", exc_info=context.error)
-
-    application.add_error_handler(error_handler)
-    
-    start_handler = CommandHandler('start', start)
-    application.add_handler(start_handler)
-
-    await application.initialize()
-    await application.start()
-    
     try:
+        application = ApplicationBuilder().token(TEL_TOKEN).build()
+        
+        # Gestore errori globale per silenziare i conflitti attesi
+        async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+            if isinstance(context.error, Conflict):
+                logger.debug("Telegram Conflict ignorato nel gestore errori.")
+                return
+            logger.error("Eccezione non gestita nel bot Telegram:", exc_info=context.error)
+
+        application.add_error_handler(error_handler)
+        
+        start_handler = CommandHandler('start', start)
+        application.add_handler(start_handler)
+
+        # Inizializzazione (può fallire per timeout o rete)
+        await application.initialize()
+        await application.start()
+        
         await application.updater.start_polling(drop_pending_updates=True)
         logger.info("Telegram Bot avviato (polling attivo).")
-    except Conflict:
-        logger.warning("Conflitto Telegram Bot rilevato (probabile reload in corso). La nuova istanza prenderà il controllo a breve.")
+        
+    except (Conflict, NetworkError) as e:
+        logger.warning(f"Problema di rete o conflitto nell'avvio del Bot Telegram: {e}. L'applicazione continuerà senza bot.")
+        application = None
     except Exception as e:
-        logger.error(f"Errore durante l'avvio del polling Telegram: {e}")
+        logger.error(f"Errore imprevisto durante l'avvio del bot Telegram: {e}. L'applicazione continuerà senza bot.")
+        application = None
 
 async def stop_bot():
     """Ferma il bot Telegram."""
