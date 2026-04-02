@@ -180,6 +180,22 @@ document.addEventListener("DOMContentLoaded", () => {
                                         "info"
                                     );
                                 }
+
+                                // AGGIORNAMENTO PASSIVO: se abbiamo l'ASIN e il prezzo, aggiorniamo il DB silenziosamente
+                                if (asin && response.price) {
+                                    console.log("Inviando aggiornamento passivo per", asin, response.price);
+                                    fetch(`${API_BASE}/api/passive-update/`, {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({
+                                            asin: asin,
+                                            price: response.price,
+                                            availability: response.availability
+                                        })
+                                    }).then(r => r.json())
+                                      .then(data => console.log("Esito aggiornamento passivo:", data))
+                                      .catch(err => console.warn("Errore aggiornamento passivo:", err));
+                                }
                             } else {
                                 console.error("Errore: Nessun URL ricevuto!");
                                 productUrlEl.innerText =

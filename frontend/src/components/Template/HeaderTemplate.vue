@@ -315,7 +315,7 @@ export default {
       externalLink(to) {
         if (to === '/extension-download') {
           const apiBaseUrl = process.env.VUE_APP_API_URL || 'http://localhost:8000';
-          return `${apiBaseUrl}/extension/download`;
+          return `${apiBaseUrl}/api/extension/download`;
         }
         return to;
       }

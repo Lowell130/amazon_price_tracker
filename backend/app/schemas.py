@@ -55,3 +55,8 @@ class ArticleModel(BaseModel):
 class ArticleTrigger(BaseModel):
     keyword: str
     asin: str
+
+class PassiveProductUpdate(BaseModel):
+    asin: str
+    price: Optional[float] = None
+    availability: Optional[str] = "Disponibile"

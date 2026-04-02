@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from typing import List
-from app.schemas import ProductRequest
+from app.schemas import ProductRequest, PassiveProductUpdate
 from app.dependencies import get_current_user
 from app.db import get_users_collection, get_products_collection, get_db
 from app.scraper import fetch_product_data, get_asin_from_url
@@ -308,3 +308,44 @@ async def dashboard(
                 merged_products.append(merged)
 
     return {"products": merged_products}
+
+@router.post("/passive-update/")
+async def passive_update(
+    update: PassiveProductUpdate,
+    products_collection = Depends(get_products_collection)
+):
+    """
+    Riceve un aggiornamento di prezzo dall'estensione Chrome.
+    Non richiede autenticazione poiché è un'azione "passiva" di raccolta dati.
+    """
+    if not update.price or update.price <= 0:
+        return {"status": "ignored", "reason": "invalid_price"}
+
+    product = products_collection.find_one({"asin": update.asin})
+    if not product:
+        return {"status": "ignored", "reason": "product_not_tracked"}
+
+    current_price = float(product.get("price", 0))
+    new_price = float(update.price)
+
+    update_fields = {
+        "extraction_date": datetime.now().isoformat(),
+        "availability": update.availability or "Disponibile"
+    }
+
+    # Se il prezzo è cambiato, aggiorna e aggiungi alla cronologia
+    if abs(current_price - new_price) > 0.01:
+        update_fields["price"] = new_price
+        products_collection.update_one(
+            {"asin": update.asin},
+            {
+                "$set": update_fields,
+                "$push": {"price_history": {"date": datetime.now().isoformat(), "price": new_price}}
+            }
+        )
+        logger.info(f"Passive update: ASIN {update.asin} price changed from {current_price} to {new_price}")
+        return {"status": "updated", "asin": update.asin, "new_price": new_price}
+    else:
+        # Aggiorna solo la data di ultima estrazione
+        products_collection.update_one({"asin": update.asin}, {"$set": update_fields})
+        return {"status": "ok", "asin": update.asin, "reason": "no_change"}

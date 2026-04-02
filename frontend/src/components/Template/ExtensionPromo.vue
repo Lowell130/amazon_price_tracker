@@ -74,7 +74,7 @@ export default {
   methods: {
     downloadExtension() {
       const apiBaseUrl = process.env.VUE_APP_API_URL || 'http://localhost:8000';
-      window.location.href = `${apiBaseUrl}/extension/download`;
+      window.location.href = `${apiBaseUrl}/api/extension/download`;
     }
   }
 }
