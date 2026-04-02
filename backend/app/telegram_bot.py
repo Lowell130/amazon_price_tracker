@@ -5,7 +5,7 @@ from telegram import Update
 from telegram.error import Conflict, NetworkError
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from app.db import get_db, get_users_collection
-from app.config import TEL_TOKEN, CHANNEL_ID
+from app.config import TEL_TOKEN, CHANNEL_ID, AFFILIATE_TAG
 import requests
 
 logging.basicConfig(
@@ -140,11 +140,14 @@ def broadcast_price_drops():
     logger.info(f"Invio di {len(report['drops'])} cali di prezzo al canale {CHANNEL_ID}...")
 
     for drop in report["drops"]:
+        asin = drop.get("asin")
+        fallback_url = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
+        
         message = (
             f"📉 *{drop.get('title', 'Prodotto')}*\n"
             f"🔻 *Prezzo:* {drop['new_price']}€ (era {drop['old_price']}€)\n"
             f"💰 *Risparmio:* {drop['price_drop']}€\n"
-            f"🔗 [Vedi su Amazon]({drop.get('affiliate') or 'https://www.amazon.it/gp/product/' + drop['asin']})"
+            f"🔗 [Vedi su Amazon]({drop.get('affiliate') or fallback_url})"
         )
         
         try:
