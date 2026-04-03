@@ -10,6 +10,12 @@ logger = logging.getLogger(__name__)
 
 def update_prices(users_collection, user_filter=None, asin_filter=None):
     products_collection = get_products_collection()
+    settings_collection = users_collection.database["settings"]
+    
+    # Recupera modalità scraper
+    settings = settings_collection.find_one({"type": "scraper_config"})
+    scraper_mode = settings.get("mode", "classic") if settings else "classic"
+    logger.info(f"Using scraper mode: {scraper_mode}")
     
     # 1. Determina gli ASIN da aggiornare
     asins_to_update = set()
@@ -53,15 +59,16 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
             product_url = f"https://www.amazon.it/dp/{asin}"
 
         try:
-            logger.info(f"Fetching product data for ASIN: {asin}")
-            updated_data = fetch_product_data(product_url)
+            logger.info(f"Fetching product data for ASIN: {asin} (Mode: {scraper_mode})")
+            updated_data = fetch_product_data(product_url, mode=scraper_mode)
 
             if not updated_data or updated_data["price"] is None:
+                logger.info(f"Product {asin} price not found. Keeping last known price.")
                 products_collection.update_one(
                     {"asin": asin},
-                    {"$set": {"availability": "Non disponibile", "condition": "Non disponibile"}}
+                    {"$set": {"availability": "Dato non aggiornato", "updated_at": datetime.now()}}
                 )
-                logger.info(f"Product {asin} is unavailable.")
+                updated_products.append(asin)
                 continue
 
             old_price = float(global_product.get("price")) if global_product.get("price") else None
@@ -77,8 +84,14 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
                 
                 # Check favorite drop
                 if u_prod.get("is_favorite", False) and price_dropped:
-                    logger.info(f"Price drop detected for {global_product.get('title', asin)}. Sending email to {u.get('email')}.")
-                    send_email(u.get("email"), global_product.get("title", "Prodotto Amazon"), old_price, new_price, asin)
+                    subject = f"📉 Calo Prezzo: {global_product.get('title', 'Prodotto Amazon')[:50]}..."
+                    body = (
+                        f"Il prezzo di '{global_product.get('title')}' è sceso!\n\n"
+                        f"Prezzo Precedente: {old_price}€\n"
+                        f"Nuovo Prezzo: {new_price}€\n\n"
+                        f"Vedi l'offerta su Amazon: {u_prod.get('affiliate', product_url)}"
+                    )
+                    send_email(u.get("email"), subject, body)
                     
                     # Notifica Telegram se configurato
                     if u.get("telegram_chat_id"):

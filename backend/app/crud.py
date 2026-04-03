@@ -6,8 +6,13 @@ from app.scraper import fetch_product_data
 
 def add_product_to_user(username, product_url):
     """Aggiunge un nuovo prodotto al database globale e il riferimento all'utente."""
+    # Recupera modalità scraper dai settings
+    settings_collection = users_collection.database["settings"]
+    settings = settings_collection.find_one({"type": "scraper_config"})
+    scraper_mode = settings.get("mode", "classic") if settings else "classic"
+    
     # Esegui scraping del prodotto
-    product_data = fetch_product_data(product_url)
+    product_data = fetch_product_data(product_url, mode=scraper_mode)
 
     # Controlla se il prodotto è valido
     if not product_data or not product_data.get("price"):

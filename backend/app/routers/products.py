@@ -43,7 +43,12 @@ async def add_product(
         # (Verrà aggiornato dallo scheduler o manualmente)
     else:
         logger.info(f"Product {asin} not found in global DB. Fetching data...")
-        product_data = fetch_product_data(request.product_url)
+        # Recupera modalità scraper dai settings
+        settings_collection = users_collection.database["settings"]
+        settings = settings_collection.find_one({"type": "scraper_config"})
+        scraper_mode = settings.get("mode", "classic") if settings else "classic"
+        
+        product_data = fetch_product_data(request.product_url, mode=scraper_mode)
         if not product_data or not product_data.get("price"):
             raise HTTPException(status_code=400, detail="Error fetching product data")
         
@@ -230,8 +235,12 @@ async def update_product_price(
                 "condition": merged.get("condition", "Unknown"),
             },
         }
+    except HTTPException:
+        # Rilancia le eccezioni HTTP (es. 404) senza catturarle nel blocco generico
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error updating product: {str(e)}")
+        logger.error(f"Error updating product {asin}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Errore durante l'aggiornamento del prodotto: {str(e)}")
 
 @router.post("/remove-products/")
 async def remove_products(asin_list: List[str], current_user: str = Depends(get_current_user), users_collection = Depends(get_users_collection)):
@@ -276,36 +285,44 @@ async def dashboard(
         raise HTTPException(status_code=404, detail="User not found")
 
     user_products = db_user.get("products", [])
-    merged_products = []
+    if not user_products:
+        return {"products": []}
+
+    # Bulk fetch all global product data to avoid N+1 queries
+    asins = [p.get("asin") for p in user_products if p.get("asin")]
+    global_products_cursor = products_collection.find({"asin": {"$in": asins}})
+    global_products_map = {p["asin"]: p for p in global_products_cursor}
     
-    # Get all published articles to avoid N queries (optional but better)
+    # Get all published articles in bulk
     db = get_db()
-    articles_cursor = db.articles.find({"asin": {"$in": [p.get("asin") for p in user_products if p.get("asin")]}})
+    articles_cursor = db.articles.find({"asin": {"$in": asins}})
     articles_map = {a["asin"]: a for a in articles_cursor}
     
+    merged_products = []
     for user_product in user_products:
         asin = user_product.get("asin")
-        if asin:
-            global_product = products_collection.find_one({"asin": asin})
-            if global_product:
-                merged = {**global_product, **user_product}
-                merged["affiliate"] = f"/api/analytics/r/{asin}"
-                
-                # Check for article
-                article = articles_map.get(asin)
-                if article:
-                    merged["article_status"] = article.get("status")
-                    merged["article_slug"] = article.get("slug")
-                else:
-                    merged["article_status"] = None
-                    merged["article_slug"] = None
+        if asin and asin in global_products_map:
+            global_product = global_products_map[asin]
+            merged = {**global_product, **user_product}
+            merged["affiliate"] = f"/api/analytics/r/{asin}"
+            
+            # Check for article
+            article = articles_map.get(asin)
+            if article:
+                merged["article_status"] = article.get("status")
+                merged["article_slug"] = article.get("slug")
+            else:
+                merged["article_status"] = None
+                merged["article_slug"] = None
 
-                # Add AI Analysis
-                merged["analysis"] = analyze_product_price(merged)
+            # Add AI Analysis
+            merged["analysis"] = analyze_product_price(merged)
 
-                if "_id" in merged:
-                    del merged["_id"]
-                merged_products.append(merged)
+            if "_id" in merged:
+                del merged["_id"]
+            merged_products.append(merged)
+
+    return {"products": merged_products}
 
     return {"products": merged_products}
 

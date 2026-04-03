@@ -60,3 +60,11 @@ class PassiveProductUpdate(BaseModel):
     asin: str
     price: Optional[float] = None
     availability: Optional[str] = "Disponibile"
+
+class ScraperSettings(BaseModel):
+    mode: str = "classic" # 'classic' or 'json'
+    use_proxy: bool = False
+    proxy_url: Optional[str] = None
+    proxy_user: Optional[str] = None
+    proxy_pass: Optional[str] = None
+    auto_refresh: bool = True

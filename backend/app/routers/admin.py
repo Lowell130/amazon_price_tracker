@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.dependencies import admin_required, password_reset_tokens, generate_reset_token
-from app.db import get_users_collection, get_db
+from app.db import get_users_collection, get_db, get_settings_collection
+from app.schemas import ScraperSettings
 from app.services.product_service import update_prices
 from app.utils.email import send_email
 from datetime import datetime, timedelta
@@ -122,3 +123,39 @@ async def update_all_prices_manual(users_collection = Depends(get_users_collecti
     except Exception as e:
         logger.error(f"Error updating all prices manually: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error during manual price update: {str(e)}")
+
+@router.get("/settings", response_model=ScraperSettings)
+async def get_system_settings(settings_collection = Depends(get_settings_collection)):
+    """Recupera le impostazioni di sistema (es. modalità scraper, proxy)."""
+    settings = settings_collection.find_one({"type": "scraper_config"})
+    if not settings:
+        return ScraperSettings(mode="classic", use_proxy=False)
+    
+    return ScraperSettings(
+        mode=settings.get("mode", "classic"),
+        use_proxy=settings.get("use_proxy", False),
+        proxy_url=settings.get("proxy_url"),
+        proxy_user=settings.get("proxy_user"),
+        proxy_pass=settings.get("proxy_pass"),
+        auto_refresh=settings.get("auto_refresh", True)
+    )
+
+@router.post("/settings")
+async def update_system_settings(settings: ScraperSettings, settings_collection = Depends(get_settings_collection)):
+    """Aggiorna le impostazioni di sistema."""
+    update_data = {
+        "mode": settings.mode,
+        "use_proxy": settings.use_proxy,
+        "proxy_url": settings.proxy_url,
+        "proxy_user": settings.proxy_user,
+        "proxy_pass": settings.proxy_pass,
+        "auto_refresh": settings.auto_refresh,
+        "updated_at": datetime.now()
+    }
+    
+    settings_collection.update_one(
+        {"type": "scraper_config"},
+        {"$set": update_data},
+        upsert=True
+    )
+    return {"message": "System settings updated successfully"}

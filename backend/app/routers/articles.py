@@ -109,13 +109,24 @@ async def get_admin_articles(admin: dict = Depends(admin_required)):
     """Admin view: returns ALL articles including queued/failed."""
     db = get_db()
     cursor = db.articles.find({}).sort("created_at", -1)
+    articles = list(cursor)
+    
+    if not articles:
+        return []
+        
+    # Bulk fetch product images to avoid N+1 queries
+    asins = [doc.get("asin") for doc in articles if doc.get("asin")]
+    products_cursor = db.products.find({"asin": {"$in": asins}}, {"asin": 1, "image_url": 1})
+    products_map = {p["asin"]: p.get("image_url") for p in products_cursor}
+    
     articles_list = []
-    for doc in cursor:
+    for doc in articles:
         doc["id"] = str(doc["_id"])
-        # Fetch image from products collection to show it in management table
-        prod_doc = db.products.find_one({"asin": doc["asin"]}, {"image_url": 1})
-        if prod_doc:
-            doc["product_image_url"] = prod_doc.get("image_url")
+        # Use mapped image if available
+        asin = doc.get("asin")
+        if asin in products_map:
+            doc["product_image_url"] = products_map[asin]
+            
         articles_list.append(ArticleModel(**doc))
     return articles_list
 

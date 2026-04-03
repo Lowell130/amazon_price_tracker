@@ -32,6 +32,10 @@ def get_products_collection():
     """Dependency provider for products collection."""
     return db["products"]
 
+def get_settings_collection():
+    """Dependency provider for settings collection."""
+    return db["settings"]
+
 # Export global variables for backward compatibility if needed, 
 # but mostly we should use dependencies.
 # Keeping these for now to avoid breaking imports I haven't changed yet, 
@@ -39,5 +43,6 @@ def get_products_collection():
 users_collection = db["users"]
 public_alerts_collection = db["public_alerts"]
 products_collection = db["products"]
+settings_collection = db["settings"]
 
 print("Connesso con successo al database remoto!")

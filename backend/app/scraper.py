@@ -12,6 +12,8 @@ from fake_useragent import UserAgent
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from app.db import get_settings_collection
+
 def get_asin_from_url(url):
     """Estrae l'ASIN da link Amazon, inclusi quelli con parametri di tracking pubblicitario."""
     decoded_url = unquote(url)
@@ -91,12 +93,11 @@ def get_random_headers():
         
     return headers
 
-def get_page_content(url, max_retries=7, initial_delay=3):
-    """Esegue la richiesta HTTP con header rotanti e retries migliorati."""
-    # Usiamo una nuova sessione per ogni tentativo per evitare tracciamento tra retries falliti
+def get_page_content(url, max_retries=7, initial_delay=3, proxies=None):
+    """Recupera il contenuto HTML della pagina con retry, headers casuali e supporto proxy."""
+    session = requests.Session()
     
     for attempt in range(max_retries):
-        session = requests.Session() # Nuova sessione per isolamento
         try:
             headers = get_random_headers()
             # Imposta l'host correttamente
@@ -106,7 +107,7 @@ def get_page_content(url, max_retries=7, initial_delay=3):
             logger.info(f"Tentativo {attempt + 1}/{max_retries}...")
             
             # Aggiunge un piccolo timeout variabile per evitare pattern fissi
-            response = session.get(url, headers=headers, timeout=25)
+            response = session.get(url, headers=headers, timeout=25, proxies=proxies)
             
             if response.status_code == 200:
                 # Verifica se siamo finiti su una pagina di CAPTCHA
@@ -233,6 +234,71 @@ def parse_price_and_condition(soup):
 
     return None, condition
 
+def parse_data_from_json(soup):
+    """Estrae i dati fondamentali dai blocchi JSON della pagina."""
+    price = None
+    availability = "Disponibile"
+    condition = "Nuovo"
+    
+    # Lista di pattern JSON per il prezzo in ordine di affidabilità
+    price_patterns = [
+        r'"priceAmount":\s*(\d+\.?\d*)',
+        r'"priceToPay":\s*(\d+\.?\d*)',
+        r'"buyingPrice":\s*(\d+\.?\d*)',
+        r'"value":\s*(\d+\.?\d*),\s*"currency":\s*"EUR"',
+        r'"displayPrice":\s*"(.*?)"'
+    ]
+    
+    scripts = soup.find_all("script")
+    for s in scripts:
+        if not s.string:
+            continue
+            
+        script_content = s.string
+        
+        # 1. Cerca il blocco twister-js-init-dpx-data
+        if "twister-js-init-dpx-data" in script_content:
+            logger.info("Analisi blocco twister-js-init-dpx-data...")
+            for pattern in price_patterns:
+                match = re.search(pattern, script_content)
+                if match:
+                    val = match.group(1)
+                    # Se è un displayPrice (stringa con €), puliscilo
+                    if "€" in val or "," in val:
+                        price = clean_price(val)
+                    else:
+                        price = float(val)
+                    
+                    if price:
+                        logger.info(f"Prezzo trovato in twister JSON ({pattern}): {price}")
+                        break
+            
+            if not price:
+                # Prova estrazione più profonda se twister è presente ma i pattern falliscono
+                logger.info("Deep search nel blocco twister...")
+                # Cerchiamo blocchi del tipo "price": {"amount": 123.45}
+                deep_price = re.search(r'"price":\s*\{\s*"amount":\s*(\d+\.?\d*)', script_content)
+                if deep_price:
+                    price = float(deep_price.group(1))
+                    logger.info(f"Prezzo trovato via deep JSON search: {price}")
+
+        # 2. Cerca pattern generici in tutti gli altri script (se non ancora trovato)
+        if not price:
+            for pattern in price_patterns:
+                match = re.search(pattern, script_content)
+                if match:
+                    val = match.group(1)
+                    if "€" in val or "," in val:
+                        price = clean_price(val)
+                    else:
+                        price = float(val)
+                    
+                    if price:
+                        logger.info(f"Prezzo trovato via JSON generico ({pattern}): {price}")
+                        break
+
+    return price, availability, condition
+
 def parse_image(soup):
     """Estrae URL immagine principale con fallback."""
     selectors = [
@@ -345,9 +411,9 @@ def parse_coupon(soup):
                 
     return coupon, None
 
-def fetch_product_data(url, max_retries=7, initial_delay=3):
+def fetch_product_data(url, mode="classic", max_retries=7, initial_delay=3):
     """Orchestratore dello scraping migliorato."""
-    logger.info(f"Inizio scraping per URL: {url}")
+    logger.info(f"Inizio scraping per URL: {url} (Modo: {mode})")
 
     asin = get_asin_from_url(url)
     if not asin:
@@ -355,8 +421,29 @@ def fetch_product_data(url, max_retries=7, initial_delay=3):
         raise ValueError("ASIN non trovato nell'URL")
     
     logger.info(f"ASIN trovato: {asin}")
+    
+    # Recupera impostazioni proxy dal database
+    proxies = None
+    try:
+        settings_col = get_settings_collection()
+        settings = settings_col.find_one({"type": "scraper_config"})
+        if settings and settings.get("use_proxy"):
+            proxy_url = settings.get("proxy_url")
+            proxy_user = settings.get("proxy_user")
+            proxy_pass = settings.get("proxy_pass")
+            
+            if proxy_url:
+                if proxy_user and proxy_pass:
+                    # Formato: http://user:pass@host:port
+                    auth_proxy = proxy_url.replace("://", f"://{proxy_user}:{proxy_pass}@")
+                    proxies = {"http": auth_proxy, "https": auth_proxy}
+                else:
+                    proxies = {"http": proxy_url, "https": proxy_url}
+                logger.info(f"Utilizzo proxy configurato: {proxy_url}")
+    except Exception as e:
+        logger.error(f"Errore nel recupero della configurazione proxy: {e}")
 
-    soup = get_page_content(url, max_retries, initial_delay)
+    soup = get_page_content(url, max_retries, initial_delay, proxies=proxies)
     if not soup:
          raise Exception("Impossibile recuperare il contenuto della pagina dopo ripetuti tentativi")
 
@@ -376,6 +463,16 @@ def fetch_product_data(url, max_retries=7, initial_delay=3):
     details = parse_details(main_container)
     category = parse_category(soup) # Usa soup globale per i breadcrumbs
     coupon, coupon_value = parse_coupon(main_container)
+
+    # 4. JSON parsing fallback if requested or if CSS fails
+    if mode == "json" or (price is None and mode == "classic"):
+        logger.info(f"Eseguo parsing JSON (modalità: {mode})...")
+        json_price, json_avail, json_cond = parse_data_from_json(soup)
+        if json_price:
+            price = json_price
+            availability = json_avail
+            condition = json_cond
+            logger.info(f"Dati recuperati con successo tramite JSON: {price}")
 
     extraction_date = datetime.now().isoformat()
     

@@ -103,10 +103,9 @@ async def request_password_reset(request: PasswordResetRequest, users_collection
 
     # Invia email all'utente
     send_email(
-        request.email,
-        "Password Reset Request",
-        f"Usa il seguente link per reimpostare la tua password: {reset_link}\n"
-        f"Il link scade in un'ora."
+        request.email, 
+        "Password Reset Hub", 
+        f"Usa questo link per reimpostare la tua password: {reset_link}\n\nIl link scade tra 1 ora."
     )
 
     return {"message": "Password reset email sent"}

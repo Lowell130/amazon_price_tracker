@@ -216,12 +216,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // --------- TOKEN & REFRESH ---------
+    let autoRefreshSetting = true;
+
+    async function checkAutoRefreshSetting(token) {
+        if (!token) return true;
+        try {
+            const response = await fetch(`${API_BASE}/api/admin/settings`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                autoRefreshSetting = data.auto_refresh !== undefined ? data.auto_refresh : true;
+                console.log("Auto-refresh setting from backend:", autoRefreshSetting);
+            }
+        } catch (err) {
+            console.warn("Impossibile caricare configurazione auto-refresh:", err);
+        }
+        return autoRefreshSetting;
+    }
 
     async function getTokenOrRefresh() {
         let token = localStorage.getItem("token");
         if (!token) {
             console.warn("Nessun token presente");
             return null;
+        }
+
+        if (!autoRefreshSetting) {
+            console.log("Auto-refresh disattivato (impostazione admin). Salto il refresh.");
+            return token;
         }
 
         try {
@@ -298,6 +321,9 @@ document.addEventListener("DOMContentLoaded", () => {
             showLoginSection();
             return;
         }
+
+        // Carica impostazione auto-refresh una volta all'avvio
+        await checkAutoRefreshSetting(rawToken);
 
         const validToken = await getTokenOrRefresh();
         if (validToken) {
