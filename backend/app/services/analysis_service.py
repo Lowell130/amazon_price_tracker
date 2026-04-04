@@ -9,8 +9,8 @@ def analyze_product_price(product):
         # Fallback for products with no history
         current_price = float(product.get("price", 0))
         return {
-            "asin": product["asin"],
-            "title": product["title"],
+            "asin": product.get("asin", "N/A"),
+            "title": product.get("title", "Prodotto Amazon"),
             "current_price": current_price,
             "min_price": current_price,
             "max_price": current_price,
@@ -127,8 +127,8 @@ def analyze_product_price(product):
         risk_level = "Medio"
 
     return {
-        "asin": product["asin"],
-        "title": product["title"],
+        "asin": product.get("asin", "N/A"),
+        "title": product.get("title", "Prodotto Amazon"),
         "current_price": current_price,
         "min_price": round(min_price, 2),
         "max_price": round(max_price, 2),

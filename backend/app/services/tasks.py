@@ -5,8 +5,17 @@ from bson import ObjectId
 from datetime import datetime
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
+import re
+import unicodedata
 from app.db import get_db
 from app.services.article_service import generate_seo_article
+
+def slugify(text: str) -> str:
+    """Converts a string into a URL-friendly slug."""
+    text = str(text)
+    text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
+    text = re.sub(r'[^\w\s-]', '', text).strip().lower()
+    return re.sub(r'[-\s]+', '-', text)
 
 def get_amazon_product_data(asin):
     """Scrapes product data from Amazon (simple version)."""
@@ -81,13 +90,16 @@ async def generate_article_task(article_id: str):
                 products_data=products_data
             )
             
+            slug = content.get("slug") or article["keyword"]
+            final_slug = slugify(slug)
+
             db.articles.update_one(
                 {"_id": ObjectId(article_id)},
                 {"$set": {
                     "title": content["title"],
                     "content_html": content["content_html"],
                     "meta_description": content["meta_description"],
-                    "slug": content.get("slug") or article["keyword"].lower().replace(' ', '-'),
+                    "slug": final_slug,
                     "status": "published",
                     "published_at": datetime.utcnow().isoformat()
                 }}
@@ -110,13 +122,16 @@ async def generate_article_task(article_id: str):
             print(f"DEBUG: AI Content generated. Length: {len(content.get('content_html', ''))}")
 
             # 3. Save to DB
+            slug = content.get("slug") or article["keyword"]
+            final_slug = slugify(slug)
+
             db.articles.update_one(
                 {"_id": ObjectId(article_id)},
                 {"$set": {
                     "title": content["title"],
                     "content_html": content["content_html"],
                     "meta_description": content["meta_description"],
-                    "slug": content.get("slug") or article["keyword"].lower().replace(' ', '-'),
+                    "slug": final_slug,
                     "amazon_product_url": f"https://www.amazon.it/dp/{article['asin']}?tag={os.getenv('AFFILIATE_TAG', 'amazonit026-21')}",
                     "amazon_product_image_url": product_data.get("image_url"),
                     "amazon_product_price": str(product_data.get("price", "N/A")),

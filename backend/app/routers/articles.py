@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+import re
 from typing import List
 from bson import ObjectId
 from datetime import datetime
@@ -125,7 +126,11 @@ async def get_article_by_slug(slug: str):
     """Returns a single article by slug, enriched with real-time product data and analysis."""
     from app.services.analysis_service import analyze_product_price
     db = get_db()
-    doc = db.articles.find_one({"slug": slug, "status": "published"})
+    # Use case-insensitive search for resilience
+    doc = db.articles.find_one({
+        "slug": {"$regex": f"^{re.escape(slug)}$", "$options": "i"}, 
+        "status": "published"
+    })
     if not doc:
         raise HTTPException(status_code=404, detail="Articolo non trovato")
     
@@ -136,6 +141,9 @@ async def get_article_by_slug(slug: str):
         products_cursor = db.products.find({"asin": {"$in": doc["asins"]}})
         doc_products = []
         for p in products_cursor:
+            # Skip corrupted entries
+            if not p.get("asin") or not p.get("title"):
+                continue
             p_analysis = analyze_product_price(p)
             p_enriched = {**p, "analysis": p_analysis}
             if "_id" in p_enriched:
@@ -145,7 +153,7 @@ async def get_article_by_slug(slug: str):
         # Riordina i prodotti in base all'ordine originale di asins
         ordered_products = []
         for a in doc["asins"]:
-            found = next((dp for dp in doc_products if dp["asin"] == a), None)
+            found = next((dp for dp in doc_products if dp.get("asin") == a), None)
             if found:
                 ordered_products.append(found)
         doc["products"] = ordered_products
@@ -159,6 +167,10 @@ async def get_article_by_slug(slug: str):
             # Remove _id from nested product for serialization
             if "_id" in doc["product"]:
                 del doc["product"]["_id"]
+    
+    # Remove MongoDB internal _id before returning model
+    if "_id" in doc:
+        del doc["_id"]
             
     return ArticleModel(**doc)
 

@@ -16,3 +16,4 @@ httpx               # Async HTTP requests
 redis               # Task queuing / Caching
 pytest              # Testing framework
 websockets          # Real-time updates
+feedparser          # RSS feed parsing for trends

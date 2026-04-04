@@ -50,9 +50,13 @@ class ArticleModel(BaseModel):
     summary: Optional[str] = None
     status: Optional[str] = "queued"
     created_at: Optional[str] = None
+    published_at: Optional[str] = None
     product: Optional[dict] = None
     products: Optional[List[dict]] = None
     product_image_url: Optional[str] = None
+
+    class Config:
+        extra = "ignore"
 
 class ArticleTrigger(BaseModel):
     keyword: str
