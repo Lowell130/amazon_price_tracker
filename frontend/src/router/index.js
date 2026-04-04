@@ -21,6 +21,7 @@ const BlogPage = () => import(/* webpackChunkName: "public" */ "../views/BlogPag
 const ArticleDetail = () => import(/* webpackChunkName: "public" */ "../views/ArticleDetail.vue");
 const AdminAnalytics = () => import(/* webpackChunkName: "admin" */ "../views/AdminAnalytics.vue");
 const AdminSettings = () => import(/* webpackChunkName: "admin" */ "../views/AdminSettings.vue");
+const AdminTrendsPage = () => import(/* webpackChunkName: "admin" */ "../views/AdminTrendsPage.vue");
 
 const routes = [
   { path: "/", name: "Home", component: HomePage },
@@ -39,6 +40,7 @@ const routes = [
   { path: "/blog/:slug", name: "ArticleDetail", component: ArticleDetail },
   { path: "/admin/analytics", name: "AdminAnalytics", component: AdminAnalytics, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: "/admin/settings", name: "AdminSettings", component: AdminSettings, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: "/admin/trends", name: "AdminTrends", component: AdminTrendsPage, meta: { requiresAuth: true, requiresAdmin: true } },
 ];
 
 const router = createRouter({

@@ -67,37 +67,63 @@ async def generate_article_task(article_id: str):
     db.articles.update_one({"_id": ObjectId(article_id)}, {"$set": {"status": "generating"}})
 
     try:
-        # 1. Fetch product data from the 'products' collection
-        product_data = db.products.find_one({"asin": article["asin"]})
+        is_multi = "asins" in article and bool(article["asins"])
         
-        if not product_data:
-            # Fallback (rare): if not in products, we might need a scrape, 
-            # but user said it should be there. Let's log and fail if missing.
-            raise Exception(f"Prodotto con ASIN {article['asin']} non trovato nella collezione 'products'")
+        if is_multi:
+            products_cursor = db.products.find({"asin": {"$in": article["asins"]}})
+            products_data = list(products_cursor)
+            if not products_data:
+                raise Exception(f"Nessun prodotto trovato per la lista di ASIN")
+                
+            content = await generate_seo_article(
+                keyword=article["keyword"],
+                product_data=None,
+                products_data=products_data
+            )
+            
+            db.articles.update_one(
+                {"_id": ObjectId(article_id)},
+                {"$set": {
+                    "title": content["title"],
+                    "content_html": content["content_html"],
+                    "meta_description": content["meta_description"],
+                    "slug": content.get("slug") or article["keyword"].lower().replace(' ', '-'),
+                    "status": "published",
+                    "published_at": datetime.utcnow().isoformat()
+                }}
+            )
+            
+        else:
+            # 1. Fetch product data from the 'products' collection
+            product_data = db.products.find_one({"asin": article["asin"]})
+            
+            if not product_data:
+                raise Exception(f"Prodotto con ASIN {article['asin']} non trovato nella collezione 'products'")
 
-        # 2. Generate content with AI
-        content = await generate_seo_article(
-            keyword=article["keyword"],
-            product_data=product_data
-        )
-        
-        print(f"DEBUG: AI Content generated. Length: {len(content.get('content_html', ''))}")
+            # 2. Generate content with AI
+            content = await generate_seo_article(
+                keyword=article["keyword"],
+                product_data=product_data,
+                products_data=None
+            )
+            
+            print(f"DEBUG: AI Content generated. Length: {len(content.get('content_html', ''))}")
 
-        # 3. Save to DB
-        db.articles.update_one(
-            {"_id": ObjectId(article_id)},
-            {"$set": {
-                "title": content["title"],
-                "content_html": content["content_html"],
-                "meta_description": content["meta_description"],
-                "slug": content.get("slug") or article["keyword"].lower().replace(' ', '-'),
-                "amazon_product_url": f"https://www.amazon.it/dp/{article['asin']}?tag={os.getenv('AFFILIATE_TAG', 'amazonit026-21')}",
-                "amazon_product_image_url": product_data.get("image_url"),
-                "amazon_product_price": str(product_data.get("price", "N/A")),
-                "status": "published",
-                "published_at": datetime.utcnow().isoformat()
-            }}
-        )
+            # 3. Save to DB
+            db.articles.update_one(
+                {"_id": ObjectId(article_id)},
+                {"$set": {
+                    "title": content["title"],
+                    "content_html": content["content_html"],
+                    "meta_description": content["meta_description"],
+                    "slug": content.get("slug") or article["keyword"].lower().replace(' ', '-'),
+                    "amazon_product_url": f"https://www.amazon.it/dp/{article['asin']}?tag={os.getenv('AFFILIATE_TAG', 'amazonit026-21')}",
+                    "amazon_product_image_url": product_data.get("image_url"),
+                    "amazon_product_price": str(product_data.get("price", "N/A")),
+                    "status": "published",
+                    "published_at": datetime.utcnow().isoformat()
+                }}
+            )
         
         print(f"Article {article_id} generated successfully!")
 

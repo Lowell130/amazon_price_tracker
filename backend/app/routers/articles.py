@@ -11,6 +11,20 @@ router = APIRouter(prefix="/api", tags=["articles"])
 
 # ... (public endpoints remain same)
 
+from pydantic import BaseModel
+class EnhanceKeywordRequest(BaseModel):
+    keyword: str
+
+@router.post("/admin/articles/enhance-keyword", status_code=200)
+async def enhance_seo_keyword_api(
+    data: EnhanceKeywordRequest,
+    admin: dict = Depends(admin_required)
+):
+    """Uses AI to turn a basic keyword into an engaging SEO title."""
+    from app.services.article_service import enhance_seo_keyword
+    enhanced = await enhance_seo_keyword(data.keyword)
+    return {"keyword": enhanced}
+
 @router.post("/admin/articles/trigger", status_code=201)
 async def trigger_article_generation(
     data: ArticleTrigger, 
@@ -21,16 +35,25 @@ async def trigger_article_generation(
     db = get_db()
     
     # Check if already running or already published
-    existing = db.articles.find_one({"asin": data.asin, "status": {"$in": ["queued", "generating", "published"]}})
+    search_query = {}
+    if data.asins:
+        search_query = {"asins": data.asins, "status": {"$in": ["queued", "generating", "published"]}}
+    else:
+        search_query = {"asin": data.asin, "status": {"$in": ["queued", "generating", "published"]}}
+
+    existing = db.articles.find_one(search_query)
     if existing:
         return {"id": str(existing["_id"]), "status": existing.get("status", "already_exists")}
 
     new_article = {
-        "asin": data.asin,
         "keyword": data.keyword,
         "status": "queued",
         "created_at": datetime.utcnow().isoformat()
     }
+    if data.asins:
+        new_article["asins"] = data.asins
+    else:
+        new_article["asin"] = data.asin
     
     res = db.articles.insert_one(new_article)
     article_id = str(res.inserted_id)
@@ -53,26 +76,45 @@ async def get_public_articles():
         return []
 
     # Get all ASINs to fetch product data in bulk
-    asins = [a["asin"] for a in articles if "asin" in a]
-    products = {p["asin"]: p for p in db.products.find({"asin": {"$in": asins}})}
+    asins_set = set()
+    for a in articles:
+        if "asin" in a and a["asin"]:
+            asins_set.add(a["asin"])
+        if "asins" in a and a["asins"]:
+            asins_set.update(a["asins"])
+            
+    products = {p["asin"]: p for p in db.products.find({"asin": {"$in": list(asins_set)}})}
 
     enriched_articles = []
     for doc in articles:
         doc["id"] = str(doc["_id"])
         
         # Enrich with current product data if available
-        asin = doc.get("asin")
-        if asin in products:
-            product_doc = products[asin]
-            # Sync price and image
-            doc["amazon_product_price"] = str(product_doc.get("price", doc.get("amazon_product_price")))
-            doc["amazon_product_image_url"] = product_doc.get("image_url", doc.get("amazon_product_image_url"))
-            
-            # Optional: Add full product object if needed by frontend
-            # Remove _id for serialization
-            if "_id" in product_doc:
-                del product_doc["_id"]
-            doc["product"] = product_doc
+        if doc.get("asins"):
+            doc_products = []
+            for asin in doc["asins"]:
+                if asin in products:
+                    product_doc = products[asin].copy()
+                    if "_id" in product_doc:
+                        del product_doc["_id"]
+                    doc_products.append(product_doc)
+            doc["products"] = doc_products
+            if doc_products: # set hero image and price from first product just in case
+                doc["amazon_product_price"] = str(doc_products[0].get("price", doc.get("amazon_product_price", "N/A")))
+                doc["amazon_product_image_url"] = doc_products[0].get("image_url", doc.get("amazon_product_image_url"))
+        elif doc.get("asin"):
+            asin = doc.get("asin")
+            if asin in products:
+                product_doc = products[asin].copy()
+                # Sync price and image
+                doc["amazon_product_price"] = str(product_doc.get("price", doc.get("amazon_product_price")))
+                doc["amazon_product_image_url"] = product_doc.get("image_url", doc.get("amazon_product_image_url"))
+                
+                # Optional: Add full product object if needed by frontend
+                # Remove _id for serialization
+                if "_id" in product_doc:
+                    del product_doc["_id"]
+                doc["product"] = product_doc
             
         enriched_articles.append(ArticleModel(**doc))
         
@@ -90,15 +132,33 @@ async def get_article_by_slug(slug: str):
     doc["id"] = str(doc["_id"])
     
     # Enrich with product data from 'products' collection
-    product_doc = db.products.find_one({"asin": doc["asin"]})
-    if product_doc:
-        # Calculate analysis
-        analysis = analyze_product_price(product_doc)
-        # Merge global product data with analysis
-        doc["product"] = {**product_doc, "analysis": analysis}
-        # Remove _id from nested product for serialization
-        if "_id" in doc["product"]:
-            del doc["product"]["_id"]
+    if doc.get("asins"):
+        products_cursor = db.products.find({"asin": {"$in": doc["asins"]}})
+        doc_products = []
+        for p in products_cursor:
+            p_analysis = analyze_product_price(p)
+            p_enriched = {**p, "analysis": p_analysis}
+            if "_id" in p_enriched:
+                del p_enriched["_id"]
+            doc_products.append(p_enriched)
+        
+        # Riordina i prodotti in base all'ordine originale di asins
+        ordered_products = []
+        for a in doc["asins"]:
+            found = next((dp for dp in doc_products if dp["asin"] == a), None)
+            if found:
+                ordered_products.append(found)
+        doc["products"] = ordered_products
+    elif doc.get("asin"):
+        product_doc = db.products.find_one({"asin": doc["asin"]})
+        if product_doc:
+            # Calculate analysis
+            analysis = analyze_product_price(product_doc)
+            # Merge global product data with analysis
+            doc["product"] = {**product_doc, "analysis": analysis}
+            # Remove _id from nested product for serialization
+            if "_id" in doc["product"]:
+                del doc["product"]["_id"]
             
     return ArticleModel(**doc)
 
@@ -115,17 +175,28 @@ async def get_admin_articles(admin: dict = Depends(admin_required)):
         return []
         
     # Bulk fetch product images to avoid N+1 queries
-    asins = [doc.get("asin") for doc in articles if doc.get("asin")]
-    products_cursor = db.products.find({"asin": {"$in": asins}}, {"asin": 1, "image_url": 1})
+    asins_set = set()
+    for doc in articles:
+        if doc.get("asin"):
+            asins_set.add(doc["asin"])
+        if doc.get("asins") and len(doc["asins"]) > 0:
+            asins_set.add(doc["asins"][0]) # use first ASIN for cover image
+
+    products_cursor = db.products.find({"asin": {"$in": list(asins_set)}}, {"asin": 1, "image_url": 1})
     products_map = {p["asin"]: p.get("image_url") for p in products_cursor}
     
     articles_list = []
     for doc in articles:
         doc["id"] = str(doc["_id"])
         # Use mapped image if available
-        asin = doc.get("asin")
-        if asin in products_map:
-            doc["product_image_url"] = products_map[asin]
+        cover_asin = None
+        if doc.get("asins") and len(doc["asins"]) > 0:
+            cover_asin = doc["asins"][0]
+        elif doc.get("asin"):
+            cover_asin = doc.get("asin")
+            
+        if cover_asin and cover_asin in products_map:
+            doc["product_image_url"] = products_map[cover_asin]
             
         articles_list.append(ArticleModel(**doc))
     return articles_list

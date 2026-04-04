@@ -36,6 +36,7 @@ class ResetPasswordRequest(BaseModel):
 class ArticleModel(BaseModel):
     id: Optional[str] = None
     asin: Optional[str] = None  # Original ASIN from tracker
+    asins: Optional[List[str]] = None
     keyword: Optional[str] = None
     title: Optional[str] = None
     content_html: Optional[str] = None
@@ -50,11 +51,13 @@ class ArticleModel(BaseModel):
     status: Optional[str] = "queued"
     created_at: Optional[str] = None
     product: Optional[dict] = None
+    products: Optional[List[dict]] = None
     product_image_url: Optional[str] = None
 
 class ArticleTrigger(BaseModel):
     keyword: str
-    asin: str
+    asin: Optional[str] = None
+    asins: Optional[List[str]] = None
 
 class PassiveProductUpdate(BaseModel):
     asin: str

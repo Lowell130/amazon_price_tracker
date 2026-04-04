@@ -24,8 +24,8 @@
           {{ article.title }}
         </h1>
 
-        <!-- PREMIUM PRODUCT HERO SECTION -->
-        <div class="mb-20">
+        <!-- PREMIUM PRODUCT HERO SECTION (Solo per singolo prodotto) -->
+        <div v-if="!isMultiProduct && article.product" class="mb-20">
           <div class="relative p-1 rounded-[4rem] bg-gray-100 dark:bg-gray-800 shadow-2xl overflow-hidden group">
             <div class="relative bg-white dark:bg-gray-950 rounded-[3.8rem] p-8 md:p-14 border border-gray-100 dark:border-gray-800">
               <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -126,11 +126,71 @@
                     prose-p:leading-[1.9] prose-p:mb-10
                     prose-strong:text-gray-900 dark:prose-strong:text-white
                     prose-img:rounded-[3rem] prose-img:shadow-2xl">
-          <div v-html="renderedContent"></div>
+          
+          <template v-if="isMultiProduct">
+            <template v-for="(chunk, idx) in parsedContentChunks" :key="idx">
+               <!-- Parsed HTML Chunk -->
+               <div v-if="chunk.type === 'html'" v-html="chunk.content"></div>
+               
+               <!-- Injected Product Feature Widget -->
+               <div v-else-if="chunk.type === 'product'" class="not-prose my-16 p-6 sm:p-10 bg-white dark:bg-gray-950 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl relative overflow-hidden group">
+                  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    
+                    <!-- Image Area -->
+                    <div class="lg:col-span-4 relative flex items-center justify-center p-6 bg-gray-50 dark:bg-gray-900 rounded-[2rem] aspect-square">
+                      <img :src="chunk.product.image_url" class="w-full h-full object-contain max-h-[250px] group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+
+                    <!-- Details Area -->
+                    <div class="lg:col-span-8 flex flex-col justify-center space-y-6">
+                      <div>
+                        <div class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">Prezzo Dinamico</div>
+                        <div class="text-5xl font-black text-gray-900 dark:text-white tracking-tighter">€{{ chunk.product.price }}</div>
+                      </div>
+                      
+                      <!-- AI Advice inline -->
+                      <div v-if="chunk.product.analysis" class="p-6 bg-gray-50 dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 space-y-5">
+                         <p class="text-gray-900 dark:text-white font-bold text-sm italic leading-relaxed">
+                            "{{ chunk.product.analysis.reason }}"
+                         </p>
+                         <div class="space-y-1.5">
+                               <div class="flex justify-between text-[10px] uppercase font-black tracking-widest text-gray-400">
+                                 <span>Minimo</span>
+                                 <span>Massimo</span>
+                               </div>
+                               <!-- Price Range Bar -->
+                               <div class="relative h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                                  <div class="absolute h-full bg-gradient-to-r from-emerald-500 via-blue-500 to-rose-500" style="left: 0; right: 0;"></div>
+                                  <div class="absolute top-0 w-2 h-full bg-white shadow-md border border-gray-300 pointer-events-none" :style="{ left: calculatePricePosition(chunk.product) + '%' }"></div>
+                               </div>
+                               <div class="flex justify-between text-[11px] font-black dark:text-white">
+                                  <span>{{ chunk.product.min_price }}€</span>
+                                  <span class="text-blue-500">Oggi: {{ chunk.product.price }}€</span>
+                                  <span>{{ chunk.product.max_price }}€</span>
+                               </div>
+                         </div>
+                      </div>
+
+                      <!-- Purchase Button -->
+                      <div class="pt-4">
+                        <a :href="chunk.url" target="_blank" rel="nofollow" class="flex items-center justify-center gap-3 w-full md:w-auto px-8 py-5 bg-gradient-to-r from-orange-400 to-orange-600 text-white font-black rounded-2xl shadow-xl shadow-orange-500/20 hover:-translate-y-1 transition-all uppercase tracking-[0.2em] text-[11px]">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                          Acquista Ora a {{ chunk.product.price }}€
+                        </a>
+                      </div>
+
+                    </div>
+                  </div>
+               </div>
+            </template>
+          </template>
+          
+          <div v-else v-html="renderedContent"></div>
+
         </div>
 
-        <!-- Technical Specs & Chart Section -->
-        <div class="mt-32 space-y-24">
+        <!-- Technical Specs Section (Solo Singolo Prodotto) -->
+        <div v-if="!isMultiProduct" class="mt-32 space-y-24">
           <!-- Specs -->
           <div v-if="article.product?.details?.length">
              <div class="text-center mb-12">
@@ -174,24 +234,64 @@ export default {
     };
   },
   computed: {
+    isMultiProduct() {
+      return this.article && this.article.asins && this.article.asins.length > 0;
+    },
+    parsedContentChunks() {
+      if (!this.article) return [];
+      if (!this.article.content_html) return [{ type: 'html', content: "<div class='py-20 text-center'><div class='inline-block animate-bounce mb-4 text-4xl'>✍️</div><p class='text-gray-400 font-bold'>L'AI sta ancora scrivendo o c'è stato un errore nel recupero del testo.</p></div>" }];
+
+      const affiliateBaseUrl = `${process.env.VUE_APP_API_BASE_URL}/analytics/r/`;
+      let chunks = [];
+
+      if (this.isMultiProduct) {
+        // Regex match {{AMAZON_BUTTON_XYZ}} oppure {AMAZON_BUTTON_XYZ}
+        const regex = /\{{1,2}AMAZON_BUTTON_([A-Z0-9]+)\}{1,2}/g;
+        let lastIndex = 0;
+        let match;
+
+        let html = this.article.content_html;
+        while ((match = regex.exec(html)) !== null) {
+          if (match.index > lastIndex) {
+            chunks.push({ type: 'html', content: html.substring(lastIndex, match.index) });
+          }
+          
+          const asin = match[1];
+          const product = this.article.products?.find(p => p.asin === asin);
+          
+          if (product) {
+              chunks.push({ type: 'product', product: product, url: affiliateBaseUrl + asin });
+          } else {
+              // fallback
+              chunks.push({ type: 'html', content: `<a href="${affiliateBaseUrl + asin}" target="_blank" rel="nofollow" class="not-prose inline-block mt-4 px-6 py-3 bg-orange-500 text-white font-bold rounded-xl shadow no-underline hover:bg-orange-600">Vedi su Amazon</a>` });
+          }
+          
+          lastIndex = regex.lastIndex;
+        }
+
+        if (lastIndex < html.length) {
+          chunks.push({ type: 'html', content: html.substring(lastIndex) });
+        }
+      }
+      return chunks;
+    },
     renderedContent() {
-      if (!this.article) return "";
-      if (!this.article.content_html) return "<div class='py-20 text-center'><div class='inline-block animate-bounce mb-4 text-4xl'>✍️</div><p class='text-gray-400 font-bold'>L'AI sta ancora scrivendo o c'è stato un errore nel recupero del testo.</p></div>";
+      // Usato solo per articolo SINGOLO prodotto
+      if (this.isMultiProduct || !this.article) return "";
+      if (!this.article.content_html) return "<div class='py-20 text-center'><div class='inline-block animate-bounce mb-4 text-4xl'>✍️</div><p class='text-gray-400 font-bold'>L'AI sta scrivendo...</p></div>";
       
       let html = this.article.content_html;
       const affiliateUrl = this.affiliateUrl;
-      
       const buttonHtml = `
         <div class="my-10 flex justify-center">
-            <a href="${affiliateUrl}" target="_blank" rel="nofollow" class="inline-flex items-center px-12 py-5 bg-gradient-to-r from-orange-400 to-orange-600 text-white font-black rounded-2xl shadow-2xl hover:scale-105 transition-transform uppercase tracking-widest text-sm no-underline group">
+            <a href="${affiliateUrl}" target="_blank" rel="nofollow" class="not-prose inline-flex items-center px-12 py-5 bg-gradient-to-r from-orange-400 to-orange-600 text-white font-black rounded-2xl shadow-2xl hover:scale-105 transition-transform uppercase tracking-widest text-sm no-underline group hover:text-white">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                 Acquista al Miglior Prezzo
             </a>
         </div>
       `;
-      
-      html = html.replace(/\{AMAZON_BUTTON\}/g, buttonHtml);
-      html = html.replace(/\{AMAZON_LINK\}/g, affiliateUrl);
+      html = html.replace(/\{{1,2}AMAZON_BUTTON\}{1,2}/g, buttonHtml);
+      html = html.replace(/\{{1,2}AMAZON_LINK\}{1,2}/g, affiliateUrl);
       
       const currentPrice = this.article.product?.price || this.article.amazon_product_price;
       html = html.replace(/\{{1,2}\s*CURRENT_PRICE\s*\}{1,2}/g, currentPrice);
@@ -210,24 +310,6 @@ export default {
         case 'HOLD': return 'bg-amber-500 text-white';
         default: return 'bg-gray-500 text-white';
       }
-    },
-    trendColor() {
-      const trend = this.article.product?.analysis?.trend;
-      if (trend === 'down') return 'bg-emerald-400';
-      if (trend === 'up') return 'bg-rose-400';
-      return 'bg-gray-400';
-    },
-    trendLabel() {
-      const trend = this.article.product?.analysis?.trend;
-      if (trend === 'down') return 'In ribasso';
-      if (trend === 'up') return 'In rialzo';
-      return 'Stabile';
-    },
-    riskColor() {
-      const risk = this.article.product?.analysis?.risk_level;
-      if (risk === 'Alto') return 'text-rose-500';
-      if (risk === 'Medio') return 'text-amber-500';
-      return 'text-emerald-500';
     }
   },
   async created() {
@@ -251,11 +333,7 @@ export default {
   methods: {
     updateMetaTags() {
       if (!this.article) return;
-      
-      // Document Title
       document.title = `${this.article.title} | PriceHub.it`;
-      
-      // Meta Description
       let metaDesc = document.querySelector('meta[name="description"]');
       if (!metaDesc) {
         metaDesc = document.createElement('meta');
@@ -263,29 +341,12 @@ export default {
         document.head.appendChild(metaDesc);
       }
       metaDesc.setAttribute('content', this.article.meta_description || this.article.title);
-
-      // Open Graph Tags
-      this.setMetaTag('property', 'og:title', this.article.title);
-      this.setMetaTag('property', 'og:description', this.article.meta_description);
-      this.setMetaTag('property', 'og:image', this.article.product?.image_url || this.article.amazon_product_image_url);
-      this.setMetaTag('property', 'og:type', 'article');
-      this.setMetaTag('property', 'og:url', window.location.href);
-    },
-    setMetaTag(attr, value, content) {
-      let element = document.querySelector(`meta[${attr}="${value}"]`);
-      if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute(attr, value);
-        document.head.appendChild(element);
-      }
-      element.setAttribute('content', content);
     },
     injectJsonLd() {
-      this.removeJsonLd(); // Clean up if any
+      this.removeJsonLd();
       const script = document.createElement('script');
       script.type = 'application/ld+json';
       script.id = 'json-ld-article';
-      
       const product = this.article.product;
       const jsonLd = {
         "@context": "https://schema.org/",
@@ -294,34 +355,14 @@ export default {
         "image": [product?.image_url || this.article.amazon_product_image_url],
         "description": this.article.meta_description,
         "sku": this.article.asin,
-        "mpn": this.article.asin,
-        "brand": {
-          "@type": "Brand",
-          "name": "Amazon"
-        },
-        "review": {
-          "@type": "Review",
-          "reviewRating": {
-            "@type": "Rating",
-            "ratingValue": product?.analysis?.recommendation === 'BUY' ? "5" : "4",
-            "bestRating": "5"
-          },
-          "author": {
-            "@type": "Organization",
-            "name": "PriceHub Editorial Team"
-          }
-        },
         "offers": {
           "@type": "Offer",
           "url": window.location.href,
           "priceCurrency": "EUR",
           "price": product?.price || this.article.amazon_product_price,
-          "priceValidUntil": new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          "itemCondition": "https://schema.org/NewCondition",
           "availability": "https://schema.org/InStock"
         }
       };
-      
       script.text = JSON.stringify(jsonLd);
       document.head.appendChild(script);
     },
