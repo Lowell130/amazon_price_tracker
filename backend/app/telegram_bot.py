@@ -139,17 +139,24 @@ def broadcast_price_drops():
 
     logger.info(f"Invio di {len(report['drops'])} cali di prezzo al canale {CHANNEL_ID}...")
 
+    # Recupera tag affiliazione corrente dalle impostazioni
+    settings_collection = db["settings"]
+    settings = settings_collection.find_one({"type": "scraper_config"})
+    current_tag = (settings.get("affiliate_tag") or AFFILIATE_TAG) if settings else AFFILIATE_TAG
+
     for drop in report["drops"]:
         asin = drop.get("asin")
-        fallback_url = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
+        fallback_url = f"https://www.amazon.it/gp/product/{asin}/?tag={current_tag}"
+        
+        # Se il drop ha già un link di affiliazione usalo, altrimenti usa il fallback
+        amazon_url = drop.get('affiliate') or fallback_url
         
         message = (
             f"📉 *{drop.get('title', 'Prodotto')}*\n"
             f"🔻 *Prezzo:* {drop['new_price']}€ (era {drop['old_price']}€)\n"
             f"💰 *Risparmio:* {drop['price_drop']}€\n"
-            f"🔗 [Vedi su Amazon]({drop.get('affiliate') or fallback_url})"
+            f"🔗 [Vedi su Amazon]({amazon_url})"
         )
-        
         try:
             requests.post(
                 f"https://api.telegram.org/bot{TEL_TOKEN}/sendMessage",
@@ -161,6 +168,7 @@ def broadcast_price_drops():
                 },
                 timeout=10
             )
+            import time
             time.sleep(1) # Evita limiti di velocità
         except Exception as e:
             logger.error(f"Errore nell'invio del drop {drop['asin']}: {e}")

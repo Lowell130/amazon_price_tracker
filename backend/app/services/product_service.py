@@ -12,9 +12,13 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
     products_collection = get_products_collection()
     settings_collection = users_collection.database["settings"]
     
-    # Recupera modalità scraper
+    # Recupera configurazioni
     settings = settings_collection.find_one({"type": "scraper_config"})
     scraper_mode = settings.get("mode", "classic") if settings else "classic"
+    
+    from app.config import AFFILIATE_TAG
+    current_tag = settings.get("affiliate_tag", AFFILIATE_TAG) if settings else AFFILIATE_TAG
+    
     logger.info(f"Using scraper mode: {scraper_mode}")
     
     # 1. Determina gli ASIN da aggiornare
@@ -84,12 +88,19 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
                 
                 # Check favorite drop
                 if u_prod.get("is_favorite", False) and price_dropped:
+                    # Costruisci l'URL finale con tag di affiliazione
+                    final_affiliate_url = u_prod.get('affiliate')
+                    if not final_affiliate_url:
+                        # Se non c'è un link specifico, costruisci quello base con il tag corrente
+                        connector = "&" if "?" in product_url else "?"
+                        final_affiliate_url = f"{product_url}{connector}tag={current_tag}"
+                    
                     subject = f"📉 Calo Prezzo: {global_product.get('title', 'Prodotto Amazon')[:50]}..."
                     body = (
                         f"Il prezzo di '{global_product.get('title')}' è sceso!\n\n"
                         f"Prezzo Precedente: {old_price}€\n"
                         f"Nuovo Prezzo: {new_price}€\n\n"
-                        f"Vedi l'offerta su Amazon: {u_prod.get('affiliate', product_url)}"
+                        f"Vedi l'offerta su Amazon: {final_affiliate_url}"
                     )
                     send_email(u.get("email"), subject, body)
                     
@@ -102,7 +113,7 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
                                 message = (
                                     f"📉 *{global_product.get('title', 'Prodotto')}*\n"
                                     f"🔻 *Prezzo:* {new_price}€ (era {old_price}€)\n"
-                                    f"🔗 [Link Amazon]({u_prod.get('affiliate', product_url)})"
+                                    f"🔗 [Link Amazon]({final_affiliate_url})"
                                 )
                                 requests.post(
                                     f"https://api.telegram.org/bot{TEL_TOKEN}/sendMessage",

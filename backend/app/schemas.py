@@ -75,3 +75,5 @@ class ScraperSettings(BaseModel):
     proxy_user: Optional[str] = None
     proxy_pass: Optional[str] = None
     auto_refresh: bool = True
+    auto_update_prices: bool = True
+    affiliate_tag: Optional[str] = None

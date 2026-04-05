@@ -12,6 +12,14 @@ def update_all_products_job():
     logger.info("Starting automatic price update job...")
     try:
         users_collection = get_users_collection()
+        settings_collection = users_collection.database["settings"]
+        
+        # Check if auto update is enabled
+        settings = settings_collection.find_one({"type": "scraper_config"})
+        if settings and not settings.get("auto_update_prices", True):
+            logger.info("Automatic price update is disabled in settings. Skipping.")
+            return
+
         # Update all products for all users
         update_prices(users_collection, user_filter=None)
         logger.info("Automatic price update job completed. Generating price drops report...")

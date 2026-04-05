@@ -145,6 +145,59 @@
 
           <hr class="border-gray-100 dark:border-gray-800" />
 
+          <!-- Automation & Affiliate Section -->
+          <section>
+            <div class="flex items-center justify-between mb-8">
+              <div class="flex items-center gap-4">
+                <div class="p-3 bg-purple-600/10 rounded-2xl">
+                  <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <div>
+                  <h2 class="text-xl font-bold text-gray-900 dark:text-white">Automazione & Guadagni</h2>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Configura gli aggiornamenti automatici e i tuoi ID di affiliazione</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+              <!-- Affiliate Tag -->
+              <div class="p-6 rounded-3xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Amazon Affiliate Tag (ID)</label>
+                <input 
+                  type="text" 
+                  v-model="settings.affiliate_tag" 
+                  placeholder="es: iltuotag-21"
+                  class="w-full px-5 py-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 focus:ring-2 focus:ring-purple-500 transition-all text-sm mb-3"
+                />
+                <p class="text-[10px] text-gray-400 leading-relaxed">
+                  Questo tag verrà applicato automaticamente a tutti i link Amazon inviati via Email e Telegram se non è presente un link specifico.
+                </p>
+              </div>
+
+              <!-- Auto Price Update -->
+              <div class="p-6 rounded-3xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-4">
+                  <h4 class="text-sm font-bold text-gray-900 dark:text-white">Aggiornamento Auto (12h)</h4>
+                  <button 
+                    @click="settings.auto_update_prices = !settings.auto_update_prices"
+                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ring-2 ring-transparent ring-offset-2"
+                    :class="settings.auto_update_prices ? 'bg-purple-600' : 'bg-gray-200 dark:bg-gray-700'"
+                  >
+                    <span 
+                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                      :class="settings.auto_update_prices ? 'translate-x-6' : 'translate-x-1'"
+                    />
+                  </button>
+                </div>
+                <p class="text-[10px] text-gray-400 leading-relaxed">
+                  Se attivo, il server aggiornerà i prezzi di tutti i prodotti tracciati ogni 12 ore e invierà le notifiche di calo prezzo rilevate.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <hr class="border-gray-100 dark:border-gray-800" />
+
           <!-- Session & Security Section -->
           <section>
             <div class="flex items-center justify-between mb-6">
@@ -179,7 +232,7 @@
                 <div>
                   <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-1">Auto-refresh Token (Chrome Extension)</h4>
                   <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                    Se attivo, l'estensione rinnoverà il token prima di ogni operazione. Disattivandolo, l'estensione sarà più veloce ma richiederà un nuovo login manuale alla scadenza naturale del token (consigliato per utenti frequenti).
+                    Se attivo, l'estensione rinnoverà il token prima di ogni operazione.
                   </p>
                 </div>
               </div>
@@ -223,7 +276,9 @@ export default {
         proxy_url: '',
         proxy_user: '',
         proxy_pass: '',
-        auto_refresh: true
+        auto_refresh: true,
+        auto_update_prices: true,
+        affiliate_tag: ''
       },
       loading: false,
       statusMessage: '',
@@ -246,7 +301,9 @@ export default {
           proxy_url: response.data.proxy_url || '',
           proxy_user: response.data.proxy_user || '',
           proxy_pass: response.data.proxy_pass || '',
-          auto_refresh: response.data.auto_refresh !== undefined ? response.data.auto_refresh : true
+          auto_refresh: response.data.auto_refresh !== undefined ? response.data.auto_refresh : true,
+          auto_update_prices: response.data.auto_update_prices !== undefined ? response.data.auto_update_prices : true,
+          affiliate_tag: response.data.affiliate_tag || ''
         };
       } catch (error) {
         console.error("Errore caricamento settings:", error);
