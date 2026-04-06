@@ -27,7 +27,6 @@ async def generate_sitemap():
     # --- PAGINE STATICHE ---
     add_url(f"{BASE_URL}/", priority="1.0", changefreq="daily")
     add_url(f"{BASE_URL}/products", priority="0.8", changefreq="daily")
-    add_url(f"{BASE_URL}/admin/trends", priority="0.6", changefreq="daily")  # Anche se admin, forse preferibile /trends?
 
     # --- ARTICOLI (BLOG) ---
     articles = db.articles.find({"status": "published"}, {"slug": 2, "updated_at": 1, "published_at": 1})
