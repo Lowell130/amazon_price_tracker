@@ -2,8 +2,12 @@
     "rewrites": [
       {
         "source": "/sitemap.xml",
-        "destination": "https://orca-app-jqrqm.ondigitalocean.app/sitemap.xml"
+        "destination": "https://amazonpricealert-315794506139.europe-west1.run.app/sitemap.xml"
+      },
+      {
+        "source": "/api/(.*)",
+        "destination": "https://amazonpricealert-315794506139.europe-west1.run.app/api/$1"
       }
     ]
-  }
+}
   
