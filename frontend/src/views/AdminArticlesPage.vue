@@ -258,6 +258,18 @@ export default {
     }
   },
   async created() {
+    // Intercettiamo eventuali parametri dalla query (es. dal Trend Explorer)
+    const { keyword, mode, tab } = this.$route.query;
+    if (tab) this.currentTab = tab;
+    if (mode) this.articleMode = mode;
+    if (keyword) {
+      if (this.articleMode === 'multi') {
+        this.multiArticle.keyword = keyword;
+      } else {
+        this.singleArticle.keyword = keyword;
+      }
+    }
+
     await this.fetchArticles();
     await this.fetchDashboardProducts();
     this.startPolling();

@@ -24,6 +24,28 @@
         </div>
       </div>
 
+      <!-- Info Section -->
+      <div class="mb-8 p-6 rounded-3xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30 backdrop-blur-md">
+        <h2 class="text-lg font-black text-blue-700 dark:text-blue-400 flex items-center gap-2 mb-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Come funziona l'analisi dei Trend?
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+          <div class="space-y-2">
+            <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">1. Fonti Multi-Canale 📡</h3>
+            <p class="text-gray-600 dark:text-gray-400">Il motore scansiona in tempo reale feed RSS tech, le discussioni più calde su Reddit, i video dei top influencer su YouTube e i volumi di ricerca di Google Trends.</p>
+          </div>
+          <div class="space-y-2">
+            <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">2. Elaborazione AI 🧠</h3>
+            <p class="text-gray-600 dark:text-gray-400">Gemini analizza oltre 200 segnali simultaneamente, filtrando il rumore mediatico per identificare prodotti reali e azionabili in ambito consumer electronics e gadget.</p>
+          </div>
+          <div class="space-y-2">
+            <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">3. Scoring e Sentiment 📊</h3>
+            <p class="text-gray-600 dark:text-gray-400">Ogni trend riceve un punteggio di virilità, una stima di redditività su Amazon e un'analisi del sentiment per aiutarti a decidere cosa pubblicare prima della concorrenza.</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Content -->
       <div v-if="loading && trends.length === 0" class="flex flex-col items-center justify-center py-32">
          <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-6"></div>
@@ -40,12 +62,17 @@
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
          <!-- Trend Cards -->
-         <div v-for="(trend, index) in sortedTrends" :key="index" class="rounded-[2.5rem] bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+          <div v-for="(trend, index) in sortedTrends" :key="index" class="rounded-[2.5rem] bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden group hover:-translate-y-1 transition-all duration-300">
             <div class="p-8">
                <div class="flex items-start justify-between mb-6">
                  <div>
-                   <div class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-3" :class="getScoreColor(trend.score)">
-                     Score: {{ trend.score }}/100
+                   <div class="flex items-center gap-2 mb-3">
+                     <div class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" :class="getScoreColor(trend.score)">
+                       Score: {{ trend.score }}
+                     </div>
+                     <div v-if="trend.sentiment" class="px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-900 text-[10px] font-bold text-gray-600 dark:text-gray-400">
+                       {{ trend.sentiment }}
+                     </div>
                    </div>
                    <h2 class="text-2xl font-black text-gray-900 dark:text-white leading-tight">
                      {{ trend.topic }}
@@ -58,15 +85,37 @@
                  "{{ trend.reason }}"
                </p>
 
-               <div class="bg-gray-50 dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 mb-8">
-                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Keyword Suggerita 🎯</div>
-                 <div class="text-sm font-semibold text-blue-600 dark:text-blue-400">{{ trend.seo_keyword }}</div>
+               <!-- New Stats -->
+               <div class="grid grid-cols-2 gap-4 mb-6">
+                  <div class="bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-2xl border border-blue-100/50 dark:border-blue-800/30">
+                    <div class="text-[9px] font-black text-blue-500 uppercase tracking-widest mb-1">Redditività 💰</div>
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500" :style="{ width: trend.profitability + '%' }"></div>
+                      </div>
+                      <span class="text-xs font-bold dark:text-white">{{ trend.profitability }}%</span>
+                    </div>
+                  </div>
+                  <div class="bg-purple-50/50 dark:bg-purple-900/10 p-3 rounded-2xl border border-purple-100/50 dark:border-purple-800/30">
+                    <div class="text-[9px] font-black text-purple-500 uppercase tracking-widest mb-1">Keywords AI 🎯</div>
+                    <div class="text-xs font-bold dark:text-white truncate">{{ trend.seo_keyword.split(' ').slice(0, 3).join(' ') }}...</div>
+                  </div>
+               </div>
+
+               <!-- Suggested Products -->
+               <div v-if="trend.suggested_products && trend.suggested_products.length" class="mb-8">
+                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Prodotti Correlati 🔥</div>
+                 <div class="flex flex-wrap gap-2">
+                   <span v-for="p in trend.suggested_products" :key="p" class="px-3 py-1.5 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-xl text-[11px] font-semibold border border-gray-100 dark:border-gray-800">
+                     {{ p }}
+                   </span>
+                 </div>
                </div>
 
                <div class="flex flex-col gap-3">
                   <button @click="writeArticle(trend)" class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-black rounded-xl shadow-lg shadow-purple-500/20 hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-widest">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                    Scrivi Articolo Info
+                    Crea Articolo AI
                   </button>
                   <button @click="searchAmazon(trend)" class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-white dark:bg-gray-900 text-gray-800 dark:text-white font-bold rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 transition-all text-sm">
                     <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -74,7 +123,7 @@
                   </button>
                </div>
             </div>
-         </div>
+          </div>
       </div>
 
       <!-- Settings Modal -->
@@ -259,12 +308,18 @@ export default {
       }
     },
     writeArticle(trend) {
-       // Possiamo reindirizzare ad AdminArticlesPage portando la keyword come query param o copiandola in clipboard
-       navigator.clipboard.writeText(trend.seo_keyword);
-       this.toast.success("Keyword copiata! Ti rinvio alla creazione...");
+       // Passiamo alla pagina articoli con query params per pre-compilare
+       this.toast.success("Ti rinvio alla creazione dell'articolo...");
        setTimeout(() => {
-          this.$router.push('/admin/articles');
-       }, 1500);
+          this.$router.push({
+            path: '/admin/articles',
+            query: { 
+              keyword: trend.seo_keyword,
+              mode: 'multi',
+              tab: 'new_article'
+            }
+          });
+       }, 1000);
     },
     searchAmazon(trend) {
        const url = `https://www.amazon.it/s?k=${encodeURIComponent(trend.topic)}`;
