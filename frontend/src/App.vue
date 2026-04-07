@@ -37,10 +37,12 @@ export default {
   },
   mounted() {
     this.trackVisit();
-    // Watch for login/logout (simple check)
-    window.addEventListener('storage', () => {
+    // Watch for login/logout (storage for cross-tab, auth-state-changed for same tab)
+    const updateToken = () => {
       this.hasToken = !!localStorage.getItem('token');
-    });
+    };
+    window.addEventListener('storage', updateToken);
+    window.addEventListener('auth-state-changed', updateToken);
   },
   methods: {
     async trackVisit() {

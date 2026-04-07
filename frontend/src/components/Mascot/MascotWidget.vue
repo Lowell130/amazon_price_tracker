@@ -340,6 +340,8 @@ export default {
     },
     checkAdminStatus() {
       const token = localStorage.getItem('token');
+      console.log("%c [Pricey Debug] Checking Auth... Token exists:", "color: #3b82f6;", !!token);
+      
       if (!token) {
         this.isAdmin = false;
         return;
@@ -347,8 +349,14 @@ export default {
       try {
         const decoded = jwtDecode(token);
         const now = Math.floor(Date.now() / 1000);
-        this.isAdmin = decoded.admin && decoded.exp > now;
+        this.isAdmin = (decoded.admin === true) && (decoded.exp > now);
+        console.log("%c [Pricey Debug] Decoded Token:", "color: #3b82f6;", { 
+          isAdmin: this.isAdmin, 
+          rawAdmin: decoded.admin,
+          expired: decoded.exp <= now 
+        });
       } catch (e) {
+        console.error("[Pricey Debug] JWT Decode Error:", e);
         this.isAdmin = false;
       }
     },
@@ -413,9 +421,11 @@ export default {
         }
       } catch (error) {
         if (error.response && error.response.status === 401) {
-          // If unauthorized, hide mascot as it requires an active session
-          this.isVisible = false;
+          // If unauthorized, just mark as non-admin for this check
+          // DO NOT set isVisible = false as it would override user preference
+          this.isAdmin = false;
           this.showMessage = false;
+          console.log("%c [Pricey] Session expired or unauthorized. Hiding.", "color: #ef4444;");
         } else {
           console.error("Error fetching mascot:", error);
         }
