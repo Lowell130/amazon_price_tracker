@@ -64,7 +64,7 @@ async def login(user: UserLogin, users_collection = Depends(get_users_collection
 
     token = jwt.encode({
         "sub": db_user["username"],
-        "admin": db_user.get("admin", False),
+        "admin": db_user.get("admin") is True or db_user.get("admin") == "true",
         "exp": datetime.utcnow() + timedelta(minutes=30)
     }, SECRET_KEY, algorithm="HS256")
 

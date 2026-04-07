@@ -120,10 +120,11 @@
           alt="Pricey Mascot" 
           class="w-full h-full object-contain mascot-img drop-shadow-xl"
           @load="processImage"
-          v-show="imageProcessed"
+          @error="handleImageError"
+          :class="{ 'opacity-0': !imageProcessed }"
         />
         <!-- Loading state for image processing -->
-        <div v-if="!imageProcessed" class="w-full h-full flex items-center justify-center">
+        <div v-if="!imageProcessed" class="w-full h-full absolute inset-0 flex items-center justify-center">
            <div class="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
 
@@ -349,7 +350,7 @@ export default {
       try {
         const decoded = jwtDecode(token);
         const now = Math.floor(Date.now() / 1000);
-        this.isAdmin = (decoded.admin === true) && (decoded.exp > now);
+        this.isAdmin = (decoded.admin === true || decoded.admin === "true") && (decoded.exp > now);
         console.log("%c [Pricey Debug] Decoded Token:", "color: #3b82f6;", { 
           isAdmin: this.isAdmin, 
           rawAdmin: decoded.admin,
@@ -451,6 +452,10 @@ export default {
       } finally {
         this.loadingChat = false;
       }
+    },
+    handleImageError(event) {
+      console.error("%c [Pricey Debug] Image Load Failed! ❌", "color: #ef4444; font-weight: bold;", event.target.src);
+      this.imageProcessed = true; // Fallback to show the broken image icon instead of just invisible
     },
     processImage() {
       const img = this.$refs.mascotImg;
