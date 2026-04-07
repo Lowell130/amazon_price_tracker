@@ -3,7 +3,12 @@
 
 A full-stack powerful web application for tracking and analyzing price changes on Amazon.it Cart. This project lets users monitor product prices, manage favorites, and visualize data trends with interactive charts.
 
-Currently, the application supports only **Amazon.it** and is built using **Vue.js**, **Python**, and **MongoDB**.
+Currently, the application supports **Amazon.it** and is built with a modern, high-performance stack:
+- **Frontend**: Vue.js 3 with a premium, custom UI (Glassmorphism, Dark Mode, Micro-animations).
+- **Backend**: FastAPI (Python) for high-speed asynchronous processing.
+- **Database**: MongoDB for flexible data storage.
+- **AI**: Integrated AI for SEO keyword enhancement and automated article generation.
+- **Scraper**: Multi-mode scraper (CSS/JSON) with optional proxy support to ensure resilience.
 
 ---
 
@@ -13,10 +18,14 @@ Currently, the application supports only **Amazon.it** and is built using **Vue.
 ---
 
 ## 🚀 **Features**
-- **📊 Interactive Charts**: Visualize price history with dynamic graphs.
-- **🔍 Advanced Filtering**: Search and filter products by category, condition, and price range.
-- **🌟 Favorites Management**: Save your favorite products for quick access.
-- **📬 Email Notifications**: Get notified of price changes.
+- **📊 Pannello Analytics Avanzato**: Monitora visite, sorgenti di traffico (referrers) e query di ricerca in tempo reale.
+- **🤖 Bot Detection & Filtering**: Sistema integrato per identificare e filtrare il traffico dei crawler (Googlebot, Bingbot, etc.), garantendo dati puliti.
+- **📑 Blog con Paginazione**: Gestione articoli con caricamento ottimizzato e navigazione fluida Precedente/Successivo.
+- **⚙️ Configurazione Dinamica**: Impostazioni di sistema per modalità scraper (CSS vs JSON), proxy, tag affiliazione e parametri blog.
+- **📈 Grafici Interattivi**: Visualizza la cronologia dei prezzi con grafici dinamici.
+- **📬 Notifiche Multi-Canale**: Avvisi di calo prezzo tramite Email e Telegram Bot.
+- **🌟 Gestione Preferiti & Ricerca**: Filtraggio avanzato per categoria, condizione e range di prezzo.
+- **🧩 Estensione Chrome**: Integrazione diretta con Amazon per aggiungere prodotti in un click.
 
 ---
 
@@ -75,22 +84,21 @@ Follow these steps to run the project locally.
 ## 📂 **Project Structure**
 ```
 amazon_price_tracker/
-├── app/                  
-│   ├── utils/           
-│   │   └── email.py    
-│   ├── auth.py          
-│   ├── config.py        
-│   ├── crud.py          
-│   ├── db.py            
-│   ├── main.py          
-│   └── scraper.py       
-├── frontend/            
-│   ├── public/         
-│   ├── src/            
-│   └── ...             
-├── README.md            
-├── .gitignore           
-└── requirements.txt     
+├── backend/            # FastAPI Backend
+│   ├── app/
+│   │   ├── routers/    # API Endpoints (Analytics, Articles, SEO, etc.)
+│   │   ├── services/   # Business Logic (AI Generation, Scraping, Analysis)
+│   │   ├── utils/      # Helpers (Email, Bot Detection)
+│   │   ├── main.py     # Entry Point
+│   │   └── schemas.py  # Pydantic Models
+├── frontend/           # Vue.js 3 Frontend (Vite)
+│   ├── src/
+│   │   ├── views/      # Pages (Admin, Blog, Tracker)
+│   │   ├── components/ # Reusable UI Components
+│   │   └── store/      # State Management
+├── amazon-extension/   # Chrome Extension for one-click tracking
+├── README.md           # Documentation
+└── requirements.txt    # Python Dependencies
 ```
 
 ---
