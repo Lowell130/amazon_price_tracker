@@ -9,6 +9,7 @@ import re
 import unicodedata
 from app.db import get_db
 from app.services.article_service import generate_seo_article
+from app.services.mascot_service import update_mascot_xp
 
 def slugify(text: str) -> str:
     """Converts a string into a URL-friendly slug."""
@@ -139,6 +140,10 @@ async def generate_article_task(article_id: str):
                     "published_at": datetime.utcnow().isoformat()
                 }}
             )
+        
+        
+        # Award final Mascot XP for completion
+        update_mascot_xp(15)
         
         print(f"Article {article_id} generated successfully!")
 

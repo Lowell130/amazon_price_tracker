@@ -10,6 +10,7 @@ from datetime import datetime
 import logging
 from app.services.analysis_service import analyze_product_price
 from app.services.report_service import update_price_drops_report
+from app.services.mascot_service import update_mascot_xp
 
 router = APIRouter(prefix="/api", tags=["products"])
 logger = logging.getLogger(__name__)
@@ -82,6 +83,9 @@ async def add_product(
             {"asin": asin, "$or": [{"category": None}, {"category": ""}]},
             {"$set": {"category": request.category}}
         )
+    
+    # Award Mascot XP
+    update_mascot_xp(10)
     
     return {"message": "Product added successfully", "affiliate": affiliate_link}
 

@@ -52,6 +52,37 @@
         </div>
       </div>
 
+      <!-- Settings & Personalization Section -->
+      <div class="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+        <div class="p-8 border-b border-gray-50 dark:border-gray-800">
+          <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Personalizzazione</h3>
+          <p class="text-sm text-gray-500 font-medium mt-1">Gestisci la tua esperienza sulla piattaforma</p>
+        </div>
+        <div class="p-8 space-y-6">
+          <div class="flex items-center justify-between p-6 bg-gray-50 dark:bg-gray-800/50 rounded-3xl border border-transparent">
+            <div class="flex items-center gap-4">
+              <div class="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-2xl text-orange-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </div>
+              <div>
+                <h4 class="font-bold text-gray-900 dark:text-white">Pricey AI Assistant</h4>
+                <p class="text-xs text-gray-500 mt-0.5">Mostra il gattino assistente in tutte le pagine</p>
+              </div>
+            </div>
+            <button 
+              @click="toggleMascot"
+              :class="mascotEnabled ? 'bg-orange-500' : 'bg-gray-200 dark:bg-gray-700'"
+              class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none"
+            >
+              <span 
+                :class="mascotEnabled ? 'translate-x-7' : 'translate-x-1'"
+                class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform"
+              ></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Admin Tools Section -->
       <div v-if="isAdmin" class="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
         <div class="p-8 border-b border-gray-50 dark:border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -116,6 +147,7 @@ export default {
       email: "",
       isAdmin: false,
       productsCount: 0,
+      mascotEnabled: true,
       lastUpdateDate: null,
     };
   },
@@ -141,6 +173,10 @@ export default {
         this.email = userData.email;
         this.isAdmin = userData.admin;
         this.productsCount = userData.products_count || 0;
+        this.mascotEnabled = userData.mascot_enabled;
+        
+        // Update local setting for the widget
+        localStorage.setItem('mascot_enabled', this.mascotEnabled);
       } catch (error) {
         this.logout();
       }
@@ -188,6 +224,27 @@ export default {
         }
       } catch (error) {
         alert("Impossibile generare il link Telegram.");
+      }
+    },
+    async toggleMascot() {
+      const newValue = !this.mascotEnabled;
+      try {
+        const response = await fetchWithToken(
+          `${process.env.VUE_APP_API_BASE_URL}/auth/me/settings`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mascot_enabled: newValue })
+          }
+        );
+        if (response.ok) {
+          this.mascotEnabled = newValue;
+          localStorage.setItem('mascot_enabled', newValue);
+          // Emit event to notify MascotWidget immediately
+          window.dispatchEvent(new Event('mascot-settings-changed'));
+        }
+      } catch (error) {
+        console.error("Errore aggiornamento impostazioni:", error);
       }
     },
     logout() {

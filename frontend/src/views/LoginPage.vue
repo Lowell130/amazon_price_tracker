@@ -104,6 +104,8 @@ export default {
         if (response.ok) {
           const data = await response.json();
           localStorage.setItem("token", data.access_token);
+          // Notify other components (like Pricey) that auth state changed
+          window.dispatchEvent(new Event('auth-state-changed'));
           this.toast.success("Login effettuato con successo! Bentornato.");
           this.$router.push("/dashboard");
         } else {

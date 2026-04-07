@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, products, admin, public, analysis, extension, articles, analytics, trends, seo
+from app.routers import auth, products, admin, public, analysis, extension, articles, analytics, trends, seo, mascot
 from app.db import users_collection
 from app.config import BASE_URL
 from datetime import datetime
@@ -59,6 +59,7 @@ app.include_router(articles.router)
 app.include_router(analytics.router)
 app.include_router(trends.router)
 app.include_router(seo.router)
+app.include_router(mascot.router)
 
 @app.get("/")
 async def root():

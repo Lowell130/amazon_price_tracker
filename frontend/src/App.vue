@@ -10,6 +10,7 @@
     </main>
     <FooterTemplate />
     <ToastNotification />
+    <MascotWidget v-if="hasToken" />
   </div>
  
 </template>
@@ -20,15 +21,26 @@
 import FooterTemplate from './components/Template/FooterTemplate.vue';
 import HeaderTemplate from './components/Template/HeaderTemplate.vue';
 import ToastNotification from './components/ToastNotification.vue';
+import MascotWidget from './components/Mascot/MascotWidget.vue';
 
 export default {
   components: {
     FooterTemplate, 
     HeaderTemplate,
-    ToastNotification
+    ToastNotification,
+    MascotWidget
+  },
+  data() {
+    return {
+      hasToken: !!localStorage.getItem('token')
+    }
   },
   mounted() {
     this.trackVisit();
+    // Watch for login/logout (simple check)
+    window.addEventListener('storage', () => {
+      this.hasToken = !!localStorage.getItem('token');
+    });
   },
   methods: {
     async trackVisit() {

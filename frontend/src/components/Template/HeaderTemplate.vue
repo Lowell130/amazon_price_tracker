@@ -322,6 +322,8 @@ export default {
       },
       logout() {
         localStorage.removeItem("token");
+        // Notify other components (like Pricey) that auth state changed
+        window.dispatchEvent(new Event('auth-state-changed'));
         this.isAuthenticated = false;
         this.isAdmin = false;
         this.$router.push("/login");

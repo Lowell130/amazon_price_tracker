@@ -7,6 +7,7 @@ from app.db import get_db
 from app.schemas import ArticleModel, ArticleTrigger
 from app.dependencies import admin_required
 from app.services.tasks import generate_article_task  # Renamed from generate_article_flow
+from app.services.mascot_service import update_mascot_xp
 
 router = APIRouter(prefix="/api", tags=["articles"])
 
@@ -61,6 +62,9 @@ async def trigger_article_generation(
     
     # Launch Background Task (integrated in FastAPI)
     background_tasks.add_task(generate_article_task, article_id)
+    
+    # Award small immediate Mascot XP
+    update_mascot_xp(5)
     
     return {"id": article_id, "status": "queued"}
 

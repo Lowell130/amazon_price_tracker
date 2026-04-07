@@ -3,6 +3,7 @@ from app.dependencies import admin_required, password_reset_tokens, generate_res
 from app.db import get_users_collection, get_db, get_settings_collection
 from app.schemas import ScraperSettings
 from app.services.product_service import update_prices
+from app.services.mascot_service import record_scrape_results
 from app.utils.email import send_email
 from datetime import datetime, timedelta
 import os
@@ -115,10 +116,15 @@ async def update_all_prices_manual(users_collection = Depends(get_users_collecti
     try:
         updated_products = update_prices(users_collection, user_filter=None)  
         # Update price drops report and send Telegram notifications
-        update_price_drops_report()
+        total_drops = update_price_drops_report()
+        
+        # Notify mascot of results
+        record_scrape_results(len(updated_products), total_drops)
+        
         return {
             "message": "Manual price update for all products completed and report updated",
             "updated_products_count": len(updated_products),
+            "drops_found": total_drops
         }
     except Exception as e:
         logger.error(f"Error updating all prices manually: {str(e)}")

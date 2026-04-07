@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+from typing import Optional
 from app.schemas import User, UserLogin, PasswordResetRequest, ResetPasswordRequest
 from app.dependencies import get_current_user, oauth2_scheme, password_reset_tokens, generate_reset_token
 from app.db import get_users_collection, get_db
@@ -144,8 +146,32 @@ async def get_user_info(current_user: str = Depends(get_current_user), users_col
         "username": db_user["username"],
         "email": db_user.get("email"),
         "admin": db_user.get("admin") is True or db_user.get("admin") == "true",
-        "products_count": len(db_user.get("products", []))
+        "products_count": len(db_user.get("products", [])),
+        "mascot_enabled": db_user.get("mascot_enabled", True) # Default to True
     }
+
+class UserSettingsUpdate(BaseModel):
+    mascot_enabled: Optional[bool] = None
+
+@router.patch("/me/settings")
+async def update_user_settings(
+    settings: UserSettingsUpdate,
+    current_user: str = Depends(get_current_user),
+    users_collection = Depends(get_users_collection)
+):
+    """Updates user-specific preferences."""
+    update_data = {}
+    if settings.mascot_enabled is not None:
+        update_data["mascot_enabled"] = settings.mascot_enabled
+    
+    if not update_data:
+        return {"message": "No changes requested"}
+
+    users_collection.update_one(
+        {"username": current_user},
+        {"$set": update_data}
+    )
+    return {"message": "Settings updated successfully", "settings": update_data}
 
 
 @router.post("/connect-telegram")
