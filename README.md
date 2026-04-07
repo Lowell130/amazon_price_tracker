@@ -18,14 +18,14 @@ Currently, the application supports **Amazon.it** and is built with a modern, hi
 ---
 
 ## 🚀 **Features**
-- **📊 Pannello Analytics Avanzato**: Monitora visite, sorgenti di traffico (referrers) e query di ricerca in tempo reale.
-- **🤖 Bot Detection & Filtering**: Sistema integrato per identificare e filtrare il traffico dei crawler (Googlebot, Bingbot, etc.), garantendo dati puliti.
-- **📑 Blog con Paginazione**: Gestione articoli con caricamento ottimizzato e navigazione fluida Precedente/Successivo.
-- **⚙️ Configurazione Dinamica**: Impostazioni di sistema per modalità scraper (CSS vs JSON), proxy, tag affiliazione e parametri blog.
-- **📈 Grafici Interattivi**: Visualizza la cronologia dei prezzi con grafici dinamici.
-- **📬 Notifiche Multi-Canale**: Avvisi di calo prezzo tramite Email e Telegram Bot.
-- **🌟 Gestione Preferiti & Ricerca**: Filtraggio avanzato per categoria, condizione e range di prezzo.
-- **🧩 Estensione Chrome**: Integrazione diretta con Amazon per aggiungere prodotti in un click.
+- **📊 Advanced Analytics Dashboard**: Monitor visits, traffic sources (referrers), and search queries in real-time.
+- **🤖 Bot Detection & Filtering**: Integrated system to identify and filter crawler traffic (Googlebot, Bingbot, etc.), ensuring clean and accurate data.
+- **📑 Blog with Pagination**: Article management with optimized loading and smooth **Previous/Next** navigation.
+- **⚙️ Dynamic Configuration**: Centralized system settings for scraper modes (CSS vs JSON), rotating proxies, affiliate tags, and blog parameters.
+- **📈 Interactive Charts**: Beautiful price history visualization with dynamic, interactive graphs.
+- **📬 Multi-Channel Notifications**: Instant price drop alerts delivered via **Email** and **Telegram Bot**.
+- **🌟 Favorites & Advanced Search**: Powerful filtering and management by category, condition, and price range.
+- **🧩 Chrome Extension**: Direct browser integration to track any Amazon product with a single click.
 
 ---
 
@@ -36,17 +36,17 @@ Follow these steps to run the project locally.
    ```bash
    git clone https://github.com/Lowell130/amazon_price_tracker.git
    cd amazon_price_tracker
-
    ```
 
-2. **Install dependencies for backend:**
+2. **Install backend dependencies:**
    ```bash
+   cd backend
    pip install -r requirements.txt
    ```
 
-3. **Install dependencies for frontend:**
+3. **Install frontend dependencies:**
    ```bash
-   cd frontend/
+   cd ../frontend
    npm install
    ```
 
@@ -56,28 +56,35 @@ Follow these steps to run the project locally.
    # MongoDB Configuration
    MONGO_URI=mongodb+srv://your-username:your-password@cluster.mongodb.net
 
-   # Email Configuration
+   # Email Configuration (SMTP)
    SENDER_EMAIL=your-email@example.com
    SENDER_PASSWORD=your-email-password
    SMTP_SERVER=smtp.example.com
    SMTP_PORT=587
 
-   # Other Configurations
+   # Telegram Configuration (Optional)
+   TELEGRAM_BOT_TOKEN=your-bot-token
+   TELEGRAM_ADMIN_CHAT_ID=your-chat-id
+
+   # Frontend URLs
    VUE_APP_API_BASE_URL=http://127.0.0.1:8000/api
    FRONTEND_BASE_URL=http://localhost:8080
    ```
 
 5. **Run the server:**
    ```bash
+   # From the backend directory
    python -m uvicorn app.main:app --reload
    ```
+
 6. **Run the frontend:**
    ```bash
+   # From the frontend directory
    npm run serve
    ```
 
 7. **Access the application:**
-   Open your browser and navigate to `http://127.0.0.1:8000`.
+   Open your browser and navigate to `http://localhost:8080`.
 
 ---
 
@@ -89,16 +96,16 @@ amazon_price_tracker/
 │   │   ├── routers/    # API Endpoints (Analytics, Articles, SEO, etc.)
 │   │   ├── services/   # Business Logic (AI Generation, Scraping, Analysis)
 │   │   ├── utils/      # Helpers (Email, Bot Detection)
-│   │   ├── main.py     # Entry Point
-│   │   └── schemas.py  # Pydantic Models
-├── frontend/           # Vue.js 3 Frontend (Vite)
+│   │   ├── main.py     # Application Entry Point
+│   │   └── schemas.py  # Pydantic Definition Models
+├── frontend/           # Vue.js 3 Frontend (Vite/Vue CLI)
 │   ├── src/
-│   │   ├── views/      # Pages (Admin, Blog, Tracker)
-│   │   ├── components/ # Reusable UI Components
-│   │   └── store/      # State Management
-├── amazon-extension/   # Chrome Extension for one-click tracking
-├── README.md           # Documentation
-└── requirements.txt    # Python Dependencies
+│   │   ├── views/      # Page Views (Admin Dashboard, Blog, Tracker)
+│   │   ├── components/ # Reusable UI components
+│   │   └── store/      # Global State Management
+├── amazon-extension/   # Chrome Extension for browsing integration
+├── README.md           # Project Documentation
+└── requirements.txt    # Python Project Dependencies
 ```
 
 ---
