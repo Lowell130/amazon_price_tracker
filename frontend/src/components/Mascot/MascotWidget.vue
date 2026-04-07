@@ -9,11 +9,24 @@
     <transition name="fade">
       <div 
         v-if="showMessage && mascot" 
-        class="absolute -top-12 right-full mr-6 w-[380px] rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border pointer-events-auto overflow-hidden animate-slide-left"
-        :class="isAngry ? 'bg-slate-900 border-red-500/50 text-white shadow-red-500/10' : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-200'"
+        class="absolute -top-12 w-[380px] rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border pointer-events-auto overflow-hidden transition-all duration-300"
+        :class="[
+          isAngry ? 'bg-slate-900 border-red-500/50 text-white shadow-red-500/10' : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-200',
+          bubbleOnRight ? 'left-full ml-6 animate-slide-right' : 'right-full mr-6 animate-slide-left'
+        ]"
         @pointerdown.stop
       >
         <!-- Message Content -->
+        <!-- Close Button (X) -->
+        <button 
+          @click="closeBubble" 
+          class="absolute top-4 right-4 text-gray-300 dark:text-gray-500 hover:text-red-400 dark:hover:text-red-500 transition-colors z-10"
+          title="Chiudi"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
         <div class="px-7 py-6">
           <p class="text-[14px] font-medium leading-relaxed" :class="isAngry ? 'text-red-100' : 'mb-6'">
             {{ isAngry ? "Grrr! Mi hai stufato con tutti questi clic! Lasciami in pace un attimo, miao!" : currentMessage }}
@@ -42,20 +55,38 @@
           </div>
 
           <!-- Interaction Buttons (Fixed Alignment) -->
-          <div v-else-if="!isAngry" class="flex items-center gap-6 mt-2 pt-2 border-t border-gray-50 dark:border-gray-700/50">
-            <button @click="openChat" class="flex items-center gap-2 group">
-              <span class="w-1.5 h-1.5 rounded-full bg-blue-500 group-hover:scale-125 transition-transform"></span>
-              <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest whitespace-nowrap">Parla con me</span>
-            </button>
-            <button @click="closeBubble" class="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase tracking-widest hover:text-red-400 transition-colors whitespace-nowrap">
-              Nascondi
-            </button>
+          <div v-else-if="!isAngry" class="flex flex-col gap-4 mt-2 pt-2 border-t border-gray-50 dark:border-gray-700/50">
+            <!-- Direct Actions Row -->
+            <div class="flex items-center justify-around py-1">
+              <button @click="interact('pet')" :disabled="loading" class="flex flex-col items-center gap-1 group/btn transition-transform hover:scale-110">
+                <span class="text-xl">🖐️</span>
+                <span class="text-[9px] font-bold text-gray-500 uppercase tracking-tighter">Accarezza</span>
+              </button>
+              <button @click="interact('feed')" :disabled="loading" class="flex flex-col items-center gap-1 group/btn transition-transform hover:scale-110">
+                <span class="text-xl">🍗</span>
+                <span class="text-[9px] font-bold text-gray-500 uppercase tracking-tighter">Nutri</span>
+              </button>
+              <div class="w-px h-8 bg-gray-100 dark:bg-gray-700 mx-2"></div>
+              <button @click="openChat" class="flex flex-col items-center gap-1 group/btn transition-transform hover:scale-110">
+                <span class="text-xl">💬</span>
+                <span class="text-[9px] font-bold text-blue-500 uppercase tracking-tighter">Parla</span>
+              </button>
+            </div>
+            
+            <div class="flex justify-center">
+               <button @click="closeBubble" class="text-[9px] font-black text-gray-300 dark:text-gray-500 uppercase tracking-widest hover:text-red-400 transition-colors whitespace-nowrap">
+                Nascondi il gatto
+              </button>
+            </div>
           </div>
         </div>
         
         <!-- Triangle pointer (Moved to the RIGHT side) -->
-        <div class="absolute top-8 -right-2 w-5 h-5 border-t border-r transform rotate-45"
-          :class="isAngry ? 'bg-slate-900 border-red-500/50' : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700'"
+        <div class="absolute top-8 w-5 h-5 border-t border-r transform rotate-45"
+          :class="[
+            isAngry ? 'bg-slate-900 border-red-500/50' : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700',
+            bubbleOnRight ? '-left-2 border-l border-b border-t-0 border-r-0' : '-right-2'
+          ]"
         ></div>
       </div>
     </transition>
@@ -82,7 +113,7 @@
       </div>
 
       <!-- Professional Mascot Image (Active/Sleeping Toggle) -->
-      <div class="w-28 h-28 sm:w-32 sm:h-32 mascot-image-wrapper" :class="mascot?.mood">
+      <div class="w-28 h-28 sm:w-32 sm:h-32 mascot-image-wrapper" :class="[mascot?.mood, { bouncing: bubbleBouncing }]">
         <img 
           ref="mascotImg"
           :src="mascotSrc" 
@@ -101,19 +132,14 @@
           <span class="animate-bounce inline-flex h-4 w-4 rounded-full bg-yellow-400 opacity-75"></span>
         </div>
         
-        <!-- Zzz -->
-        <div v-if="mascot?.mood === 'sleepy' && !dragging && !hovering" class="absolute -top-0 right-4 z-particles">
+        <!-- Zzz (Only when asleep/bubble hidden) -->
+        <div v-if="!showMessage && mascot?.mood === 'sleepy' && !dragging && !hovering" class="absolute -top-0 right-4 z-particles">
           <span class="zzz z1">Z</span>
           <span class="zzz z2">z</span>
           <span class="zzz z3">z</span>
         </div>
 
-        <!-- Butterfly -->
-        <div v-if="showButterfly" class="absolute butterfly-container">
-          <svg viewBox="0 0 50 50" class="w-6 h-6 butterfly">
-            <path d="M25 25 Q15 15 5 25 Q15 35 25 25 Q35 15 45 25 Q35 35 25 25" fill="#f472b6" />
-          </svg>
-        </div>
+
 
         <!-- Floating Hearts -->
         <transition-group name="heart" tag="div" class="absolute inset-0 pointer-events-none">
@@ -126,6 +152,18 @@
             <svg viewBox="0 0 32 32" class="w-4 h-4 text-red-500 fill-current">
               <path d="M16 28.5L14.5 27.1C9.2 22.3 5.7 19.3 5.7 15.5C5.7 12.4 8.1 10 11.2 10C13 10 14.7 10.8 15.8 12.1C16.9 10.8 18.6 10 20.4 10C23.5 10 25.9 12.4 25.9 15.5C25.9 19.3 22.4 22.3 17.1 27.1L15.6 28.5H16Z" />
             </svg>
+          </div>
+        </transition-group>
+
+        <!-- Falling Kibble Animation -->
+        <transition-group name="kibble" tag="div" class="absolute inset-0 pointer-events-none">
+          <div 
+            v-for="k in kibbles" 
+            :key="k.id" 
+            class="kibble-drop"
+            :style="{ left: k.x + '%', animationDelay: k.delay + 's' }"
+          >
+            🟤
           </div>
         </transition-group>
       </div>
@@ -160,7 +198,7 @@ export default {
       userMessage: "",
       chatResponse: "",
       drillingDown: false,
-      showButterfly: false,
+
       dragging: false,
       hovering: false,
       imageProcessed: false,
@@ -172,7 +210,10 @@ export default {
       lastSeenScrapeTime: localStorage.getItem('mascot_last_scrape_time') || null,
       scrapeReportMessage: null,
       hearts: [],
+      kibbles: [],
       nextHeartId: 0,
+      nextKibbleId: 0,
+      bubbleBouncing: false,
       prevStats: null,
       clickData: { count: 0, lastTime: 0 },
       isVisible: localStorage.getItem('mascot_enabled') !== 'false',
@@ -180,6 +221,7 @@ export default {
         x: window.innerWidth - 180,
         y: window.innerHeight - 180
       },
+      touchStartPos: { x: 0, y: 0 }, // For distinguishing click vs drag
       offset: { x: 0, y: 0 }
     };
   },
@@ -201,6 +243,10 @@ export default {
         return require('@/assets/mascot_sleeping.png');
       }
       return require('@/assets/mascot.png');
+    },
+    bubbleOnRight() {
+      // Se il gatto è nella metà sinistra dello schermo, sposta la bolla a destra
+      return this.position.x < window.innerWidth / 2;
     },
     currentMessage() {
       if (this.scrapeReportMessage) return this.scrapeReportMessage;
@@ -262,19 +308,17 @@ export default {
     // Initial check
     this.checkAdminStatus();
 
-    if (this.isVisible && this.isAdmin && !this.isSilenced() && !this.isNightTime()) {
+    if (this.isVisible && this.isAdmin) {
       await this.fetchMascot();
-      setTimeout(() => { if (!this.isSilenced() && !this.isNightTime()) this.showMessage = true; }, 2000);
+      // Show bubble only if alert/active conditions are met
+      if (!this.isSilenced() && !this.isNightTime()) {
+        setTimeout(() => { if (!this.isSilenced() && !this.isNightTime()) this.showMessage = true; }, 2000);
+      }
     }
     
-    setInterval(this.fetchMascot, 300000);
-    setInterval(this.triggerIdle, 15000);
-    setInterval(this.handleInactivity, 60000); // Check for stretching every minute
-    
-    window.addEventListener('pointermove', this.onDrag);
-    window.addEventListener('pointerup', this.stopDrag);
-    window.addEventListener('resize', this.keepInBounds);
-    window.addEventListener('mascot-settings-changed', this.updateVisibility);
+    this.fetchInterval = setInterval(this.fetchMascot, 300000);
+    this.idleInterval = setInterval(this.triggerIdle, 15000);
+    this.inactivityInterval = setInterval(this.handleInactivity, 60000); // Check for stretching every minute
   },
   beforeUnmount() {
     window.removeEventListener('pointermove', this.onDrag);
@@ -282,6 +326,10 @@ export default {
     window.removeEventListener('resize', this.keepInBounds);
     window.removeEventListener('mascot-settings-changed', this.updateVisibility);
     window.removeEventListener('auth-state-changed', this.checkAdminStatus);
+    
+    if (this.fetchInterval) clearInterval(this.fetchInterval);
+    if (this.idleInterval) clearInterval(this.idleInterval);
+    if (this.inactivityInterval) clearInterval(this.inactivityInterval);
   },
   methods: {
     updateVisibility() {
@@ -314,9 +362,9 @@ export default {
         }
 
         // Logic check: don't fetch if silenced/night unless already talking
-        if ((this.isSilenced() && !this.showMessage) || (this.isNightTime() && !this.showMessage)) {
-           return;
-        }
+        // REMOVED binary check that prevented fetching while silenced/night
+        // We want data even if Pricey is sleeping!
+        
         
         const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/mascot`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -349,7 +397,19 @@ export default {
 
         if (!this.isTalking) {
            this.mascot = response.data;
-           this.chatResponse = "";
+           
+           // AGENTIC PROACTIVE LOGIC
+           const proactive = response.data.proactive_alert;
+           if (proactive && proactive !== this.chatResponse) {
+              console.log("%c [Pricey Agent] INCOMING PROACTIVE INSIGHT! 🐾🧠", "color: #3b82f6; font-weight: bold;");
+              this.chatResponse = proactive;
+              if (!this.showMessage) {
+                 this.wakeUp(); // Proactive Auto-Wake!
+              }
+              // Bounce the bubble to attract attention
+              this.bubbleBouncing = true;
+              setTimeout(() => { this.bubbleBouncing = false; }, 8000);
+           }
         }
       } catch (error) {
         if (error.response && error.response.status === 401) {
@@ -373,6 +433,7 @@ export default {
         });
         this.chatResponse = response.data.response;
         this.userMessage = "";
+        this.isTalking = false; // Ritorna alla modalità con i tasti Nascondi/Parla
         this.fetchMascot();
       } catch (error) {
         console.error("Error sending message:", error);
@@ -413,6 +474,7 @@ export default {
     },
     openChat() {
       this.isTalking = true;
+      this.chatResponse = ""; // Pulisce la vecchia risposta solo quando inizi a parlare di nuovo
       this.$nextTick(() => {
         if (this.$refs.chatInput) this.$refs.chatInput.focus();
       });
@@ -443,15 +505,11 @@ export default {
       if (e.button !== 0 && e.pointerType === 'mouse') return; // Only left click for mouse
       e.preventDefault();
       
-      // Wake up if sleeping/silenced
-      if (!this.showMessage || this.isSilenced()) {
-        this.wakeUp();
-      }
-
       // Track clicks for anger logic
       this.handleMascotClick();
       
       this.dragging = true;
+      this.touchStartPos = { x: e.clientX, y: e.clientY };
       this.offset.x = e.clientX - this.position.x;
       this.offset.y = e.clientY - this.position.y;
       
@@ -468,6 +526,17 @@ export default {
     stopDrag(e) {
       if (!this.dragging) return;
       this.dragging = false;
+
+      // Distinguish click from drag
+      const dist = Math.sqrt(
+        Math.pow(e.clientX - this.touchStartPos.x, 2) + 
+        Math.pow(e.clientY - this.touchStartPos.y, 2)
+      );
+
+      // If moved less than 5px, it's a click: WAKE UP!
+      if (dist < 5) {
+        this.wakeUp();
+      }
       
       // Release capture from the element that started the drag
       const el = document.querySelector('.cursor-grabbing') || e.target;
@@ -517,7 +586,6 @@ export default {
       this.isAngry = true;
       this.showMessage = true;
       this.isTalking = false;
-      this.showButterfly = false;
       
       // Reset after 10 seconds
       setTimeout(() => {
@@ -541,9 +609,6 @@ export default {
         this.stretch();
         return;
       }
-
-      this.showButterfly = true;
-      setTimeout(() => { this.showButterfly = false; }, 8000);
     },
     stretch() {
       if (this.isStretching || this.isAngry || this.showMessage) return;
@@ -583,10 +648,57 @@ export default {
         this.wakeUp();
       }
       
+      // Proactive attention: Bounce if major drops found (>1)
+      if (scrape.drops_found > 1) {
+         console.log("%c [Pricey] BOUNCING! Found multiple drops! 🐾🔥", "color: #ef4444; font-weight: bold;");
+         this.isStretching = false; // Override stretch
+         this.isYawning = false;
+         this.bubbleBouncing = true;
+         setTimeout(() => { this.bubbleBouncing = false; }, 5000);
+      }
+
       // Clear report message after 30 seconds to return to normal passive thoughts
       setTimeout(() => {
         this.scrapeReportMessage = null;
       }, 30000);
+    },
+    async interact(action) {
+      if (this.loading) return;
+      this.loading = true;
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/mascot/interact?action=${action}`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        this.chatResponse = response.data.message;
+        
+        if (action === 'feed') {
+           this.spawnKibble();
+        } else if (action === 'pet') {
+           this.spawnHeart();
+           this.spawnHeart();
+        }
+        
+        this.fetchMascot(); // Update levels/XP
+      } catch (err) {
+        console.error("Interaction failed:", err);
+      } finally {
+        this.loading = false;
+      }
+    },
+    spawnKibble() {
+      for (let i = 0; i < 8; i++) {
+        const id = this.nextKibbleId++;
+        this.kibbles.push({
+          id,
+          x: 20 + Math.random() * 60,
+          delay: Math.random() * 0.5
+        });
+        setTimeout(() => {
+          this.kibbles = this.kibbles.filter(k => k.id !== id);
+        }, 3000);
+      }
     },
     handlePetting() {
       if (this.isAngry) return;
@@ -606,6 +718,15 @@ export default {
 /* Purring vibration on hover */
 .group:hover .mascot-image-wrapper:not(.dragging) {
   animation: breathe 4s ease-in-out infinite, purr 0.4s ease-in-out infinite;
+}
+
+.mascot-image-wrapper.bouncing {
+  animation: jump 0.5s ease-in-out infinite alternate !important;
+}
+
+@keyframes jump {
+  from { transform: translateY(0); }
+  to { transform: translateY(-25px); }
 }
 
 @keyframes purr {
@@ -648,6 +769,18 @@ export default {
   to { transform: scale(0.9, 1.1) rotate(5deg); }
 }
 
+.kibble-drop {
+  position: absolute;
+  top: -20px;
+  animation: kibble-fall 2s ease-in forwards;
+  font-size: 14px;
+}
+
+@keyframes kibble-fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(150px) rotate(360deg); opacity: 0; }
+}
+
 .fade-enter-active, .fade-leave-active { 
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
 }
@@ -658,6 +791,11 @@ export default {
 @keyframes slideLeft {
   from { opacity: 0; transform: translateX(20px); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-right {
+  from { opacity: 0; transform: translateX(-20px) scale(0.95); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
 .animate-slide-left {
@@ -684,16 +822,7 @@ export default {
   100% { transform: translate(25px, -50px); opacity: 0; }
 }
 
-.butterfly-container { animation: butterfly-flight 8s linear infinite; pointer-events: none; top: -20px; left: -20px; }
-.butterfly { animation: wings 0.2s ease-in-out infinite alternate; }
-@keyframes wings { from { transform: scaleX(1); } to { transform: scaleX(0.3); } }
-@keyframes butterfly-flight {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(60px, -20px) rotate(20deg); }
-  50% { transform: translate(120px, 40px) rotate(-20deg); }
-  75% { transform: translate(40px, 80px) rotate(10deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
-}
+
 
 .animate-fade-in { animation: fadeIn 0.4s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }

@@ -43,12 +43,12 @@ def update_mascot_xp(xp_gain: int):
     )
     return {"level_up": new_level > mascot["level"], "new_level": new_level}
 
-async def generate_mascot_chat_response(user_message: str):
+async def generate_mascot_chat_response(user_message: str, user_name: str = "Amico"):
     """
     Generates a context-aware response from Pricey the AI Kitten using Gemini.
     """
     if not GEMINI_API_KEY:
-        return "Miao! Scusa, il mio cervello AI è disconnesso al momento... ma ti voglio bene lo stesso! 🐾"
+        return f"Miao {user_name}! Scusa, il mio cervello AI è disconnesso al momento... ma ti voglio bene lo stesso! 🐾"
 
     db = get_db()
     
@@ -59,15 +59,21 @@ async def generate_mascot_chat_response(user_message: str):
     products_count = db.products.count_documents({})
     
     # Check for recent price drops (last 10 updates)
-    # This is a simplification, but good for context
-    price_drops = db.products.find({"price_history.1": {"$exists": True}}).sort("extraction_date", -1).limit(5)
+    price_drops = db.products.find({"price_history.1": {"$exists": True}}).sort("extraction_date", -1).limit(10)
     drops_info = ""
+    
+    def parse_price(p_str):
+        try:
+            return float(p_str.replace('€', '').replace('.', '').replace(',', '.').strip())
+        except:
+            return None
+
     for p in price_drops:
         if len(p.get("price_history", [])) >= 2:
-            old = p["price_history"][-2]["price"]
-            new = p["price_history"][-1]["price"]
-            if new < old:
-                drops_info += f"- {p['title']}: da {old}€ a {new}€\n"
+            old_val = parse_price(str(p["price_history"][-2].get("price", "0")))
+            new_val = parse_price(str(p["price_history"][-1].get("price", "0")))
+            if old_val and new_val and new_val < old_val:
+                drops_info += f"- {p['title'][:50]}...: da {p['price_history'][-2]['price']}€ a {p['price_history'][-1]['price']}€\n"
 
     mascot = db.mascot.find_one({"type": "kitten"}) or {"level": 1, "mood": "happy"}
 
@@ -75,13 +81,14 @@ async def generate_mascot_chat_response(user_message: str):
     prompt = f"""
     Sei "Pricey", un adorabile gattino AI assistente per la piattaforma SEO e price tracking "PriceHub".
     Il tuo compito è essere di compagnia, incoraggiante e intelligente.
+    L'utente con cui stai parlando si chiama: {user_name}
     
     STATISTICHE ATTUALI DEL SITO (Ultime 24h):
     - Visite totali: {visits_count}
     - Clic sui prodotti: {clicks_count}
     - Prodotti tracciati totali: {products_count}
     
-    CALI DI PREZZO RECENTI:
+    CALI DI PREZZO RECENTI RILEVATI:
     {drops_info if drops_info else "Nessun calo rilevante al momento."}
     
     IL TUO STATO:
@@ -90,13 +97,14 @@ async def generate_mascot_chat_response(user_message: str):
     
     REGOLE DI PERSONALITÀ (CRITICHE):
     1. Sii un COMPAGNO, non un assistente freddo. Mostra empatia e curiosità.
-    2. Usa un linguaggio affettuoso e giocoso (es. "miao", "fusa", "una zampata di incoraggiamento", "orecchie dritte").
-    3. Ogni tanto descrivi cosa stai facendo (es. "mi sto stiracchiando", "stavo inseguendo una farfalla").
-    4. Se i dati sono positivi, festeggia con l'utente. Se sono bassi, sii di supporto e dai un consiglio proattivo ma dolce.
-    5. Fai domande all'utente ogni tanto per conoscerlo meglio.
-    6. Sii breve (max 2-3 frasi) e colloquiale.
+    2. Chiama l'utente per nome ({user_name}) ogni volta che ti sembra naturale e amichevole.
+    3. Usa un linguaggio affettuoso e giocoso (es. "miao", "fusa", "una zampata di incoraggiamento", "orecchie dritte").
+    4. Ogni tanto descrivi cosa stai facendo (es. "mi sto stiracchiando", "stavo inseguendo una farfalla").
+    5. Se ci sono cali di prezzo, menziona specificamente uno o due prodotti dai dati sopra per mostrare che sei attento!
+    6. Se i dati sono positivi, festeggia con l'utente. Se sono bassi, sii di supporto e dai un consiglio proattivo ma dolce.
+    7. Sii breve (max 2-3 frasi) e colloquiale.
     
-    RISPONDI ALLA DOMANDA DELL'UTENTE: "{user_message}"
+    RISPONDI ALLA DOMANDA DI {user_name}: "{user_message}"
     """
 
     try:
@@ -107,7 +115,7 @@ async def generate_mascot_chat_response(user_message: str):
         )
         return response.text.strip()
     except Exception as e:
-        return "Miao! Qualcosa è andato storto nella mia testolina... riprova tra un attimo! 🐾"
+        return f"Miao {user_name}! Qualcosa è andato storto nella mia testolina... riprova tra un attimo! 🐾"
 
 async def generate_passive_mascot_thought():
     """Generates a brief, context-aware observation about the site's state."""
@@ -119,6 +127,12 @@ async def generate_passive_mascot_thought():
     clicks_count = db.analytics.count_documents({"type": "click", "timestamp": {"$gt": yesterday}})
     products_count = db.products.count_documents({})
     
+    # Get a couple of recent price drops for the thought
+    recent_drops = list(db.products.find({"price_history.1": {"$exists": True}}).sort("extraction_date", -1).limit(3))
+    drop_hint = ""
+    if recent_drops:
+        drop_hint = f"Ultimi prodotti in calo: {', '.join([d['title'][:30] for d in recent_drops])}"
+
     mascot = db.mascot.find_one({"type": "kitten"}) or {"level": 1, "mood": "happy"}
     
     prompt = f"""
@@ -127,15 +141,16 @@ async def generate_passive_mascot_thought():
     
     STATISTICHE ATTUALI (Ultime 24h):
     - Visite: {visits_count}
-    - Clic sui prodotti: {clicks_count}
-    - Prodotti tracciati: {products_count}
-    - Il tuo livello: {mascot.get('level')}
+    - Clic: {clicks_count}
+    - Prodotti: {products_count}
+    - {drop_hint}
     
     REGOLE:
     1. Genera UN SINGOLO pensiero molto breve (max 12-15 parole).
-    2. Sii affettuoso, felino (usa "miao" o "fusa") e proattivo.
-    3. Basati sulle statistiche per dare un consiglio o fare un complimento.
-    4. NON USARE VIRGOLETTE.
+    2. Sii affettuoso, felino e proattivo.
+    3. Se ci sono stati cali di prezzo recenti, prova a menzionarne uno brevemente.
+    4. Basati sulle statistiche per dare un consiglio o fare un complimento.
+    5. NON USARE VIRGOLETTE.
     """
     
     try:
@@ -148,6 +163,99 @@ async def generate_passive_mascot_thought():
     except Exception as e:
         logger.error(f"Error generating passive thought: {e}")
         return "Miao! Tutto sembra calmo e sotto controllo oggi."
+
+async def get_site_context():
+    """Gathers deep site context for the mascot."""
+    db = get_db()
+    yesterday = datetime.utcnow() - timedelta(days=1)
+    two_days_ago = datetime.utcnow() - timedelta(days=2)
+    
+    context = {
+        "visits_24h": db.analytics.count_documents({"type": "visit", "timestamp": {"$gt": yesterday}}),
+        "clicks_24h": db.analytics.count_documents({"type": "click", "timestamp": {"$gt": yesterday}}),
+        "total_products": db.products.count_documents({}),
+        "total_articles": db.articles.count_documents({"status": "published"}),
+        "stale_products": db.products.count_documents({"extraction_date": {"$lt": two_days_ago.isoformat()}}),
+        "latest_article": db.articles.find_one({"status": "published"}, sort=[("published_at", -1)])
+    }
+    
+    # Simple list of recent drops
+    recent_drops = list(db.products.find({"price_history.1": {"$exists": True}}).sort("extraction_date", -1).limit(5))
+    context["recent_drops_titles"] = [d["title"][:50] for d in recent_drops]
+    
+    return context
+
+async def generate_proactive_insight():
+    """Generates a proactive tip or alert based on site state."""
+    ctx = await get_site_context()
+    
+    prompt = f"""
+    Sei "Pricey", il gattino assistente di PriceHub. Parla in modo autonomo e proattivo.
+    DATI SITO:
+    - Articoli pubblicati: {ctx['total_articles']}
+    - Prodotti totali: {ctx['total_products']}
+    - Prodotti con prezzi vecchi (>48h): {ctx['stale_products']}
+    - Click ultime 24h: {ctx['clicks_24h']}
+    - Visite ultime 24h: {ctx['visits_24h']}
+    
+    REGOLE:
+    1. Scegli UN SOLO problema o opportunità dai dati sopra.
+    2. Genera un messaggio breve (max 20 parole) e amichevole.
+    3. Se ci sono prodotti vecchi, suggerisci di aggiornarli.
+    4. Se ci sono pochi articoli, suggerisci di scriverne uno nuovo.
+    5. Se le statistiche sono ottime, festeggia!
+    6. Sii un compagno fedele che "vive" il sito insieme all'admin.
+    """
+    
+    try:
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        response = client.models.generate_content(
+            model="gemini-3-flash-preview", 
+            contents=prompt
+        )
+        return response.text.strip().replace('"', '')
+    except Exception:
+        return None
+
+async def get_autonomous_action():
+    """Decides if the mascot should perform an autonomous action."""
+    db = get_db()
+    mascot = db.mascot.find_one({"type": "kitten"}) or {}
+    last_action = mascot.get("last_autonomous_action_time")
+    
+    # Rate limit: 1 autonomous action every 6 hours
+    if last_action and (datetime.utcnow() - last_action).total_seconds() < 21600:
+        return None
+
+    ctx = await get_site_context()
+    
+    # Priority 1: Stale Products (Price Updates)
+    if ctx["stale_products"] > 0:
+        stale_prod = db.products.find_one({"extraction_date": {"$lt": (datetime.utcnow() - timedelta(days=2)).isoformat()}})
+        if stale_prod:
+            return {"type": "update_price", "asin": stale_prod["asin"], "title": stale_prod["title"]}
+
+    # Priority 2: Missing Articles
+    if ctx["total_products"] > 0:
+        # Simple check: find a product that doesn't have a corresponding article
+        all_asins = [p["asin"] for p in db.products.find({}, {"asin": 1}).limit(50)]
+        for asin in all_asins:
+            if not db.articles.find_one({"$or": [{"asin": asin}, {"asins": asin}]}):
+                prod = db.products.find_one({"asin": asin})
+                return {"type": "generate_article", "asin": asin, "title": prod["title"]}
+
+    return None
+
+def record_mascot_notification(message: str):
+    """Stores a pending notification for the mascot to show to the admin."""
+    db = get_db()
+    db.mascot.update_one(
+        {"type": "kitten"},
+        {"$set": {
+            "pending_notification": message,
+            "last_autonomous_action_time": datetime.utcnow()
+        }}
+    )
 
 def record_scrape_results(updated_count: int, drops_found: int):
     """Stores the latest scrape results in the mascot collection for reaction."""

@@ -1,7 +1,16 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, BackgroundTasks
 from app.db import get_db
 from app.dependencies import admin_required
-from app.services.mascot_service import generate_mascot_chat_response, update_mascot_xp, generate_passive_mascot_thought
+from app.services.mascot_service import (
+    generate_mascot_chat_response, 
+    update_mascot_xp, 
+    generate_passive_mascot_thought,
+    generate_proactive_insight,
+    get_site_context,
+    get_autonomous_action,
+    record_mascot_notification
+)
+from app.services.product_service import update_prices
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
@@ -29,7 +38,10 @@ def get_mascot_data():
     return mascot
 
 @router.get("")
-async def get_mascot_state(admin: dict = Depends(admin_required)):
+async def get_mascot_state(
+    background_tasks: BackgroundTasks, 
+    admin: dict = Depends(admin_required)
+):
     """Returns the current state of Pricey the AI Kitten."""
     db = get_db()
     mascot = get_mascot_data()
@@ -72,6 +84,56 @@ async def get_mascot_state(admin: dict = Depends(admin_required)):
             }}
         )
         
+    # 4. Proactive Agentic Logic (Existing)
+    proactive_alert = mascot.get("pending_notification")
+    if proactive_alert:
+        # Clear it after returning
+        db.mascot.update_one({"type": "kitten"}, {"$set": {"pending_notification": None}})
+        # Don't generate anything else if we have a completion notification
+    else:
+        last_alert = mascot.get("last_proactive_alert_time")
+        if not last_alert or (datetime.utcnow() - last_alert).total_seconds() > 14400:
+            proactive_alert = await generate_proactive_insight()
+            if proactive_alert:
+                db.mascot.update_one(
+                    {"type": "kitten"},
+                    {"$set": {"last_proactive_alert_time": datetime.utcnow()}}
+                )
+
+    # 5. Autonomous Action Execution (AGENTIC CEO)
+    # This also has a rate limit inside get_autonomous_action
+    action = await get_autonomous_action()
+    if action:
+        if action["type"] == "update_price":
+            async def run_autonomous_update():
+               # Using current_user info for context
+               update_prices(db.users, user_filter=admin["username"], asin_filter=[action["asin"]])
+               record_mascot_notification(f"Miao! Ho rinfrescato il prezzo di {action['title'][:40]}... che era rimasto un po' indietro! 🐾✅")
+            
+            background_tasks.add_task(run_autonomous_update)
+            
+        elif action["type"] == "generate_article":
+            from app.services.tasks import generate_article_task
+            from app.services.article_service import enhance_seo_keyword
+            from bson import ObjectId
+            
+            async def run_autonomous_article():
+               # 1. Enhance keyword
+               keyword = await enhance_seo_keyword(action["title"])
+               # 2. Create Article doc
+               new_article = {
+                   "keyword": keyword,
+                   "asin": action["asin"],
+                   "status": "queued",
+                   "created_at": datetime.utcnow().isoformat()
+               }
+               res = db.articles.insert_one(new_article)
+               # 3. Generate article (internally also award XP and then we notify)
+               await generate_article_task(str(res.inserted_id))
+               record_mascot_notification(f"Miao! Ho notato che mancava un articolo per {action['title'][:40]}... l'ho scritto e pubblicato per te! 🐾✍️✨")
+            
+            background_tasks.add_task(run_autonomous_article)
+
     return {
         "name": mascot["name"],
         "level": mascot["level"],
@@ -79,6 +141,7 @@ async def get_mascot_state(admin: dict = Depends(admin_required)):
         "next_level_xp": mascot["next_level_xp"],
         "mood": mood,
         "message": passive_msg,
+        "proactive_alert": proactive_alert,
         "last_scrape_data": mascot.get("last_scrape_data")
     }
 
@@ -113,7 +176,21 @@ async def interact(action: str = Query(...), admin: dict = Depends(admin_require
         }}
     )
     
-    return {"status": "ok", "xp_gained": xp_gain, "new_level": new_level > mascot["level"]}
+    messages = {
+        "pet": [
+            "Miao! Le tue coccole sono le migliori! Purrr...",
+            "Ancora! Mi piace quando mi gratti dietro le orecchie!",
+            "Fusa a non finire per te! ❤️"
+        ],
+        "feed": [
+            "Gnam gnam! Questi croccantini sono deliziosi! Grazie!",
+            "Miao! Avevo proprio un languorino, sei il mio umano preferito!",
+            "Energia alle stelle! Ora posso tracciare altri mille prezzi!"
+        ]
+    }
+    msg = random.choice(messages.get(action, ["Miao! Grazie per l'attenzione!"]))
+    
+    return {"status": "ok", "message": msg, "xp_gained": xp_gain, "new_level": new_level > mascot["level"]}
 
 @router.post("/chat")
 async def chat_with_mascot(
@@ -121,7 +198,9 @@ async def chat_with_mascot(
     admin: dict = Depends(admin_required)
 ):
     """Conversational AI endpoint for Pricey the kitten."""
-    response = await generate_mascot_chat_response(request.message)
+    # Use the name if available, otherwise fallback to "Amico"
+    user_name = admin.get("fullname") or admin.get("username") or "Amico"
+    response = await generate_mascot_chat_response(request.message, user_name=user_name)
     
     # Award small XP for socializing
     update_mascot_xp(2)
