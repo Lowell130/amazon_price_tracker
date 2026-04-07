@@ -240,6 +240,35 @@
           </section>
 
           <hr class="border-gray-100 dark:border-gray-800" />
+          
+          <!-- Blog Settings Section -->
+          <section>
+            <div class="flex items-center gap-4 mb-8">
+              <div class="p-3 bg-pink-600/10 rounded-2xl">
+                <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+              </div>
+              <div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Impostazioni Blog</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Configura la visibilità degli articoli nel tuo portale</p>
+              </div>
+            </div>
+
+            <div class="max-w-xs p-6 rounded-3xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+              <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Articoli per pagina</label>
+              <div class="flex items-center gap-4">
+                <input 
+                  type="number" 
+                  v-model.number="settings.articles_per_page" 
+                  min="1" 
+                  max="50"
+                  class="w-24 px-5 py-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 focus:ring-2 focus:ring-pink-500 transition-all text-sm font-black text-center"
+                />
+                <span class="text-xs text-gray-400 font-medium">Numero di articoli visibili prima della paginazione.</span>
+              </div>
+            </div>
+          </section>
+
+          <hr class="border-gray-100 dark:border-gray-800" />
 
           <!-- Save Button -->
           <div class="flex items-center justify-between pt-4">
@@ -278,7 +307,8 @@ export default {
         proxy_pass: '',
         auto_refresh: true,
         auto_update_prices: true,
-        affiliate_tag: ''
+        affiliate_tag: '',
+        articles_per_page: 10
       },
       loading: false,
       statusMessage: '',
@@ -303,7 +333,8 @@ export default {
           proxy_pass: response.data.proxy_pass || '',
           auto_refresh: response.data.auto_refresh !== undefined ? response.data.auto_refresh : true,
           auto_update_prices: response.data.auto_update_prices !== undefined ? response.data.auto_update_prices : true,
-          affiliate_tag: response.data.affiliate_tag || ''
+          affiliate_tag: response.data.affiliate_tag || '',
+          articles_per_page: response.data.articles_per_page || 10
         };
       } catch (error) {
         console.error("Errore caricamento settings:", error);

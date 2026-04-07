@@ -77,3 +77,4 @@ class ScraperSettings(BaseModel):
     auto_refresh: bool = True
     auto_update_prices: bool = True
     affiliate_tag: Optional[str] = None
+    articles_per_page: int = 10

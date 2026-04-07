@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Query
 import re
-from typing import List
+from typing import List, Optional
 from bson import ObjectId
 from datetime import datetime
 from app.db import get_db
@@ -66,15 +66,30 @@ async def trigger_article_generation(
 
 # PUBLIC ENDPOINTS
 
-@router.get("/articles", response_model=List[ArticleModel])
-async def get_public_articles():
-    """Returns all published articles for the blog, enriched with current product data."""
+@router.get("/articles")
+async def get_public_articles(page: int = Query(1, ge=1), limit: Optional[int] = Query(None, ge=1)):
+    """Returns paginated published articles for the blog, enriched with current product data."""
     db = get_db()
-    cursor = db.articles.find({"status": "published"}).sort("published_at", -1)
+    
+    # Get limit from settings if not provided
+    if limit is None:
+        settings = db.settings.find_one({"type": "scraper_config"})
+        limit = settings.get("articles_per_page", 10) if settings else 10
+        
+    skip = (page - 1) * limit
+    
+    total_articles = db.articles.count_documents({"status": "published"})
+    cursor = db.articles.find({"status": "published"}).sort("published_at", -1).skip(skip).limit(limit)
     articles = list(cursor)
     
     if not articles:
-        return []
+        return {
+            "articles": [],
+            "total": total_articles,
+            "page": page,
+            "limit": limit,
+            "pages": 0
+        }
 
     # Get all ASINs to fetch product data in bulk
     asins_set = set()
@@ -119,7 +134,13 @@ async def get_public_articles():
             
         enriched_articles.append(ArticleModel(**doc))
         
-    return enriched_articles
+    return {
+        "articles": enriched_articles,
+        "total": total_articles,
+        "page": page,
+        "limit": limit,
+        "pages": (total_articles + limit - 1) // limit
+    }
 
 @router.get("/articles/{slug}", response_model=ArticleModel)
 async def get_article_by_slug(slug: str):

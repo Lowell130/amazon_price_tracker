@@ -38,12 +38,23 @@ export default {
       const referrer = document.referrer;
       const urlParams = new URLSearchParams(window.location.search);
       
+      // Common search parameters to track
+      const searchParams = ['q', 's', 'search', 'query', 'utm_term'];
+      let searchQuery = null;
+      for (const param of searchParams) {
+        if (urlParams.get(param)) {
+          searchQuery = urlParams.get(param);
+          break;
+        }
+      }
+      
       const visitData = {
         referrer: referrer || 'direct',
         path: window.location.pathname,
         utm_source: urlParams.get('utm_source'),
         utm_medium: urlParams.get('utm_medium'),
-        utm_campaign: urlParams.get('utm_campaign')
+        utm_campaign: urlParams.get('utm_campaign'),
+        search_query: searchQuery
       };
 
       try {

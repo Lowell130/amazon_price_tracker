@@ -62,6 +62,31 @@
           </div>
         </router-link>
       </div>
+
+      <!-- Pagination Controls -->
+      <div v-if="totalPages > 1" class="mt-16 flex items-center justify-center gap-4">
+        <button 
+          @click="changePage(currentPage - 1)"
+          :disabled="currentPage === 1 || loading"
+          class="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed group shadow-sm hover:shadow-md"
+        >
+          <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
+          Precedente
+        </button>
+        
+        <div class="flex items-center gap-2 px-4">
+          <span class="text-xs font-black text-gray-400 uppercase tracking-widest">Pagina {{ currentPage }} / {{ totalPages }}</span>
+        </div>
+
+        <button 
+          @click="changePage(currentPage + 1)"
+          :disabled="currentPage === totalPages || loading"
+          class="flex items-center gap-2 px-6 py-3 rounded-2xl bg-blue-600 text-white text-sm font-black hover:bg-blue-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed group shadow-lg shadow-blue-500/20"
+        >
+          Successivo
+          <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -72,22 +97,38 @@ export default {
   data() {
     return {
       articles: [],
-      loading: true
+      loading: true,
+      currentPage: 1,
+      totalPages: 1,
+      totalArticles: 0
     };
   },
   async created() {
-    try {
-      const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/articles`);
-      if (response.ok) {
-        this.articles = await response.json();
-      }
-    } catch (e) {
-      console.error("Error loading articles:", e);
-    } finally {
-      this.loading = false;
-    }
+    await this.fetchArticles();
   },
   methods: {
+    async fetchArticles() {
+      this.loading = true;
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/articles?page=${this.currentPage}`);
+        if (response.ok) {
+          const data = await response.json();
+          this.articles = data.articles;
+          this.totalPages = data.pages;
+          this.totalArticles = data.total;
+        }
+      } catch (e) {
+        console.error("Error loading articles:", e);
+      } finally {
+        this.loading = false;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    },
+    changePage(page) {
+      if (page < 1 || page > this.totalPages) return;
+      this.currentPage = page;
+      this.fetchArticles();
+    },
     formatDate(dateStr) {
       if (!dateStr) return "";
       return new Date(dateStr).toLocaleDateString("it-IT", {

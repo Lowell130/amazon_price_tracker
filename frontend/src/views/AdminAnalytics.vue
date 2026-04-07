@@ -15,14 +15,29 @@
           </h1>
           <p class="text-gray-500 dark:text-gray-400 mt-2 font-medium">Analisi del traffico in ingresso e dei clic in uscita verso Amazon.</p>
         </div>
-        <div class="flex gap-3">
+        <div class="flex items-center gap-4">
+            <!-- Bot Toggle -->
+            <div class="flex items-center gap-3 bg-white dark:bg-gray-900 p-1.5 pl-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+              <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Includi Bot</span>
+              <button 
+                @click="toggleBots" 
+                :class="includeBots ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+              >
+                <span 
+                  :class="includeBots ? 'translate-x-6' : 'translate-x-1'"
+                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                />
+              </button>
+            </div>
+
             <button @click="clearAnalytics" class="px-6 py-3 bg-red-50 dark:bg-red-900/10 text-red-600 font-black rounded-2xl shadow-sm border border-red-100 dark:border-red-900/20 hover:bg-red-600 hover:text-white transition-all flex items-center gap-2 group">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-              Reset Dati
+              Reset
             </button>
             <button @click="fetchStats" class="px-6 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-black rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-xl transition-all flex items-center gap-2 group">
               <svg :class="{ 'animate-spin': loading }" class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-              Aggiorna Dati
+              Aggiorna
             </button>
         </div>
       </div>
@@ -66,7 +81,7 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
         <!-- Top Referrers -->
         <div class="p-8 rounded-[2.5rem] bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden">
           <div class="flex items-center justify-between mb-8">
@@ -75,15 +90,22 @@
           </div>
           
           <div v-if="!stats?.top_referrers?.length" class="py-20 text-center">
-            <p class="text-gray-400 font-bold">Nessun dato sorgente disponibile.</p>
+            <p class="text-gray-400 font-bold text-sm">Nessuna sorgente registrata.</p>
           </div>
-          <div v-else class="space-y-4">
+          <div v-else class="space-y-3">
             <div v-for="(ref, i) in stats.top_referrers" :key="i" class="flex items-center justify-between p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-2xl group hover:bg-white dark:hover:bg-gray-800 transition-all border border-transparent hover:border-gray-100 dark:hover:border-gray-700">
               <div class="flex items-center gap-4 overflow-hidden">
                 <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[10px] font-black text-blue-600">
                   {{ i + 1 }}
                 </div>
-                <span class="text-sm font-bold text-gray-700 dark:text-gray-200 truncate">{{ ref.source }}</span>
+                <div class="flex flex-col overflow-hidden">
+                  <span class="text-sm font-bold text-gray-700 dark:text-gray-200 truncate">{{ ref.source }}</span>
+                  <div class="flex items-center gap-2 mt-0.5 whitespace-nowrap overflow-hidden">
+                    <span v-if="ref.bot_count > 0" class="text-[9px] font-black px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded uppercase flex-shrink-0">Bot: {{ ref.bot_count }}</span>
+                    <span v-if="ref.top_query" class="text-[9px] text-indigo-500 font-bold truncate italic">"{{ ref.top_query }}"</span>
+                    <span v-if="ref.top_path && ref.top_path !== '/'" class="text-[9px] text-emerald-500 font-bold truncate opacity-70">{{ ref.top_path }}</span>
+                  </div>
+                </div>
               </div>
               <div class="text-right">
                 <span class="text-sm font-black text-gray-900 dark:text-white">{{ ref.count }}</span>
@@ -101,9 +123,9 @@
           </div>
 
           <div v-if="!stats?.top_products?.length" class="py-20 text-center">
-            <p class="text-gray-400 font-bold">Nessun clic registrato sui prodotti.</p>
+            <p class="text-gray-400 font-bold text-sm">Nessun clic sui prodotti.</p>
           </div>
-          <div v-else class="space-y-4">
+          <div v-else class="space-y-3">
             <div v-for="prod in stats.top_products" :key="prod.asin" class="flex items-center justify-between p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-2xl group hover:bg-white dark:hover:bg-gray-800 transition-all border border-transparent hover:border-gray-100 dark:hover:border-gray-700">
               <div class="flex items-center gap-4 overflow-hidden">
                 <div class="w-12 h-12 bg-white dark:bg-gray-700 rounded-xl p-1 border border-gray-100 dark:border-gray-600 shadow-sm flex-shrink-0">
@@ -122,6 +144,61 @@
           </div>
         </div>
       </div>
+
+      <!-- New Analytics Sections -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Top Search Queries -->
+        <div class="p-8 rounded-[2.5rem] bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden">
+          <div class="flex items-center justify-between mb-8">
+            <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Query <span class="text-indigo-600">Ricerca</span></h3>
+            <div class="w-10 h-1 text-indigo-500/20 bg-indigo-500/20 rounded-full"></div>
+          </div>
+          
+          <div v-if="!stats?.top_queries?.length" class="py-20 text-center">
+            <p class="text-gray-400 font-bold text-sm">Nessuna query di ricerca registrata.</p>
+          </div>
+          <div v-else class="space-y-3">
+            <div v-for="(q, i) in stats.top_queries" :key="i" class="flex items-center justify-between p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-2xl group hover:bg-white dark:hover:bg-gray-800 transition-all border border-transparent hover:border-gray-100 dark:hover:border-gray-700">
+              <div class="flex items-center gap-4 overflow-hidden">
+                <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-[10px] font-black text-indigo-600">
+                  #{{ i + 1 }}
+                </div>
+                <span class="text-sm font-bold text-gray-700 dark:text-gray-200 truncate italic">"{{ q.query }}"</span>
+              </div>
+              <div class="text-right">
+                <span class="text-sm font-black text-gray-900 dark:text-white">{{ q.count }}</span>
+                <span class="text-[10px] text-gray-400 font-bold ml-1 uppercase">v</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Paths -->
+        <div class="p-8 rounded-[2.5rem] bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden">
+          <div class="flex items-center justify-between mb-8">
+            <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Pagine <span class="text-emerald-600">Popolari</span></h3>
+            <div class="w-10 h-1 text-emerald-500/20 bg-emerald-500/20 rounded-full"></div>
+          </div>
+          
+          <div v-if="!stats?.top_paths?.length" class="py-20 text-center">
+            <p class="text-gray-400 font-bold text-sm">Nessun dato sulle pagine disponibile.</p>
+          </div>
+          <div v-else class="space-y-3">
+            <div v-for="(p, i) in stats.top_paths" :key="i" class="flex items-center justify-between p-4 bg-gray-50/50 dark:bg-gray-800/50 rounded-2xl group hover:bg-white dark:hover:bg-gray-800 transition-all border border-transparent hover:border-gray-100 dark:hover:border-gray-700">
+              <div class="flex items-center gap-4 overflow-hidden">
+                <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-[10px] font-black text-emerald-600">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.122l1.414-1.414m-2.414 2.414L5.05 15.05A2 2 0 013 13V5a2 2 0 012-2h8a2 2 0 012 2v4.757l3.222 3.222a.75.75 0 010 1.061l-4.5 4.5a.75.75 0 01-1.06 0l-3.222-3.222z"/></svg>
+                </div>
+                <span class="text-sm font-bold text-gray-700 dark:text-gray-200 truncate">{{ p.path }}</span>
+              </div>
+              <div class="text-right">
+                <span class="text-sm font-black text-gray-900 dark:text-white">{{ p.count }}</span>
+                <span class="text-[10px] text-gray-400 font-bold ml-1 uppercase">v</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -134,17 +211,22 @@ export default {
   data() {
     return {
       stats: null,
-      loading: true
+      loading: true,
+      includeBots: false
     };
   },
   async created() {
     await this.fetchStats();
   },
   methods: {
+    toggleBots() {
+      this.includeBots = !this.includeBots;
+      this.fetchStats();
+    },
     async fetchStats() {
       this.loading = true;
       try {
-        const response = await fetchWithToken(`${process.env.VUE_APP_API_BASE_URL}/analytics/admin/stats`);
+        const response = await fetchWithToken(`${process.env.VUE_APP_API_BASE_URL}/analytics/admin/stats?include_bots=${this.includeBots}`);
         if (response.ok) {
           this.stats = await response.json();
         }
