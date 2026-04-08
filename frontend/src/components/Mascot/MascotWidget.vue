@@ -307,7 +307,7 @@ export default {
     window.addEventListener('auth-state-changed', this.checkAdminStatus);
     
     // Initial check
-    this.checkAdminStatus();
+    await this.checkAdminStatus();
 
     if (this.isVisible && this.isAdmin) {
       await this.fetchMascot();
@@ -339,18 +339,42 @@ export default {
         this.fetchMascot();
       }
     },
-    checkAdminStatus() {
+    async checkAdminStatus() {
       const token = localStorage.getItem('token');
-      if (!token) {
+      if (!token || token === 'null') {
         this.isAdmin = false;
+        this.isVisible = false;
         return;
       }
+      
+      // Update basic admin status from token first (fast)
       try {
         const decoded = jwtDecode(token);
         const now = Math.floor(Date.now() / 1000);
         this.isAdmin = (decoded.admin === true || decoded.admin === "true") && (decoded.exp > now);
       } catch (e) {
         this.isAdmin = false;
+      }
+
+      // Sync settings from backend (includes mascot_enabled)
+      try {
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/auth/users/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data) {
+          this.isAdmin = response.data.admin;
+          this.isVisible = response.data.mascot_enabled !== false;
+          // Persist to localStorage to keep it in sync for next load/other components
+          localStorage.setItem('mascot_enabled', this.isVisible);
+          
+          if (this.isVisible && !this.mascot) {
+            await this.fetchMascot();
+          }
+        }
+      } catch (error) {
+        console.error("Error syncing user profile for mascot:", error);
+        // Fallback to localStorage on error
+        this.isVisible = localStorage.getItem('mascot_enabled') !== 'false';
       }
     },
     async fetchMascot() {
