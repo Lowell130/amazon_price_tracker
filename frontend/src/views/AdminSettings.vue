@@ -79,6 +79,52 @@
           
           <hr class="border-gray-100 dark:border-gray-800" />
 
+          <!-- Retry Configuration Section -->
+          <section>
+            <div class="flex items-center gap-4 mb-6">
+              <div class="p-3 bg-red-600/10 rounded-2xl">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              </div>
+              <div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Ottimizzazione Blocchi</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Gestisci i tentativi di aggiornamento in caso di blocco da Amazon</p>
+              </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-6">
+              <div class="p-6 rounded-3xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Tentativi per prodotto</label>
+                <div class="flex items-center gap-4">
+                  <input 
+                    type="number" 
+                    v-model.number="settings.max_retries" 
+                    min="1" 
+                    max="10"
+                    class="w-24 px-5 py-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 focus:ring-2 focus:ring-red-500 transition-all text-sm font-black text-center"
+                  />
+                  <p class="text-[10px] text-gray-400 leading-relaxed">
+                    Numero di volte che il sistema proverà ad aggiornare un prodotto prima di passare al successivo.
+                  </p>
+                </div>
+              </div>
+
+              <div class="p-6 rounded-3xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Email Report Admin</label>
+                <input 
+                  type="email" 
+                  v-model="settings.admin_report_email" 
+                  placeholder="es: admin@example.com"
+                  class="w-full px-5 py-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 focus:ring-2 focus:ring-red-500 transition-all text-sm"
+                />
+                <p class="text-[10px] text-gray-400 mt-2 leading-relaxed">
+                  L'indirizzo a cui verrà inviato il report riassuntivo al termine di ogni job di aggiornamento.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <hr class="border-gray-100 dark:border-gray-800" />
+
           <!-- Proxy Configuration Section -->
           <section>
             <div class="flex items-center justify-between mb-6">
@@ -308,7 +354,9 @@ export default {
         auto_refresh: true,
         auto_update_prices: true,
         affiliate_tag: '',
-        articles_per_page: 10
+        articles_per_page: 10,
+        max_retries: 3,
+        admin_report_email: ''
       },
       loading: false,
       statusMessage: '',
@@ -334,7 +382,9 @@ export default {
           auto_refresh: response.data.auto_refresh !== undefined ? response.data.auto_refresh : true,
           auto_update_prices: response.data.auto_update_prices !== undefined ? response.data.auto_update_prices : true,
           affiliate_tag: response.data.affiliate_tag || '',
-          articles_per_page: response.data.articles_per_page || 10
+          articles_per_page: response.data.articles_per_page || 10,
+          max_retries: response.data.max_retries || 3,
+          admin_report_email: response.data.admin_report_email || ''
         };
       } catch (error) {
         console.error("Errore caricamento settings:", error);

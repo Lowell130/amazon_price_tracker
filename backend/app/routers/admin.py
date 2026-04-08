@@ -147,7 +147,9 @@ async def get_system_settings(settings_collection = Depends(get_settings_collect
         auto_refresh=settings.get("auto_refresh", True),
         auto_update_prices=settings.get("auto_update_prices", True),
         affiliate_tag=settings.get("affiliate_tag", AFFILIATE_TAG),
-        articles_per_page=settings.get("articles_per_page", 10)
+        articles_per_page=settings.get("articles_per_page", 10),
+        max_retries=settings.get("max_retries", 3),
+        admin_report_email=settings.get("admin_report_email")
     )
 
 @router.post("/settings")
@@ -163,6 +165,8 @@ async def update_system_settings(settings: ScraperSettings, settings_collection 
         "auto_update_prices": settings.auto_update_prices,
         "affiliate_tag": settings.affiliate_tag,
         "articles_per_page": settings.articles_per_page,
+        "max_retries": settings.max_retries,
+        "admin_report_email": settings.admin_report_email,
         "updated_at": datetime.now()
     }
     

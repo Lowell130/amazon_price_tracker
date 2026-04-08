@@ -12,6 +12,10 @@ from fake_useragent import UserAgent
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+class ScraperBlockedException(Exception):
+    """Eccezione sollevata quando Amazon rileva il bot (CAPTCHA o blocco)."""
+    pass
+
 from app.db import get_settings_collection
 
 def get_asin_from_url(url):
@@ -93,7 +97,7 @@ def get_random_headers():
         
     return headers
 
-def get_page_content(url, max_retries=7, initial_delay=3, proxies=None):
+def get_page_content(url, max_retries=3, initial_delay=3, proxies=None):
     """Recupera il contenuto HTML della pagina con retry, headers casuali e supporto proxy."""
     session = requests.Session()
     
@@ -115,7 +119,9 @@ def get_page_content(url, max_retries=7, initial_delay=3, proxies=None):
                     if "sp-cc-container" in response.text and "productTitle" in response.text:
                          # Potrebbe essere solo il banner dei cookie su una pagina valida
                          return BeautifulSoup(response.content, "html.parser")
-                    logger.warning("Rilevato possibile CAPTCHA o blocco bot.")
+                    
+                    logger.warning("Rilevato possibile CAPTCHA o blocco bot. Interruzione immediata.")
+                    raise ScraperBlockedException("Accesso bloccato da Amazon (CAPTCHA/Bot Detection)")
                 else:
                     logger.info(f"Successo! Status code: {response.status_code}")
                     return BeautifulSoup(response.content, "html.parser")
@@ -124,6 +130,7 @@ def get_page_content(url, max_retries=7, initial_delay=3, proxies=None):
                 logger.warning(f"Errore 404 per {url}. Possibile blocco o URL errato.")
             elif response.status_code == 403:
                 logger.warning("Errore 403 Forbidden (accesso negato/blocco IP).")
+                raise ScraperBlockedException("Accesso negato (403 Forbidden)")
             elif response.status_code == 503:
                 logger.warning("Errore 503 Service Unavailable (sovraccarico o blocco).")
             else:
@@ -411,7 +418,7 @@ def parse_coupon(soup):
                 
     return coupon, None
 
-def fetch_product_data(url, mode="classic", max_retries=7, initial_delay=3):
+def fetch_product_data(url, mode="classic", max_retries=3, initial_delay=3):
     """Orchestratore dello scraping migliorato."""
     logger.info(f"Inizio scraping per URL: {url} (Modo: {mode})")
 

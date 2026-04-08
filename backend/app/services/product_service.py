@@ -1,7 +1,8 @@
-from app.scraper import fetch_product_data
+from app.scraper import fetch_product_data, ScraperBlockedException
 from app.utils.email import send_email
 from app.db import get_products_collection, get_users_collection
 from datetime import datetime
+import os
 import logging
 
 # Configura il logger
@@ -15,11 +16,12 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
     # Recupera configurazioni
     settings = settings_collection.find_one({"type": "scraper_config"})
     scraper_mode = settings.get("mode", "classic") if settings else "classic"
+    max_retries = settings.get("max_retries", 3) if settings else 3
     
     from app.config import AFFILIATE_TAG
     current_tag = settings.get("affiliate_tag", AFFILIATE_TAG) if settings else AFFILIATE_TAG
     
-    logger.info(f"Using scraper mode: {scraper_mode}")
+    logger.info(f"Using scraper mode: {scraper_mode} (Max retries: {max_retries})")
     
     # 1. Determina gli ASIN da aggiornare
     asins_to_update = set()
@@ -42,6 +44,10 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
     logger.info(f"Starting price update for {len(asins_to_update)} ASINs")
 
     updated_products = []
+    blocked_asins = []
+    failed_asins = []
+
+    start_time = datetime.now()
 
     for asin in asins_to_update:
         global_product = products_collection.find_one({"asin": asin})
@@ -64,7 +70,7 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
 
         try:
             logger.info(f"Fetching product data for ASIN: {asin} (Mode: {scraper_mode})")
-            updated_data = fetch_product_data(product_url, mode=scraper_mode)
+            updated_data = fetch_product_data(product_url, mode=scraper_mode, max_retries=max_retries)
 
             if not updated_data or updated_data["price"] is None:
                 logger.info(f"Product {asin} price not found. Keeping last known price.")
@@ -153,9 +159,49 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
             updated_products.append(asin)
             logger.info(f"Updated product {asin} globally - New Price: {new_price} €")
 
+        except ScraperBlockedException as e:
+            logger.warning(f"Product {asin} blocked by Amazon: {e}")
+            blocked_asins.append(asin)
+            products_collection.update_one(
+                {"asin": asin},
+                {"$set": {"availability": "Bloccato da Amazon", "updated_at": datetime.now()}}
+            )
+            continue
         except Exception as e:
             logger.error(f"Error updating product {asin}: {e}")
+            failed_asins.append(asin)
             continue
+
+    end_time = datetime.now()
+    duration = end_time - start_time
+    
+    # Invia report all'admin
+    admin_email = settings.get("admin_report_email") if settings else None
+    if not admin_email:
+        admin_email = os.getenv("SENDER_EMAIL")
+    
+    if admin_email:
+        subject = f"📊 Report Aggiornamento Prezzi - {end_time.strftime('%d/%m/%Y %H:%M')}"
+        body = (
+            f"Il job di aggiornamento prezzi è terminato.\n\n"
+            f"Riepilogo:\n"
+            f"-----------------------------------\n"
+            f"Totale prodotti: {len(asins_to_update)}\n"
+            f"Aggiornati con successo: {len(updated_products)}\n"
+            f"Bloccati da Amazon (saltati): {len(blocked_asins)}\n"
+            f"Falliti (errori tecnici): {len(failed_asins)}\n"
+            f"Durata: {duration}\n"
+            f"-----------------------------------\n\n"
+            f"Dettagli prodotti bloccati:\n"
+            f"{', '.join(blocked_asins) if blocked_asins else 'Nessuno'}\n\n"
+            f"Dettagli errori tecnici:\n"
+            f"{', '.join(failed_asins) if failed_asins else 'Nessuno'}"
+        )
+        try:
+            send_email(admin_email, subject, body)
+            logger.info(f"Admin report email sent to {admin_email}")
+        except Exception as e:
+            logger.error(f"Failed to send admin report email: {e}")
 
     logger.info("Finished updating products.")
     return updated_products
