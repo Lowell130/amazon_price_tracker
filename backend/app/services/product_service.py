@@ -13,6 +13,9 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
     products_collection = get_products_collection()
     settings_collection = users_collection.database["settings"]
     
+    # Determina se si tratta di un aggiornamento globale (senza filtri)
+    is_global_update = not user_filter and not asin_filter
+    
     # Recupera configurazioni
     settings = settings_collection.find_one({"type": "scraper_config"})
     scraper_mode = settings.get("mode", "classic") if settings else "classic"
@@ -180,7 +183,7 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
     if not admin_email:
         admin_email = os.getenv("SENDER_EMAIL")
     
-    if admin_email:
+    if is_global_update and admin_email:
         subject = f"📊 Report Aggiornamento Prezzi - {end_time.strftime('%d/%m/%Y %H:%M')}"
         body = (
             f"Il job di aggiornamento prezzi è terminato.\n\n"
