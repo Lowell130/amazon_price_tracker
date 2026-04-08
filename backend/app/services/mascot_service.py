@@ -223,26 +223,36 @@ async def get_autonomous_action():
     mascot = db.mascot.find_one({"type": "kitten"}) or {}
     last_action = mascot.get("last_autonomous_action_time")
     
-    # Rate limit: 1 autonomous action every 6 hours
-    if last_action and (datetime.utcnow() - last_action).total_seconds() < 21600:
+    # Rate limit: 1 autonomous action every 1 hour (3600 seconds)
+    if last_action and (datetime.utcnow() - last_action).total_seconds() < 3600:
         return None
 
     ctx = await get_site_context()
+    possible_actions = []
     
-    # Priority 1: Stale Products (Price Updates)
-    if ctx["stale_products"] > 0:
-        stale_prod = db.products.find_one({"extraction_date": {"$lt": (datetime.utcnow() - timedelta(days=2)).isoformat()}})
+    # Action Type 1: Stale Products (Price Updates)
+    if ctx.get("stale_products", 0) > 0:
+        stale_prod = db.products.find_one(
+            {"extraction_date": {"$lt": (datetime.utcnow() - timedelta(days=2)).isoformat()}},
+            sort=[("extraction_date", 1)]
+        )
         if stale_prod:
-            return {"type": "update_price", "asin": stale_prod["asin"], "title": stale_prod["title"]}
+            possible_actions.append({"type": "update_price", "asin": stale_prod["asin"], "title": stale_prod["title"]})
 
-    # Priority 2: Missing Articles
-    if ctx["total_products"] > 0:
+    # Action Type 2: Missing Articles
+    if ctx.get("total_products", 0) > 0:
         # Simple check: find a product that doesn't have a corresponding article
         all_asins = [p["asin"] for p in db.products.find({}, {"asin": 1}).limit(50)]
         for asin in all_asins:
             if not db.articles.find_one({"$or": [{"asin": asin}, {"asins": asin}]}):
                 prod = db.products.find_one({"asin": asin})
-                return {"type": "generate_article", "asin": asin, "title": prod["title"]}
+                if prod:
+                    possible_actions.append({"type": "generate_article", "asin": asin, "title": prod["title"]})
+                    break # Just take the first one found
+
+    if possible_actions:
+        import random
+        return random.choice(possible_actions)
 
     return None
 

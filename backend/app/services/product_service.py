@@ -145,7 +145,8 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
                 "coupon_value": updated_data.get("coupon_value"),
                 "max_price": float(max_price_entry["price"]),
                 "min_price": float(min_price_entry["price"]),
-                "average_price": round(sum(float(entry["price"]) for entry in price_history) / len(price_history), 2)
+                "average_price": round(sum(float(entry["price"]) for entry in price_history) / len(price_history), 2),
+                "extraction_date": datetime.now().isoformat()
             }
             
             products_collection.update_one({"asin": asin}, {"$set": update_fields})

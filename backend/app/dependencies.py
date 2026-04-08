@@ -41,7 +41,15 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
 def admin_required(current_user: str = Depends(get_current_user), users_collection = Depends(get_users_collection)):
     user = users_collection.find_one({"username": current_user})
-    if not user or not user.get("admin", False):
+    is_admin = False
+    if user:
+        admin_val = user.get("admin", False)
+        if isinstance(admin_val, bool):
+            is_admin = admin_val
+        elif isinstance(admin_val, str):
+            is_admin = admin_val.lower() == "true"
+            
+    if not is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Administrator privileges required"

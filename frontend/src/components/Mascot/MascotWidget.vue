@@ -421,6 +421,10 @@ export default {
           console.log("%c [Pricey] Session expired or unauthorized. Hiding.", "color: #ef4444;");
         } else {
           console.error("Error fetching mascot:", error);
+          if (!this.mascot) {
+             // Fallback state so it doesn't stay null
+             this.mascot = { mood: 'sleepy', level: 1, xp: 0, next_level_xp: 100, name: 'Pricey' };
+          }
         }
       }
     },
