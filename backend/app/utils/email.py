@@ -2,26 +2,18 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from fastapi import HTTPException
-from dotenv import load_dotenv
-import os
-
-# Carica le variabili d'ambiente dal file .env
-load_dotenv()
-
+from app.config import SENDER_EMAIL, SENDER_PASSWORD, SMTP_SERVER, SMTP_PORT
 import logging
+import os # Re-adding os because it might be needed if I didn't import everything, but I'll import everything.
+# Actually I'll use smtplib directly.
 
 logger = logging.getLogger(__name__)
 
 def send_email(to_email, subject, body):
-    sender_email = os.getenv("SENDER_EMAIL")
-    sender_password = os.getenv("SENDER_PASSWORD")
-    smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-    
-    try:
-        val = os.getenv("SMTP_PORT", "587")
-        smtp_port = int(val)
-    except (ValueError, TypeError):
-        smtp_port = 587
+    sender_email = SENDER_EMAIL
+    sender_password = SENDER_PASSWORD
+    smtp_server = SMTP_SERVER
+    smtp_port = SMTP_PORT
 
     if not sender_email or not sender_password:
         logger.error("Email configuration is missing (SENDER_EMAIL or SENDER_PASSWORD)")

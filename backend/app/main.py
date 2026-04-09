@@ -6,11 +6,6 @@ from app.config import BASE_URL
 from datetime import datetime
 import os
 import logging
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
-
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
