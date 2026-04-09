@@ -49,6 +49,9 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
     updated_products = []
     blocked_asins = []
     failed_asins = []
+    
+    # Raggruppa le email da inviare agli utenti alla fine del processo
+    user_email_drops = {}
 
     start_time = datetime.now()
 
@@ -104,14 +107,17 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
                         connector = "&" if "?" in product_url else "?"
                         final_affiliate_url = f"{product_url}{connector}tag={current_tag}"
                     
-                    subject = f"📉 Calo Prezzo: {global_product.get('title', 'Prodotto Amazon')[:50]}..."
-                    body = (
-                        f"Il prezzo di '{global_product.get('title')}' è sceso!\n\n"
-                        f"Prezzo Precedente: {old_price}€\n"
-                        f"Nuovo Prezzo: {new_price}€\n\n"
-                        f"Vedi l'offerta su Amazon: {final_affiliate_url}"
-                    )
-                    send_email(u.get("email"), subject, body)
+                    # Salva il calo di prezzo nel dizionario per inviarlo dopo in un'unica email
+                    user_email = u.get("email")
+                    if user_email:
+                        if user_email not in user_email_drops:
+                            user_email_drops[user_email] = []
+                        user_email_drops[user_email].append({
+                            "title": global_product.get('title', 'Prodotto Amazon'),
+                            "old_price": old_price,
+                            "new_price": new_price,
+                            "url": final_affiliate_url
+                        })
                     
                     # Notifica Telegram se configurato
                     if u.get("telegram_chat_id"):
@@ -178,6 +184,25 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
     end_time = datetime.now()
     duration = end_time - start_time
     
+    # Invia le email raggruppate agli utenti per i cali di prezzo preferiti
+    for user_email, drops in user_email_drops.items():
+        if not drops:
+            continue
+        subject = f"📉 Report Cali di Prezzo - {len(drops)} prodotti aggiornati"
+        body = "Ecco i cali di prezzo registrati per i tuoi prodotti preferiti:\n\n"
+        for drop in drops:
+            body += (
+                f"🔸 {drop['title']}\n"
+                f"   Prezzo Precedente: {drop['old_price']}€\n"
+                f"   Nuovo Prezzo: {drop['new_price']}€\n"
+                f"   Vedi l'offerta: {drop['url']}\n\n"
+            )
+        try:
+            send_email(user_email, subject, body)
+            logger.info(f"Grouped price drop email sent to {user_email} with {len(drops)} items.")
+        except Exception as e:
+            logger.error(f"Failed to send grouped price drop email to {user_email}: {e}")
+
     # Invia report all'admin
     admin_email = settings.get("admin_report_email") if settings else None
     if not admin_email:
