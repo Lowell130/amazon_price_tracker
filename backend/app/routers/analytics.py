@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, HTTPException
 from fastapi.responses import RedirectResponse
 from app.db import get_db
 from app.config import AFFILIATE_TAG
@@ -46,18 +46,26 @@ async def record_visit(request: Request):
     return {"status": "ok", "is_bot": is_bot}
 
 @router.get("/r/{asin}")
-async def affiliate_redirect(asin: str, ref: Optional[str] = Query(None)):
-    """Logs an affiliate click and redirects to Amazon."""
+async def affiliate_redirect(request: Request, asin: str, ref: Optional[str] = Query(None)):
+    """Logs an affiliate click and redirects to Amazon, blocking bots."""
     db = get_db()
+    
+    user_agent = request.headers.get("user-agent", "")
+    is_bot = is_bot_user_agent(user_agent)
     
     click_doc = {
         "type": "click",
         "asin": asin,
         "referrer_on_click": ref,
+        "user_agent": user_agent,
+        "is_bot": is_bot,
         "timestamp": datetime.utcnow()
     }
     
     db.analytics.insert_one(click_doc)
+    
+    if is_bot:
+        raise HTTPException(status_code=403, detail="Bot traffic is not permitted for affiliate redirects")
     
     # Construct Amazon link with affiliate tag
     amazon_url = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"
@@ -80,7 +88,11 @@ async def get_analytics_stats(
     total_visits = db.analytics.count_documents(visit_filter)
     
     # 2. Total Clicks
-    total_clicks = db.analytics.count_documents({"type": "click"})
+    click_filter = {"type": "click"}
+    if not include_bots:
+        click_filter["is_bot"] = {"$ne": True}
+        
+    total_clicks = db.analytics.count_documents(click_filter)
     
     # 3. Top Referrers (Visits) with details
     pipeline_referrers = [
@@ -132,7 +144,7 @@ async def get_analytics_stats(
     
     # 6. Top Clicked Products
     pipeline_products = [
-        {"$match": {"type": "click"}},
+        {"$match": click_filter},
         {"$group": {"_id": "$asin", "count": {"$sum": 1}}},
         {"$sort": {"count": -1}},
         {"$limit": 10}
