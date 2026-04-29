@@ -42,7 +42,10 @@ async def record_visit(request: Request):
         "timestamp": datetime.utcnow()
     }
     
-    db.analytics.insert_one(visit_doc)
+    # Non salviamo le visite dei BOT per non saturare lo spazio del DB
+    if not is_bot:
+        db.analytics.insert_one(visit_doc)
+        
     return {"status": "ok", "is_bot": is_bot}
 
 @router.get("/r/{asin}")
@@ -62,10 +65,11 @@ async def affiliate_redirect(request: Request, asin: str, ref: Optional[str] = Q
         "timestamp": datetime.utcnow()
     }
     
-    db.analytics.insert_one(click_doc)
-    
     if is_bot:
         raise HTTPException(status_code=403, detail="Bot traffic is not permitted for affiliate redirects")
+        
+    # Salviamo solo se non è un bot
+    db.analytics.insert_one(click_doc)
     
     # Construct Amazon link with affiliate tag
     amazon_url = f"https://www.amazon.it/gp/product/{asin}/?tag={AFFILIATE_TAG}"

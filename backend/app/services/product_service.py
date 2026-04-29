@@ -148,6 +148,10 @@ def update_prices(users_collection, user_filter=None, asin_filter=None):
             price_history = global_product.get("price_history", [])
             price_history.append({"date": datetime.now().isoformat(), "price": new_price})
             
+            # Manteniamo solo gli ultimi 60 prezzi (circa 1 mese se aggiornato 2 volte al giorno) per evitare esplosione dello storage
+            if len(price_history) > 60:
+                price_history = price_history[-60:]
+            
             max_price_entry = max(price_history, key=lambda x: float(x["price"]))
             min_price_entry = min(price_history, key=lambda x: float(x["price"]))
             
